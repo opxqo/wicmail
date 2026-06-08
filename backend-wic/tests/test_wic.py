@@ -24,10 +24,12 @@ class TestHealth:
 # 认证测试
 # ============================================================
 class TestAuth:
-    def _register(self, username=None, password="testpass123"):
+    def _register(self, username=None, student_id=None, password="testpass123"):
         username = username or f"user_{uid()}"
+        student_id = student_id or f"SID{uid().upper()}"
         return client.post("/api/auth/register", json={
             "username": username,
+            "student_id": student_id,
             "password": password,
         }), username
 
@@ -44,10 +46,28 @@ class TestAuth:
         assert data["username"] == name
         assert data["is_admin"] is False
 
+    def test_register_requires_student_id(self):
+        """注册必须提供学号"""
+        resp = client.post("/api/auth/register", json={
+            "username": f"u_{uid()}",
+            "password": "password123",
+        })
+        assert resp.status_code == 422
+
     def test_register_duplicate_username(self):
         resp, name = self._register()
         resp2, _ = self._register(username=name)
         assert resp2.status_code == 400
+
+    def test_register_duplicate_student_id(self):
+        sid = f"DUP{uid().upper()}"
+        self._register(student_id=sid)
+        resp2, _ = self._register(student_id=sid)
+        assert resp2.status_code == 400
+
+    def test_register_invalid_username(self):
+        resp, _ = self._register(username="BAD USER!")
+        assert resp.status_code == 422
 
     def test_register_short_password(self):
         resp, _ = self._register(password="12345")
@@ -77,20 +97,111 @@ class TestAuth:
 
 
 # ============================================================
-# 邮箱申请测试
+# 个人资料测试
 # ============================================================
-class TestMailbox:
-    def _get_token(self):
-        name = f"mb_{uid()}"
-        client.post("/api/auth/register", json={"username": name, "password": "password123"})
+class TestProfile:
+    def _register_and_login(self):
+        name = f"prof_{uid()}"
+        sid = f"PROF{uid().upper()}"
+        client.post("/api/auth/register", json={
+            "username": name, "student_id": sid, "password": "password123",
+        })
         resp = client.post("/api/auth/login", json={"username": name, "password": "password123"})
         return resp.json()["access_token"]
 
     def _auth(self, token):
         return {"Authorization": f"Bearer {token}"}
 
+    def test_profile_incomplete_after_register(self):
+        """注册后资料不完整"""
+        token = self._register_and_login()
+        resp = client.get("/api/auth/profile", headers=self._auth(token))
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["profile_complete"] is False
+        assert len(data["missing_fields"]) > 0
+
+    def test_profile_update_single_field(self):
+        """单字段更新"""
+        token = self._register_and_login()
+        resp = client.patch("/api/auth/profile",
+            json={"real_name": "张三"}, headers=self._auth(token))
+        assert resp.status_code == 200
+        assert resp.json()["real_name"] == "张三"
+
+    def test_profile_update_multiple_fields(self):
+        """多字段更新"""
+        token = self._register_and_login()
+        resp = client.patch("/api/auth/profile",
+            json={
+                "email": f"{uid()}@test.com",
+                "real_name": "李四",
+                "department": "计算机学部",
+                "major": "软件工程",
+                "class_name": "软工2301",
+                "grade": "2023",
+            },
+            headers=self._auth(token),
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["profile_complete"] is True
+        assert len(data["missing_fields"]) == 0
+
+    def test_profile_no_update_fields(self):
+        """不传任何字段应报错"""
+        token = self._register_and_login()
+        resp = client.patch("/api/auth/profile", json={}, headers=self._auth(token))
+        assert resp.status_code == 400
+
+    def test_profile_invalid_email(self):
+        token = self._register_and_login()
+        resp = client.patch("/api/auth/profile",
+            json={"email": "not-an-email"}, headers=self._auth(token))
+        assert resp.status_code == 422
+
+
+# ============================================================
+# 邮箱申请测试
+# ============================================================
+class TestMailbox:
+    def _get_token(self, complete_profile=False):
+        name = f"mb_{uid()}"
+        sid = f"MB{uid().upper()}"
+        client.post("/api/auth/register", json={
+            "username": name, "student_id": sid, "password": "password123",
+        })
+        resp = client.post("/api/auth/login", json={"username": name, "password": "password123"})
+        token = resp.json()["access_token"]
+
+        if complete_profile:
+            client.patch("/api/auth/profile", json={
+                "email": f"{uid()}@test.com",
+                "real_name": "测试用户",
+                "department": "计算机学部",
+                "major": "软件工程",
+                "class_name": "软工2301",
+                "grade": "2023",
+            }, headers={"Authorization": f"Bearer {token}"})
+
+        return token
+
+    def _auth(self, token):
+        return {"Authorization": f"Bearer {token}"}
+
+    def test_apply_incomplete_profile_rejected(self):
+        """资料不完整不能申请邮箱"""
+        token = self._get_token(complete_profile=False)
+        resp = client.post(
+            "/api/mailbox/apply",
+            json={"prefix": f"test{uid()}"},
+            headers=self._auth(token),
+        )
+        assert resp.status_code == 400
+        assert "完善个人资料" in resp.json()["detail"]
+
     def test_apply_mailbox(self):
-        token = self._get_token()
+        token = self._get_token(complete_profile=True)
         prefix = f"test{uid()}"
         resp = client.post(
             "/api/mailbox/apply",
@@ -103,19 +214,19 @@ class TestMailbox:
         assert data["status"] == "pending"
 
     def test_apply_duplicate_address(self):
-        token = self._get_token()
+        token = self._get_token(complete_profile=True)
         prefix = f"dup{uid()}"
         client.post("/api/mailbox/apply", json={"prefix": prefix}, headers=self._auth(token))
         resp = client.post("/api/mailbox/apply", json={"prefix": prefix}, headers=self._auth(token))
         assert resp.status_code == 400
 
     def test_apply_invalid_prefix(self):
-        token = self._get_token()
+        token = self._get_token(complete_profile=True)
         resp = client.post("/api/mailbox/apply", json={"prefix": ".bad"}, headers=self._auth(token))
         assert resp.status_code == 400
 
     def test_list_applications(self):
-        token = self._get_token()
+        token = self._get_token(complete_profile=True)
         client.post("/api/mailbox/apply", json={"prefix": f"list{uid()}"}, headers=self._auth(token))
         resp = client.get("/api/mailbox/applications", headers=self._auth(token))
         assert resp.status_code == 200
@@ -132,7 +243,10 @@ class TestMailbox:
 class TestEmails:
     def _get_user_token(self):
         name = f"em_{uid()}"
-        client.post("/api/auth/register", json={"username": name, "password": "password123"})
+        sid = f"EM{uid().upper()}"
+        client.post("/api/auth/register", json={
+            "username": name, "student_id": sid, "password": "password123",
+        })
         resp = client.post("/api/auth/login", json={"username": name, "password": "password123"})
         return resp.json()["access_token"]
 
@@ -161,6 +275,17 @@ class TestAdmin:
     def _auth(self, token):
         return {"Authorization": f"Bearer {token}"}
 
+    def _complete_profile(self, token):
+        """辅助方法：为用户补全资料"""
+        client.patch("/api/auth/profile", json={
+            "email": f"{uid()}@test.com",
+            "real_name": "测试用户",
+            "department": "计算机学部",
+            "major": "软件工程",
+            "class_name": "软工2301",
+            "grade": "2023",
+        }, headers={"Authorization": f"Bearer {token}"})
+
     def test_admin_list_applications(self):
         token = self._get_admin_token()
         resp = client.get("/api/admin/applications", headers=self._auth(token))
@@ -174,23 +299,33 @@ class TestAdmin:
 
     def test_non_admin_forbidden(self):
         name = f"noadm_{uid()}"
-        client.post("/api/auth/register", json={"username": name, "password": "password123"})
+        sid = f"NA{uid().upper()}"
+        client.post("/api/auth/register", json={
+            "username": name, "student_id": sid, "password": "password123",
+        })
         resp = client.post("/api/auth/login", json={"username": name, "password": "password123"})
         token = resp.json()["access_token"]
         resp = client.get("/api/admin/users", headers=self._auth(token))
         assert resp.status_code == 403
 
     def test_admin_approve_flow(self):
-        """完整流程：用户申请 → 管理员批准 → 用户看到邮箱"""
+        """完整流程：用户注册 → 补全资料 → 申请邮箱 → 管理员批准 → 用户看到邮箱"""
         prefix = f"flow{uid()}"
 
-        # 用户注册 + 登录 + 申请
+        # 用户注册 + 登录
         name = f"flow_{uid()}"
-        client.post("/api/auth/register", json={"username": name, "password": "password123"})
+        sid = f"FL{uid().upper()}"
+        client.post("/api/auth/register", json={
+            "username": name, "student_id": sid, "password": "password123",
+        })
         resp = client.post("/api/auth/login", json={"username": name, "password": "password123"})
         user_token = resp.json()["access_token"]
         user_auth = {"Authorization": f"Bearer {user_token}"}
 
+        # 补全资料
+        self._complete_profile(user_token)
+
+        # 申请邮箱
         client.post("/api/mailbox/apply", json={"prefix": prefix}, headers=user_auth)
 
         # 管理员批准

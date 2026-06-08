@@ -1,4 +1,6 @@
 """用户模型 - 后台认证"""
+from __future__ import annotations
+
 from datetime import datetime
 from typing import Optional, List
 
@@ -14,8 +16,14 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     username: Mapped[str] = mapped_column(String(100), unique=True, nullable=False, index=True)
+    student_id: Mapped[Optional[str]] = mapped_column(String(20), unique=True, nullable=True, index=True)
     email: Mapped[Optional[str]] = mapped_column(String(255), unique=True, nullable=True)
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
+    real_name: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    department: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    major: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    class_name: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    grade: Mapped[Optional[str]] = mapped_column(String(10), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)

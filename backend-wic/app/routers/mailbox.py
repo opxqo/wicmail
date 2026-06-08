@@ -31,6 +31,14 @@ async def apply_mailbox(
     current_user: User = Depends(get_current_user),
 ):
     """申请邮箱"""
+    # 校验资料是否完整
+    if not current_user.profile_complete:
+        missing = current_user.get_missing_fields()
+        raise HTTPException(
+            status_code=400,
+            detail=f"请先完善个人资料，缺少：{', '.join(missing)}",
+        )
+
     prefix = req.prefix.lower().strip()
 
     # 校验前缀格式
