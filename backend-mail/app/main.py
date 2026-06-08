@@ -13,19 +13,19 @@ from app.routers import inbound, emails, auth
 async def ensure_default_admin():
     """启动时确保默认管理员存在"""
     async with async_session_factory() as session:
-        result = await session.execute(select(User).where(User.username == "admin"))
+        result = await session.execute(select(User).where(User.username == settings.default_admin_username))
         user = result.scalar_one_or_none()
         if user is None:
             admin = User(
-                username="admin",
+                username=settings.default_admin_username,
                 email=None,
                 is_active=True,
                 is_admin=True,
             )
-            admin.set_password("admin123456")
+            admin.set_password(settings.default_admin_password)
             session.add(admin)
             await session.commit()
-            print("✅ 已创建默认管理员账号: admin / admin123456")
+            print(f"✅ 已创建默认管理员账号: {settings.default_admin_username}")
 
 
 @asynccontextmanager

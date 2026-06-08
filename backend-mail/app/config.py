@@ -13,6 +13,10 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 1440  # 24 小时
 
+    # 默认管理员（首次启动时自动创建）
+    default_admin_username: str = "admin"
+    default_admin_password: str = "admin123456"
+
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}
 
 
