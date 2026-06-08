@@ -1,0 +1,28 @@
+{
+  "source": "cloudflare-email-worker",
+  "worker_version": "1.0.0",
+  "request_id": "test-request-id-001",
+  "envelope_from": "test@example.com",
+  "envelope_to": "user@wic.edu.kg",
+  "header_from": "Test Sender <test@example.com>",
+  "header_to": "user@wic.edu.kg",
+  "header_cc": "",
+  "header_reply_to": "",
+  "subject": "Test Email Subject",
+  "message_id": "<test-msg-id-001@example.com>",
+  "date": "Mon, 8 Jun 2026 10:00:00 +0800",
+  "headers": {
+    "content-type": "multipart/alternative",
+    "date": "Mon, 8 Jun 2026 10:00:00 +0800",
+    "from": "Test Sender <test@example.com>",
+    "message-id": "<test-msg-id-001@example.com>",
+    "subject": "Test Email Subject",
+    "to": "user@wic.edu.kg"
+  },
+  "raw_size": 746,
+  "raw": "Q29udGVudC1UeXBlOiBtdWx0aXBhcnQvYWx0ZXJuYXRpdmU7CiBib3VuZGFyeT0iPT09PT09PT09PT09PT09MDU5OTIyODUzOTUyMzAwOTczND09IgpNSU1FLVZlcnNpb246IDEuMApGcm9tOiBUZXN0IFNlbmRlciA8dGVzdEBleGFtcGxlLmNvbT4KVG86IHVzZXJAd2ljLmVkdS5rZwpTdWJqZWN0OiBUZXN0IEVtYWlsIFN1YmplY3QKTWVzc2FnZS1JRDogPHRlc3QtbXNnLWlkLTAwMUBleGFtcGxlLmNvbT4KRGF0ZTogTW9uLCA4IEp1biAyMDI2IDEwOjAwOjAwICswODAwCgotLT09PT09PT09PT09PT09PTA1OTkyMjg1Mzk1MjMwMDk3MzQ9PQpDb250ZW50LVR5cGU6IHRleHQvcGxhaW47IGNoYXJzZXQ9InV0Zi04IgpNSU1FLVZlcnNpb246IDEuMApDb250ZW50LVRyYW5zZmVyLUVuY29kaW5nOiBiYXNlNjQKClNHVnNiRzhzSUhSb2FYTWdhWE1nWVNCMFpYTjBJR1Z0WVdsc0lIQnNZV2x1SUhSbGVIUWdZbTlrZVM0PQoKLS09PT09PT09PT09PT09PT0wNTk5MjI4NTM5NTIzMDA5NzM0PT0KQ29udGVudC1UeXBlOiB0ZXh0L2h0bWw7IGNoYXJzZXQ9InV0Zi04IgpNSU1FLVZlcnNpb246IDEuMApDb250ZW50LVRyYW5zZmVyLUVuY29kaW5nOiBiYXNlNjQKClBHaDBiV3crUEdKdlpIaytQR2d4UGtobGJHeHZQQzlvTVQ0OGNENVVhR2x6SUdseklHRWdkR1Z6ZENCbGJXRnBiQ0JJVkUxTUlHSnYKWkhrdVBDOXdQand2WW05a2VUNDhMMmgwYld3KwoKLS09PT09PT09PT09PT09PT0wNTk5MjI4NTM5NTIzMDA5NzM0PT0tLQo=",
+  "raw_encoding": "base64",
+  "raw_sha256": "abc123def456",
+  "raw_too_large": false,
+  "received_at": "2026-06-08T02:00:00.000Z"
+}
