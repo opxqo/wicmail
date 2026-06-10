@@ -27,3 +27,5 @@ node_modules/
 
 # Claude
 .claude/
+frontend-eg/
+.DS_Store

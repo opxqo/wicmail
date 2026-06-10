@@ -14,6 +14,8 @@
     :theme="appStore.isDark ? darkTheme : undefined"
     :theme-overrides="appStore.naiveThemeOverrides"
   >
+    <LoadingScreen v-if="showLoadingScreen" @finished="showLoadingScreen = false" />
+
     <router-view v-if="Layout" v-slot="{ Component, route: curRoute }">
       <component :is="Layout">
         <transition name="fade-slide" mode="out-in" appear>
@@ -31,9 +33,11 @@
 <script setup>
 import { darkTheme, dateZhCN, zhCN } from 'naive-ui'
 import { LayoutSetting } from '@/components'
+import LoadingScreen from '@/components/common/LoadingScreen.vue'
 import { useAppStore, useTabStore } from '@/store'
 import { layoutSettingVisible } from './settings'
 
+const showLoadingScreen = ref(true)
 const layouts = new Map()
 function getLayout(name) {
   // 利用map将加载过的layout缓存起来，防止重新加载layout导致页面闪烁
