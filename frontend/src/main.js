@@ -1,20 +1,31 @@
+/**********************************
+ * @Description: 入口文件
+ * @FilePath: main.js
+ * @Author: Ronnie Zhang
+ * @LastEditor: Ronnie Zhang
+ * @LastEditTime: 2023/12/04 22:41:32
+ * @Email: zclzone@outlook.com
+ * Copyright © 2023 Ronnie Zhang(大脸怪) | https://isme.top
+ **********************************/
+
 import { createApp } from 'vue'
-import { createPinia } from 'pinia'
-import ElementPlus from 'element-plus'
-import 'element-plus/dist/index.css'
-import * as ElementPlusIconsVue from '@element-plus/icons-vue'
-
 import App from './App.vue'
-import router from './router'
-import './styles/global.css'
+import { setupDirectives } from './directives'
 
-const app = createApp(App)
+import { setupRouter } from './router'
+import { setupStore } from './store'
+import { setupNaiveDiscreteApi } from './utils'
+import '@/styles/reset.css'
+import '@/styles/global.css'
+import 'uno.css'
 
-for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
-  app.component(key, component)
+async function bootstrap() {
+  const app = createApp(App)
+  setupStore(app)
+  setupDirectives(app)
+  await setupRouter(app)
+  app.mount('#app')
+  setupNaiveDiscreteApi()
 }
 
-app.use(createPinia())
-app.use(router)
-app.use(ElementPlus)
-app.mount('#app')
+bootstrap()

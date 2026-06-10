@@ -1,86 +1,25 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
+/**********************************
+ * @Author: Ronnie Zhang
+ * @LastEditor: Ronnie Zhang
+ * @LastEditTime: 2023/12/05 21:25:23
+ * @Email: zclzone@outlook.com
+ * Copyright © 2023 Ronnie Zhang(大脸怪) | https://isme.top
+ **********************************/
 
-const routes = [
-  {
-    path: '/',
-    name: 'landing',
-    component: () => import('@/views/LandingView.vue'),
-  },
-  {
-    path: '/login',
-    name: 'login',
-    component: () => import('@/views/LoginView.vue'),
-    meta: { guestOnly: true },
-  },
-  {
-    path: '/register',
-    name: 'register',
-    component: () => import('@/views/RegisterView.vue'),
-    meta: { guestOnly: true },
-  },
-  {
-    path: '/app',
-    component: () => import('@/layouts/AppLayout.vue'),
-    meta: { requiresAuth: true },
-    children: [
-      {
-        path: '',
-        name: 'dashboard',
-        component: () => import('@/views/DashboardView.vue'),
-      },
-      {
-        path: 'mailboxes',
-        name: 'mailboxes',
-        component: () => import('@/views/MailboxView.vue'),
-      },
-      {
-        path: 'emails',
-        name: 'emails',
-        component: () => import('@/views/EmailsView.vue'),
-      },
-      {
-        path: 'admin',
-        name: 'admin',
-        component: () => import('@/views/AdminView.vue'),
-        meta: { requiresAdmin: true },
-      },
-    ],
-  },
-  {
-    path: '/:pathMatch(.*)*',
-    redirect: '/',
-  },
-]
+import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router'
+import { basicRoutes } from './basic-routes'
+import { setupRouterGuards } from './guards'
 
-const router = createRouter({
-  history: createWebHistory(),
-  routes,
-  scrollBehavior() {
-    return { top: 0 }
-  },
+export const router = createRouter({
+  history:
+    import.meta.env.VITE_USE_HASH === 'true'
+      ? createWebHashHistory(import.meta.env.VITE_PUBLIC_PATH || '/')
+      : createWebHistory(import.meta.env.VITE_PUBLIC_PATH || '/'),
+  routes: basicRoutes,
+  scrollBehavior: () => ({ left: 0, top: 0 }),
 })
 
-router.beforeEach(async (to) => {
-  const auth = useAuthStore()
-
-  if (auth.token && !auth.user && !auth.initialized) {
-    await auth.fetchMe()
-  }
-
-  if (to.meta.requiresAuth && !auth.isAuthenticated) {
-    return { name: 'login', query: { redirect: to.fullPath } }
-  }
-
-  if (to.meta.requiresAdmin && !auth.isAdmin) {
-    return { name: 'dashboard' }
-  }
-
-  if (to.meta.guestOnly && auth.isAuthenticated) {
-    return { name: 'dashboard' }
-  }
-
-  return true
-})
-
-export default router
+export async function setupRouter(app) {
+  app.use(router)
+  setupRouterGuards(router)
+}
