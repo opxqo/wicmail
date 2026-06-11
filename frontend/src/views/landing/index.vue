@@ -1437,6 +1437,8 @@ function runTourStep() {
 
   switch (tourStep.value) {
     case 0: // Reset: Move to Dashboard menu tab
+      demoDrawerOpen.value = false
+      demoDialogOpen.value = false
       alignCursorTo('.tour-nav-dashboard', 12, 16)
       setTimeout(() => {
         if (!tourActive.value)
@@ -1669,6 +1671,7 @@ function openTab(key, title, keepFilter = false) {
   demoActiveNav.value = key
   demoActiveTab.value = key
   demoSelectedEmail.value = null
+  demoDrawerOpen.value = false
   if (!keepFilter) {
     demoEmailFilterAddress.value = ''
   }
