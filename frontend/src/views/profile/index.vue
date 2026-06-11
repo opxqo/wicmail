@@ -3,9 +3,20 @@
     <!-- 用户概览卡片 -->
     <n-card>
       <div class="flex items-center gap-24">
-        <n-avatar round :size="72" class="flex-shrink-0 bg-primary/10 text-28 text-primary">
-          {{ (userStore.nickName ?? userStore.username)?.charAt(0) }}
-        </n-avatar>
+        <div class="relative flex-shrink-0">
+          <n-avatar round :size="72" :src="profile?.avatar_url" class="bg-primary/10 text-28 text-primary">
+            {{ (userStore.nickName ?? userStore.username)?.charAt(0) }}
+          </n-avatar>
+          <n-button
+            size="tiny"
+            circle
+            type="primary"
+            class="absolute z-1 shadow-sm -bottom-2 -right-2"
+            @click="openAvatarEditor"
+          >
+            <i class="i-fe:camera text-12" />
+          </n-button>
+        </div>
         <div class="flex-1">
           <div class="flex items-center gap-12">
             <span class="text-20 font-bold">{{ profile?.real_name || userStore.username }}</span>
@@ -114,6 +125,30 @@
         </n-form-item>
       </n-form>
     </MeModal>
+
+    <!-- 头像编辑器弹窗 -->
+    <n-modal
+      v-model:show="avatarModalVisible"
+      preset="card"
+      title="自定义头像"
+      style="max-width: 640px;"
+      :mask-closable="false"
+    >
+      <AvatarEditor
+        v-model="avatarUrl"
+        :username="userStore.username"
+      />
+      <template #footer>
+        <div class="flex justify-end gap-8">
+          <n-button @click="avatarModalVisible = false">
+            取消
+          </n-button>
+          <n-button type="primary" :loading="savingAvatar" @click="saveAvatar">
+            保存头像
+          </n-button>
+        </div>
+      </template>
+    </n-modal>
   </AppPage>
 </template>
 
@@ -121,6 +156,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { getProfile, updateProfile } from '@/api/wicmail'
 import { MeModal } from '@/components'
+import AvatarEditor from '@/components/me/AvatarEditor.vue'
 import { useModal } from '@/composables'
 import { useUserStore } from '@/store'
 import { getUserInfo } from '@/store/helper'
@@ -129,6 +165,11 @@ const userStore = useUserStore()
 const profile = ref(null)
 const [editModalRef] = useModal()
 const editFormRef = ref(null)
+
+// 头像编辑器
+const avatarModalVisible = ref(false)
+const avatarUrl = ref('')
+const savingAvatar = ref(false)
 
 const editForm = ref({
   email: '',
@@ -182,6 +223,31 @@ async function loadProfile() {
   }
   catch (err) {
     console.error('加载个人资料失败:', err)
+  }
+}
+
+function openAvatarEditor() {
+  avatarUrl.value = profile.value?.avatar_url || ''
+  avatarModalVisible.value = true
+}
+
+async function saveAvatar() {
+  if (!avatarUrl.value) {
+    $message.warning('请选择头像')
+    return
+  }
+  savingAvatar.value = true
+  try {
+    await updateProfile({ avatar_url: avatarUrl.value })
+    $message.success('头像已更新')
+    avatarModalVisible.value = false
+    await loadProfile()
+  }
+  catch (err) {
+    $message.error(err.message || '保存失败')
+  }
+  finally {
+    savingAvatar.value = false
   }
 }
 

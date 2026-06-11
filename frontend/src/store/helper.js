@@ -18,7 +18,12 @@ export async function getUserInfo() {
   }
 }
 
-export async function getPermissions() {
-  // 使用静态菜单配置，无需从后端获取
-  return cloneDeep(basePermissions)
+export async function getPermissions(user) {
+  const perms = cloneDeep(basePermissions)
+  // 非管理员用户隐藏管理后台菜单
+  const isAdmin = user?.roles?.some(r => r.code === 'admin')
+  if (!isAdmin) {
+    return perms.filter(p => p.code !== 'AdminPanel')
+  }
+  return perms
 }

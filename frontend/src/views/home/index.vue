@@ -11,7 +11,9 @@
     <div class="flex">
       <n-card class="min-w-200 w-30%">
         <div class="flex items-center">
-          <n-avatar round :size="60" :src="userStore.avatar" class="flex-shrink-0" />
+          <n-avatar round :size="60" :src="userStore.avatar" class="flex-shrink-0 bg-primary/10 text-primary">
+            {{ (userStore.nickName ?? userStore.username)?.charAt(0) }}
+          </n-avatar>
           <div class="ml-20 flex-col">
             <span class="text-20 opacity-80">
               Hello, {{ userStore.nickName ?? userStore.username }}

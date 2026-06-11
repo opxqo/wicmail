@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     app_name: str = "WicMail User Service"
     app_env: str = "development"
-    database_url: str = "mysql+asyncmy://wicmail:DkDTbD2kxEkS7BwW@175.178.102.49:3306/wicmail"
+    database_url: str = "mysql+asyncmy://root:password@localhost:3306/wicmail"
 
     # JWT（与 backend-mail 共用）
     jwt_secret_key: str = "change-me"
@@ -14,6 +14,9 @@ class Settings(BaseSettings):
 
     # 邮箱域名
     mailbox_domain: str = "wic.edu.kg"
+
+    # CORS 允许的源（逗号分隔）
+    cors_origins: str = "*"
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}
 

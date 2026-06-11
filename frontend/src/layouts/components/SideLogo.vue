@@ -8,7 +8,7 @@
 
 <template>
   <router-link class="h-60 f-c-c" to="/">
-    <img src="https://r2.wic.edu.kg/images/favicon.svg" class="h-32 w-32" alt="logo">
+    <img src="/wicmail-icon.svg" class="h-32 w-32" alt="logo">
     <h2
       v-show="!appStore.collapsed"
       class="ml-10 max-w-140 flex-shrink-0 text-16 color-primary font-bold"

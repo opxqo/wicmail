@@ -92,7 +92,7 @@ async def approve_application(
 ):
     """批准申请 → 创建邮箱"""
     result = await db.execute(
-        select(MailboxApplication).where(MailboxApplication.id == app_id)
+        select(MailboxApplication).where(MailboxApplication.id == app_id).with_for_update()
     )
     app = result.scalar_one_or_none()
     if app is None:
@@ -130,7 +130,7 @@ async def reject_application(
 ):
     """拒绝申请"""
     result = await db.execute(
-        select(MailboxApplication).where(MailboxApplication.id == app_id)
+        select(MailboxApplication).where(MailboxApplication.id == app_id).with_for_update()
     )
     app = result.scalar_one_or_none()
     if app is None:
@@ -207,14 +207,25 @@ async def delete_user(
     reviewed_result = await db.execute(
         select(MailboxApplication).where(MailboxApplication.reviewed_by == user_id)
     )
-    for app in reviewed_result.scalars().all():
-        app.reviewed_by = None
+    for reviewed_app in reviewed_result.scalars().all():
+        reviewed_app.reviewed_by = None
 
-    # 删除该用户的邮箱申请记录
+    # 停用该用户已批准的邮箱
     apps_result = await db.execute(
         select(MailboxApplication).where(MailboxApplication.user_id == user_id)
     )
-    for app in apps_result.scalars().all():
+    user_apps = apps_result.scalars().all()
+    for app in user_apps:
+        if app.mailbox_id:
+            mb_result = await db.execute(
+                select(Mailbox).where(Mailbox.id == app.mailbox_id)
+            )
+            mailbox = mb_result.scalar_one_or_none()
+            if mailbox:
+                mailbox.is_active = False
+
+    # 删除该用户的邮箱申请记录
+    for app in user_apps:
         await db.delete(app)
 
     # 删除用户

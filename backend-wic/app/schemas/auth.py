@@ -45,6 +45,7 @@ class UserResponse(BaseModel):
     username: str
     student_id: Optional[str] = None
     email: Optional[str] = None
+    avatar_url: Optional[str] = None
     real_name: Optional[str] = None
     is_active: bool
     is_admin: bool
@@ -58,6 +59,7 @@ class ProfileResponse(BaseModel):
     username: str
     student_id: Optional[str] = None
     email: Optional[str] = None
+    avatar_url: Optional[str] = None
     real_name: Optional[str] = None
     department: Optional[str] = None
     major: Optional[str] = None
@@ -74,6 +76,7 @@ class ProfileResponse(BaseModel):
 # --- 资料更新（单字段） ---
 class ProfileUpdateRequest(BaseModel):
     email: Optional[str] = None
+    avatar_url: Optional[str] = Field(None, max_length=500)
     real_name: Optional[str] = Field(None, min_length=1, max_length=50)
     department: Optional[str] = Field(None, min_length=1, max_length=100)
     major: Optional[str] = Field(None, min_length=1, max_length=100)

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 140" width="140" height="140">
+  <!-- WicMail Stacked Logo - Envelope Icon + Wordmark - Light Background -->
+  <g transform="translate(30, 16)">
+    <rect x="0" y="10" width="80" height="56" rx="6" fill="none" stroke="#059669" stroke-width="3"/>
+    <path d="M3 16 L40 42 L77 16" stroke="#059669" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="70" y="110" text-anchor="middle" font-family="'Plus Jakarta Sans', 'Inter', system-ui, sans-serif" font-size="28" fill="#0f2318">
+    <tspan font-weight="800" letter-spacing="-0.02em">Wic</tspan><tspan font-weight="500" letter-spacing="-0.01em">Mail</tspan>
+  </text>
+</svg>

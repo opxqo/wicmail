@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WicMail 默认头像库</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #f0fdf4; color: #0f2318; padding: 48px 32px; }
+    .page { max-width: 800px; margin: 0 auto; }
+    h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 6px; }
+    .desc { font-size: 14px; color: #3f5e50; margin-bottom: 32px; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
+    .cell { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 24px 12px 16px; background: #fff; border: 1px solid rgba(5,150,105,0.1); border-radius: 12px; transition: border-color 0.2s, transform 0.2s; cursor: pointer; }
+    .cell:hover { border-color: rgba(5,150,105,0.25); transform: translateY(-2px); }
+    .cell img { width: 64px; height: 64px; border-radius: 50%; }
+    .cell span { font-size: 11px; color: #7ba393; font-weight: 500; }
+    .usage { padding: 24px; background: #fff; border: 1px solid rgba(5,150,105,0.1); border-radius: 12px; }
+    .usage h2 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+    .usage code { display: block; background: #f0fdf4; padding: 12px 16px; border-radius: 8px; font-size: 13px; color: #0f2318; font-family: 'SF Mono', monospace; line-height: 1.7; white-space: pre; overflow-x: auto; }
+  </style>
+</head>
+<body>
+<div class="page">
+  <h1>WicMail 默认头像库</h1>
+  <p class="desc">12 个轻量 SVG 头像，用户注册时可选择。文件位于 <code style="display:inline;padding:2px 6px;background:#ecfdf5;border-radius:4px;">design/avatars/</code>，同时已复制到 <code style="display:inline;padding:2px 6px;background:#ecfdf5;border-radius:4px;">frontend/src/assets/avatars/</code>。</p>
+
+  <div class="grid">
+    <div class="cell"><img src="avatar-mountain.svg" alt="山峦"><span>山峦</span></div>
+    <div class="cell"><img src="avatar-sun.svg" alt="太阳"><span>太阳</span></div>
+    <div class="cell"><img src="avatar-leaf.svg" alt="树叶"><span>树叶</span></div>
+    <div class="cell"><img src="avatar-star.svg" alt="星星"><span>星星</span></div>
+    <div class="cell"><img src="avatar-cat.svg" alt="猫咪"><span>猫咪</span></div>
+    <div class="cell"><img src="avatar-fox.svg" alt="狐狸"><span>狐狸</span></div>
+    <div class="cell"><img src="avatar-owl.svg" alt="猫头鹰"><span>猫头鹰</span></div>
+    <div class="cell"><img src="avatar-cloud.svg" alt="云朵"><span>云朵</span></div>
+    <div class="cell"><img src="avatar-wave.svg" alt="海浪"><span>海浪</span></div>
+    <div class="cell"><img src="avatar-sprout.svg" alt="嫩芽"><span>嫩芽</span></div>
+    <div class="cell"><img src="avatar-moon.svg" alt="月亮"><span>月亮</span></div>
+    <div class="cell"><img src="avatar-gem.svg" alt="宝石"><span>宝石</span></div>
+  </div>
+
+  <div class="usage">
+    <h2>在 Vue 中使用</h2>
+    <code>// 导入头像
+import avatarMountain from '@/assets/avatars/avatar-mountain.svg'
+import avatarSun from '@/assets/avatars/avatar-sun.svg'
+// ...
+
+// 头像列表
+const defaultAvatars = [
+  'avatar-mountain', 'avatar-sun', 'avatar-leaf',
+  'avatar-star', 'avatar-cat', 'avatar-fox',
+  'avatar-owl', 'avatar-cloud', 'avatar-wave',
+  'avatar-sprout', 'avatar-moon', 'avatar-gem'
+]
+
+// 动态引用
+const getAvatarUrl = (name) =>
+  new URL(\`../assets/avatars/\${name}.svg\`, import.meta.url).href</code>
+  </div>
+</div>
+</body>
+</html>

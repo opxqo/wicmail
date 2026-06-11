@@ -1,0 +1,1589 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="canvas:aspect-ratio" content="16:9">
+  <title>WicMail - 校园邮箱服务</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.2/feather.min.css" rel="stylesheet">
+  <style>
+    /* ==================== Design Tokens ==================== */
+    :root {
+      --seed-primary: #31552b;
+      --seed-primary-strong: #243f20;
+      --seed-primary-light: #3d6b35;
+      --seed-accent: #9ee7a8;
+      --seed-accent-soft: #c8f0cd;
+      --seed-bg: #fbfcfa;
+      --seed-surface: #f3f6f0;
+      --seed-fg: #172216;
+      --seed-muted: #5a6b55;
+      --seed-line: rgba(49, 85, 43, 0.12);
+      --seed-radius: 12px;
+      --color-white: #ffffff;
+      --color-danger: #c0392b;
+      --color-danger-bg: rgba(220, 80, 60, 0.1);
+      --color-heart: #ef4444;
+      --color-primary-alpha-4: rgba(49, 85, 43, 0.04);
+      --color-primary-alpha-6: rgba(49, 85, 43, 0.06);
+      --color-primary-alpha-8: rgba(49, 85, 43, 0.08);
+      --color-primary-alpha-12: rgba(49, 85, 43, 0.12);
+      --color-primary-alpha-20: rgba(49, 85, 43, 0.2);
+      --color-primary-alpha-25: rgba(49, 85, 43, 0.25);
+      --color-primary-alpha-35: rgba(49, 85, 43, 0.35);
+      --color-accent-alpha-15: rgba(158, 231, 168, 0.15);
+      --color-accent-alpha-20: rgba(158, 231, 168, 0.2);
+      --color-accent-alpha-25: rgba(158, 231, 168, 0.25);
+      --color-accent-alpha-30: rgba(158, 231, 168, 0.3);
+      --color-white-alpha-8: rgba(255, 255, 255, 0.08);
+      --color-white-alpha-12: rgba(255, 255, 255, 0.12);
+      --color-white-alpha-15: rgba(255, 255, 255, 0.15);
+      --color-white-alpha-20: rgba(255, 255, 255, 0.2);
+      --color-white-alpha-50: rgba(255, 255, 255, 0.5);
+      --color-white-alpha-65: rgba(255, 255, 255, 0.65);
+      --color-white-alpha-70: rgba(255, 255, 255, 0.7);
+      --color-white-alpha-75: rgba(255, 255, 255, 0.75);
+      --color-white-alpha-85: rgba(255, 255, 255, 0.85);
+      --color-bg-nav: rgba(251, 252, 250, 0.88);
+      --radius-sm: 8px;
+      --radius-md: var(--seed-radius);
+      --radius-lg: 20px;
+      --radius-pill: 50px;
+      --shadow-sm: 0 1px 3px rgba(23, 34, 22, 0.06);
+      --shadow-md: 0 4px 16px rgba(23, 34, 22, 0.08);
+      --shadow-lg: 0 8px 32px rgba(23, 34, 22, 0.10);
+      --shadow-glow: 0 0 60px var(--color-primary-alpha-12);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      --tracking-tight: -0.03em;
+      --tracking-tighter: -0.04em;
+    }
+
+    /* ==================== Reset & Base ==================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    body {
+      font-family: var(--font);
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.6;
+      color: var(--seed-fg);
+      background: var(--seed-bg);
+      overflow-x: hidden;
+    }
+    img { max-width: 100%; display: block; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; border: none; background: none; font: inherit; }
+    details summary { cursor: pointer; }
+    ::selection { background: var(--seed-accent); color: var(--seed-primary-strong); }
+
+    /* ==================== Layout ==================== */
+    .container { max-width: 1120px; margin: 0 auto; padding: 0 32px; }
+    .section-pad { padding: 100px 0; }
+
+    /* ==================== Typography ==================== */
+    .display {
+      font-size: clamp(42px, 5.5vw, 68px);
+      font-weight: 700;
+      line-height: 1.05;
+      letter-spacing: var(--tracking-tighter);
+      color: var(--seed-fg);
+    }
+    .h2 {
+      font-size: clamp(28px, 3.5vw, 42px);
+      font-weight: 600;
+      line-height: 1.15;
+      letter-spacing: var(--tracking-tight);
+      color: var(--seed-fg);
+    }
+    .h3 {
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 1.35;
+      letter-spacing: -0.01em;
+    }
+    .body-lg {
+      font-size: 18px;
+      font-weight: 400;
+      line-height: 1.6;
+      color: var(--seed-muted);
+    }
+    .label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--seed-primary);
+    }
+
+    /* ==================== Buttons ==================== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 28px;
+      font-size: 15px;
+      font-weight: 500;
+      border-radius: var(--radius-pill);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: var(--seed-primary);
+      color: var(--color-white);
+      box-shadow: 0 2px 8px var(--color-primary-alpha-25);
+    }
+    .btn-primary:hover {
+      background: var(--seed-primary-strong);
+      box-shadow: 0 4px 16px var(--color-primary-alpha-35);
+      transform: translateY(-1px);
+    }
+    .btn-secondary {
+      background: transparent;
+      color: var(--seed-primary);
+      border: 1.5px solid var(--seed-line);
+    }
+    .btn-secondary:hover {
+      border-color: var(--seed-primary);
+      background: rgba(49, 85, 43, 0.04);
+    }
+    .btn-ghost {
+      background: var(--color-white-alpha-85);
+      color: var(--seed-primary);
+      backdrop-filter: blur(8px);
+    }
+    .btn-ghost:hover {
+      background: var(--color-white);
+      box-shadow: var(--shadow-md);
+    }
+    .btn-sm { padding: 8px 20px; font-size: 14px; }
+
+    /* ==================== Navigation ==================== */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 0 32px;
+      transition: all 0.3s ease;
+    }
+    .nav-solid {
+      background: rgba(251, 252, 250, 0.88);
+      backdrop-filter: blur(16px) saturate(180%);
+      border-bottom: 1px solid var(--seed-line);
+    }
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+    .nav-logo-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--seed-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-white);
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+    .nav-link {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--seed-muted);
+      transition: color 0.2s;
+    }
+    .nav-link:hover { color: var(--seed-fg); }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .nav-icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--seed-muted);
+      transition: all 0.2s;
+    }
+    .nav-icon-btn:hover {
+      background: var(--color-primary-alpha-6);
+      color: var(--seed-fg);
+    }
+
+    /* ==================== Hero ==================== */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 120px 0 80px;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+    }
+    .hero-bg-gradient {
+      position: absolute;
+      top: -20%;
+      right: -5%;
+      width: 55%;
+      height: 70%;
+      background: radial-gradient(ellipse at center, var(--color-accent-alpha-15) 0%, var(--color-primary-alpha-4) 40%, transparent 65%);
+      filter: blur(40px);
+    }
+    .hero-bg-gradient-2 {
+      position: absolute;
+      bottom: 0%;
+      left: -10%;
+      width: 40%;
+      height: 50%;
+      background: radial-gradient(ellipse at center, var(--color-accent-alpha-25) 0%, transparent 50%);
+      filter: blur(50px);
+    }
+    .hero-grid-pattern {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--seed-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--seed-line) 1px, transparent 1px);
+      background-size: 64px 64px;
+      opacity: 0.4;
+      mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black 30%, transparent 80%);
+      -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black 30%, transparent 80%);
+    }
+
+    .hero .container {
+      position: relative;
+      z-index: 1;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+    .hero-content { max-width: 540px; }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: rgba(49, 85, 43, 0.06);
+      border: 1px solid var(--seed-line);
+      border-radius: var(--radius-pill);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--seed-primary);
+      margin-bottom: 28px;
+    }
+    .hero-badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--seed-accent);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.3); }
+    }
+    .hero-title {
+      margin-bottom: 20px;
+    }
+    .hero-title .accent {
+      background: linear-gradient(135deg, var(--seed-primary) 0%, var(--seed-primary-light) 50%, #4a8f40 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-desc {
+      font-size: 17px;
+      line-height: 1.7;
+      color: var(--seed-muted);
+      margin-bottom: 36px;
+      max-width: 480px;
+    }
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+    .hero-trust {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 13px;
+      color: var(--seed-muted);
+    }
+    .hero-trust-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .hero-trust-icon {
+      color: var(--seed-accent);
+      font-size: 14px;
+    }
+
+    /* Hero Product Visual */
+    .hero-visual {
+      position: relative;
+      perspective: 1200px;
+    }
+    .hero-product-card {
+      background: var(--color-white);
+      border-radius: 16px;
+      box-shadow: var(--shadow-lg), var(--shadow-glow);
+      overflow: hidden;
+      border: 1px solid var(--seed-line);
+      transform: rotateY(-3deg) rotateX(2deg);
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .hero-product-card:hover {
+      transform: rotateY(0deg) rotateX(0deg);
+    }
+    .product-titlebar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--seed-line);
+      background: var(--seed-surface);
+    }
+    .product-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .product-dot-r { background: #ff5f57; }
+    .product-dot-y { background: #ffbd2e; }
+    .product-dot-g { background: #28c840; }
+    .product-titlebar-text {
+      flex: 1;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--seed-muted);
+      margin-right: 30px;
+    }
+    .product-body {
+      padding: 0;
+      display: flex;
+      min-height: 340px;
+    }
+    .product-sidebar {
+      width: 180px;
+      background: var(--seed-surface);
+      border-right: 1px solid var(--seed-line);
+      padding: 16px 12px;
+      flex-shrink: 0;
+    }
+    .product-sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--seed-fg);
+      padding: 4px 8px;
+      margin-bottom: 16px;
+    }
+    .product-sidebar-logo-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: var(--seed-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-white);
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .product-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--seed-muted);
+      transition: all 0.2s;
+      margin-bottom: 2px;
+    }
+    .product-nav-item.active {
+      background: var(--color-primary-alpha-8);
+      color: var(--seed-primary);
+      font-weight: 500;
+    }
+    .product-nav-icon {
+      font-size: 15px;
+      width: 18px;
+      text-align: center;
+    }
+    .product-main {
+      flex: 1;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .product-stat-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .product-stat-card {
+      background: var(--seed-surface);
+      border-radius: 10px;
+      padding: 12px;
+      border: 1px solid var(--seed-line);
+    }
+    .product-stat-label {
+      font-size: 11px;
+      color: var(--seed-muted);
+      margin-bottom: 4px;
+    }
+    .product-stat-value {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--seed-fg);
+    }
+    .product-email-list {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .product-email-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: var(--seed-surface);
+      border: 1px solid transparent;
+      font-size: 13px;
+      transition: all 0.15s;
+    }
+    .product-email-item:hover { border-color: var(--seed-line); }
+    .product-email-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .product-email-dot-unread { background: var(--seed-primary); }
+    .product-email-dot-read { background: var(--seed-line); }
+    .product-email-from {
+      width: 100px;
+      font-weight: 500;
+      color: var(--seed-fg);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .product-email-subject {
+      flex: 1;
+      color: var(--seed-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .product-email-time {
+      font-size: 11px;
+      color: var(--seed-muted);
+      opacity: 0.7;
+      flex-shrink: 0;
+    }
+
+    /* ==================== Stats Bar ==================== */
+    .stats-bar {
+      padding: 40px 0;
+      border-top: 1px solid var(--seed-line);
+      border-bottom: 1px solid var(--seed-line);
+      background: var(--color-white);
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
+      text-align: center;
+    }
+    .stat-item {}
+    .stat-value {
+      font-size: 36px;
+      font-weight: 700;
+      letter-spacing: var(--tracking-tighter);
+      color: var(--seed-primary);
+      line-height: 1.1;
+    }
+    .stat-label {
+      font-size: 14px;
+      color: var(--seed-muted);
+      margin-top: 6px;
+    }
+
+    /* ==================== Problem Section ==================== */
+    .problem-section {
+      background: var(--color-white);
+    }
+    .problem-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .problem-visual {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .problem-card {
+      background: var(--seed-surface);
+      border: 1px solid var(--seed-line);
+      border-radius: var(--radius-md);
+      padding: 20px 24px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+    .problem-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .problem-icon-pain {
+      background: var(--color-danger-bg);
+      color: var(--color-danger);
+    }
+    .problem-icon-solution {
+      background: var(--color-primary-alpha-12);
+      color: var(--seed-primary);
+    }
+    .problem-card h4 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .problem-card p {
+      font-size: 14px;
+      color: var(--seed-muted);
+      line-height: 1.5;
+    }
+    .solution-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 0;
+      color: var(--seed-primary);
+      font-size: 20px;
+    }
+
+    /* ==================== Process Section ==================== */
+    .process-section {
+      background: var(--seed-surface);
+    }
+    .section-header {
+      text-align: center;
+      max-width: 560px;
+      margin: 0 auto 56px;
+    }
+    .section-header .label { margin-bottom: 12px; }
+    .section-header .h2 { margin-bottom: 12px; }
+    .process-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      position: relative;
+    }
+    .process-grid::before {
+      content: '';
+      position: absolute;
+      top: 44px;
+      left: 12.5%;
+      right: 12.5%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--seed-line), var(--seed-accent), var(--seed-line));
+      z-index: 0;
+    }
+    .process-card {
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    .process-step {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--color-white);
+      border: 2px solid var(--seed-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 18px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--seed-primary);
+      box-shadow: 0 2px 12px var(--color-accent-alpha-30);
+      position: relative;
+    }
+    .process-card h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .process-card p {
+      font-size: 14px;
+      color: var(--seed-muted);
+      line-height: 1.5;
+    }
+
+    /* ==================== Features Section ==================== */
+    .feature-section {
+      background: var(--color-white);
+    }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .feature-card {
+      background: var(--seed-surface);
+      border: 1px solid var(--seed-line);
+      border-radius: var(--radius-lg);
+      padding: 32px 28px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--seed-primary), var(--seed-accent));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .feature-card:hover {
+      border-color: var(--color-primary-alpha-20);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-3px);
+    }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-icon-wrap {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--color-primary-alpha-8), var(--color-accent-alpha-15));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      color: var(--seed-primary);
+      margin-bottom: 18px;
+    }
+    .feature-card h3 {
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .feature-card p {
+      font-size: 14px;
+      color: var(--seed-muted);
+      line-height: 1.6;
+    }
+
+    /* ==================== Scenarios Section ==================== */
+    .scenario-section {
+      background: var(--seed-primary);
+      color: var(--color-white);
+      position: relative;
+      overflow: hidden;
+    }
+    .scenario-section::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 60%;
+      height: 150%;
+      background: radial-gradient(ellipse at center, var(--color-accent-alpha-15), transparent 60%);
+      filter: blur(60px);
+    }
+    .scenario-section .label { color: var(--seed-accent); }
+    .scenario-section .h2 { color: var(--color-white); }
+    .scenario-section .body-lg { color: rgba(255,255,255,0.7); }
+    .scenario-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      position: relative;
+      z-index: 1;
+    }
+    .scenario-card {
+      background: var(--color-white-alpha-8);
+      border: 1px solid var(--color-white-alpha-12);
+      border-radius: var(--radius-lg);
+      padding: 28px 24px;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s;
+    }
+    .scenario-card:hover {
+      background: var(--color-white-alpha-12);
+      border-color: var(--color-white-alpha-20);
+      transform: translateY(-2px);
+    }
+    .scenario-tag {
+      display: inline-block;
+      padding: 4px 12px;
+      background: var(--color-accent-alpha-20);
+      border-radius: var(--radius-pill);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--seed-accent);
+      margin-bottom: 14px;
+    }
+    .scenario-card h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--color-white);
+    }
+    .scenario-card p {
+      font-size: 14px;
+      color: var(--color-white-alpha-65);
+      line-height: 1.6;
+    }
+
+    /* ==================== FAQ Section ==================== */
+    .faq-section {
+      background: var(--color-white);
+    }
+    .faq-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 80px;
+      align-items: start;
+    }
+    .faq-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .faq-item {
+      border: 1px solid var(--seed-line);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      transition: all 0.2s;
+    }
+    .faq-item:hover { border-color: var(--color-primary-alpha-20); }
+    .faq-item[open] {
+      background: var(--seed-surface);
+    }
+    .faq-item summary {
+      padding: 18px 22px;
+      font-size: 15px;
+      font-weight: 500;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after {
+      content: '+';
+      font-size: 20px;
+      font-weight: 300;
+      color: var(--seed-muted);
+      transition: transform 0.2s;
+    }
+    .faq-item[open] summary::after {
+      transform: rotate(45deg);
+    }
+    .faq-item p {
+      padding: 0 22px 18px;
+      font-size: 14px;
+      color: var(--seed-muted);
+      line-height: 1.7;
+    }
+
+    /* ==================== CTA Section ==================== */
+    .cta-section {
+      background: var(--seed-surface);
+    }
+    .cta-panel {
+      background: linear-gradient(135deg, var(--seed-primary) 0%, var(--seed-primary-light) 100%);
+      border-radius: 24px;
+      padding: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-panel::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -10%;
+      width: 50%;
+      height: 200%;
+      background: radial-gradient(ellipse at center, var(--color-accent-alpha-20), transparent 60%);
+    }
+    .cta-panel h2 {
+      font-size: clamp(24px, 3vw, 32px);
+      font-weight: 600;
+      color: var(--color-white);
+      letter-spacing: var(--tracking-tight);
+      line-height: 1.2;
+      max-width: 480px;
+    }
+    .cta-panel p {
+      font-size: 15px;
+      color: var(--color-white-alpha-75);
+      margin-top: 8px;
+    }
+    .cta-panel .btn-ghost {
+      position: relative;
+      z-index: 1;
+      font-size: 16px;
+      padding: 14px 32px;
+    }
+
+    /* ==================== Footer ==================== */
+    .site-footer {
+      background: var(--seed-fg);
+      color: var(--color-white-alpha-6);
+      padding: 60px 0 32px;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 48px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid var(--color-white-alpha-8);
+    }
+    .footer-brand-name {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--color-white);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .footer-brand-logo {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      background: var(--seed-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-white);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .footer-desc {
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .footer-socials {
+      display: flex;
+      gap: 8px;
+    }
+    .footer-social-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--color-white-alpha-8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      color: var(--color-white-alpha-50);
+      transition: all 0.2s;
+    }
+    .footer-social-btn:hover {
+      background: var(--color-white-alpha-15);
+      color: var(--color-white);
+    }
+    .footer-col h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-white);
+      margin-bottom: 16px;
+    }
+    .footer-col-body {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .footer-link {
+      font-size: 14px;
+      color: var(--color-white-alpha-50);
+      transition: color 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .footer-link:hover { color: var(--color-white-alpha-85); }
+    .footer-bottom {
+      padding-top: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+    }
+    .footer-bottom-credit {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ==================== SVG Icons ==================== */
+    .icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1em;
+      height: 1em;
+    }
+    .icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ==================== Animations ==================== */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ==================== Responsive ==================== */
+    @media (max-width: 960px) {
+      .hero-grid { grid-template-columns: 1fr; gap: 48px; }
+      .hero-visual { display: none; }
+      .hero-content { max-width: 100%; }
+      .problem-grid { grid-template-columns: 1fr; gap: 40px; }
+      .process-grid { grid-template-columns: repeat(2, 1fr); }
+      .process-grid::before { display: none; }
+      .feature-grid { grid-template-columns: repeat(2, 1fr); }
+      .scenario-grid { grid-template-columns: 1fr; }
+      .faq-layout { grid-template-columns: 1fr; gap: 40px; }
+      .cta-panel { flex-direction: column; text-align: center; padding: 48px 32px; }
+      .footer-grid { grid-template-columns: repeat(2, 1fr); gap: 32px; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+      .nav-links { display: none; }
+    }
+    @media (max-width: 600px) {
+      .container { padding: 0 20px; }
+      .section-pad { padding: 64px 0; }
+      .hero { padding: 100px 0 60px; }
+      .process-grid { grid-template-columns: 1fr; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+      .cta-panel { padding: 36px 24px; }
+      .stats-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== Navigation ==================== -->
+  <header class="nav" id="siteNav" data-component="site-nav">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">
+        <div class="nav-logo-icon">W</div>
+        WicMail
+      </a>
+      <nav class="nav-links">
+        <a href="#about" class="nav-link">服务介绍</a>
+        <a href="#process" class="nav-link">申请流程</a>
+        <a href="#features" class="nav-link">核心能力</a>
+        <a href="#faq" class="nav-link">常见问题</a>
+      </nav>
+      <div class="nav-right">
+        <a href="https://www.wic.edu.kg" target="_blank" class="nav-icon-btn" aria-label="学校官网">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </a>
+        <a href="https://github.com/opxqo" target="_blank" class="nav-icon-btn" aria-label="GitHub">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+        </a>
+        <button onclick="window.scrollTo({top:0,behavior:'smooth'})" class="btn btn-primary btn-sm">登录工作台</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ==================== Hero ==================== -->
+    <section class="hero" id="hero" data-component="hero">
+      <div class="hero-bg">
+        <div class="hero-bg-gradient"></div>
+        <div class="hero-bg-gradient-2"></div>
+        <div class="hero-grid-pattern"></div>
+      </div>
+      <div class="container">
+        <div class="hero-grid">
+          <div class="hero-content">
+            <div class="hero-badge">
+              <span class="hero-badge-dot"></span>
+              学生自建公益非盈利平台
+            </div>
+            <h1 class="display hero-title">
+              你的专属<br><span class="accent">校园邮箱</span>
+            </h1>
+            <p class="hero-desc">
+              武汉城市学院已不再为学生分配校园个人教育邮箱。我们自发搭建了 WicMail，基于 Cloudflare 邮件代理与高效流转架构，为你提供免费的 @wic.edu.kg 专属学术邮箱。
+            </p>
+            <div class="hero-actions">
+              <button onclick="window.scrollTo({top:0,behavior:'smooth'})" class="btn btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                申请校园邮箱
+              </a>
+              <a href="#process" class="btn btn-secondary">了解申请流程</a>
+            </div>
+            <div class="hero-trust">
+              <span class="hero-trust-item">
+                <svg class="hero-trust-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                完全免费
+              </span>
+              <span class="hero-trust-item">
+                <svg class="hero-trust-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                24h 内审核
+              </span>
+              <span class="hero-trust-item">
+                <svg class="hero-trust-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                Cloudflare 安全驱动
+              </span>
+            </div>
+          </div>
+
+          <!-- Hero Product Visual -->
+          <div class="hero-visual">
+            <div class="hero-product-card">
+              <div class="product-titlebar">
+                <span class="product-dot product-dot-r"></span>
+                <span class="product-dot product-dot-y"></span>
+                <span class="product-dot product-dot-g"></span>
+                <span class="product-titlebar-text">WicMail - 校园邮箱工作台</span>
+              </div>
+              <div class="product-body">
+                <div class="product-sidebar">
+                  <div class="product-sidebar-logo">
+                    <div class="product-sidebar-logo-icon">W</div>
+                    WicMail
+                  </div>
+                  <div class="product-nav-item active">
+                    <svg class="product-nav-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    工作台
+                  </div>
+                  <div class="product-nav-item">
+                    <svg class="product-nav-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    邮箱管理
+                  </div>
+                  <div class="product-nav-item">
+                    <svg class="product-nav-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+                    邮件中心
+                  </div>
+                  <div class="product-nav-item">
+                    <svg class="product-nav-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    管理后台
+                  </div>
+                </div>
+                <div class="product-main">
+                  <div class="product-stat-row">
+                    <div class="product-stat-card">
+                      <div class="product-stat-label">我的邮箱</div>
+                      <div class="product-stat-value">2</div>
+                    </div>
+                    <div class="product-stat-card">
+                      <div class="product-stat-label">总邮件</div>
+                      <div class="product-stat-value">6</div>
+                    </div>
+                    <div class="product-stat-card">
+                      <div class="product-stat-label">未读</div>
+                      <div class="product-stat-value">3</div>
+                    </div>
+                  </div>
+                  <div class="product-email-list">
+                    <div class="product-email-item">
+                      <span class="product-email-dot product-email-dot-read"></span>
+                      <span class="product-email-from">noreply@wic</span>
+                      <span class="product-email-subject">欢迎使用 WicMail 校园邮箱服务</span>
+                      <span class="product-email-time">09:00</span>
+                    </div>
+                    <div class="product-email-item">
+                      <span class="product-email-dot product-email-dot-unread"></span>
+                      <span class="product-email-from">system@wic</span>
+                      <span class="product-email-subject">【系统通知】邮箱服务维护公告</span>
+                      <span class="product-email-time">10:00</span>
+                    </div>
+                    <div class="product-email-item">
+                      <span class="product-email-dot product-email-dot-unread"></span>
+                      <span class="product-email-from">wangwu@...</span>
+                      <span class="product-email-subject">Re: 课程项目讨论</span>
+                      <span class="product-email-time">14:30</span>
+                    </div>
+                    <div class="product-email-item">
+                      <span class="product-email-dot product-email-dot-read"></span>
+                      <span class="product-email-from">noreply@gh</span>
+                      <span class="product-email-subject">Your access token will expire in 7 days</span>
+                      <span class="product-email-time">08:00</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== Stats Bar ==================== -->
+    <section class="stats-bar" data-component="stats-bar">
+      <div class="container">
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-value">100%</div>
+            <div class="stat-label">完全免费</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">24h</div>
+            <div class="stat-label">审核时效</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">CF</div>
+            <div class="stat-label">Cloudflare 邮件驱动</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">.edu.kg</div>
+            <div class="stat-label">学术域名后缀</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== About / Problem-Solution ==================== -->
+    <section class="problem-section section-pad" id="about" data-component="about">
+      <div class="container">
+        <div class="problem-grid">
+          <div>
+            <p class="label" style="margin-bottom: 12px;">WHY WICMAIL</p>
+            <h2 class="h2" style="margin-bottom: 16px;">解决校园邮箱停发之痛</h2>
+            <p class="body-lg" style="margin-bottom: 32px;">
+              学校不再为学生分配个人教育邮箱，但学术交流、教育折扣认证、导师沟通都需要一个可靠的校园邮箱身份。WicMail 完全由学生志愿者自发搭建和运维，不收取任何费用。
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+              <div class="problem-card">
+                <div class="problem-icon problem-icon-pain">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                </div>
+                <div>
+                  <h4>学校停发个人邮箱</h4>
+                  <p>无法获得用于学术场景的专属教育邮箱，只能用个人邮箱申请和沟通。</p>
+                </div>
+              </div>
+              <div class="solution-arrow">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+              </div>
+              <div class="problem-card">
+                <div class="problem-icon problem-icon-solution">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                </div>
+                <div>
+                  <h4>WicMail 填补空白</h4>
+                  <p>免费申请 @wic.edu.kg 邮箱，学生志愿者在线审核，全流程安全可控。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="problem-visual">
+            <div class="problem-card" style="background: rgba(49,85,43,0.04);">
+              <div class="problem-icon problem-icon-solution">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <div>
+                <h4>校园身份专属</h4>
+                <p>围绕 @wic.edu.kg 邮箱建立入口，所有申请与身份资料集中管理。</p>
+              </div>
+            </div>
+            <div class="problem-card" style="background: rgba(49,85,43,0.04);">
+              <div class="problem-icon problem-icon-solution">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+              </div>
+              <div>
+                <h4>流程清晰透明</h4>
+                <p>注册、资料完善、邮箱申请、审核状态集中在工作台处理，每一步可追溯。</p>
+              </div>
+            </div>
+            <div class="problem-card" style="background: rgba(49,85,43,0.04);">
+              <div class="problem-icon problem-icon-solution">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </div>
+              <div>
+                <h4>审核安全可控</h4>
+                <p>管理员审核申请材料，防止滥用与虚假注册，保障邮箱资源合理分配。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== Process ==================== -->
+    <section class="process-section section-pad" id="process" data-component="process">
+      <div class="container">
+        <div class="section-header">
+          <p class="label">APPLICATION FLOW</p>
+          <h2 class="h2">四步完成邮箱申请</h2>
+          <p class="body-lg">流程保持轻量，但每一步都围绕真实身份与可审核材料设计。</p>
+        </div>
+        <div class="process-grid">
+          <div class="process-card">
+            <div class="process-step">01</div>
+            <h3>注册账号</h3>
+            <p>使用用户名和密码创建平台账号，支持一键快速注册。</p>
+          </div>
+          <div class="process-card">
+            <div class="process-step">02</div>
+            <h3>完善资料</h3>
+            <p>补充真实姓名、学号、院系等基础信息用于身份审核。</p>
+          </div>
+          <div class="process-card">
+            <div class="process-step">03</div>
+            <h3>提交申请</h3>
+            <p>填写期望的邮箱前缀，并上传学生证等证明材料。</p>
+          </div>
+          <div class="process-card">
+            <div class="process-step">04</div>
+            <h3>开通使用</h3>
+            <p>审核通过后即可在工作台查看邮箱信息和收发邮件。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== Features ==================== -->
+    <section class="feature-section section-pad" id="features" data-component="features">
+      <div class="container">
+        <div class="section-header">
+          <p class="label">CAPABILITIES</p>
+          <h2 class="h2">为校园邮箱场景专门设计</h2>
+          <p class="body-lg">不追求大而全，只做校园邮箱申请、审核与管理的核心能力。</p>
+        </div>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <div class="feature-icon-wrap">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </div>
+            <h3>邮箱申请中心</h3>
+            <p>邮箱前缀申请、资料补充和审核状态跟踪集中在同一个入口，清晰直观。</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon-wrap">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+            </div>
+            <h3>邮件中心</h3>
+            <p>邮件查看、收件记录和消息管理，提供清晰的信息层级和搜索能力。</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon-wrap">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <h3>权限分区</h3>
+            <p>普通用户与管理员功能分离，审核、用户管理等后台入口独立可控。</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon-wrap">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+            </div>
+            <h3>多端适配</h3>
+            <p>首页和工作台在手机、平板、桌面端都保持可读、可点击的完整体验。</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon-wrap">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <h3>审核流程</h3>
+            <p>管理员在线审查申请材料，支持批准或驳回并附审核意见，全链路可追溯。</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon-wrap">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </div>
+            <h3>高效流转</h3>
+            <p>依托 Cloudflare Email Worker 与阿里云解析，保障信件稳定接收和转发。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== Scenarios ==================== -->
+    <section class="scenario-section section-pad" data-component="scenarios">
+      <div class="container">
+        <div class="section-header">
+          <p class="label">USE CASES</p>
+          <h2 class="h2">适合这些校园沟通场景</h2>
+        </div>
+        <div class="scenario-grid">
+          <div class="scenario-card">
+            <span class="scenario-tag">学术交流</span>
+            <h3>课程与项目沟通</h3>
+            <p>使用校园邮箱作为课程通知、项目协作和校内沟通的稳定身份标识。</p>
+          </div>
+          <div class="scenario-card">
+            <span class="scenario-tag">身份认证</span>
+            <h3>教育折扣与服务注册</h3>
+            <p>在需要教育邮箱的服务中使用 @wic.edu.kg 地址，享受学术折扣和认证权益。</p>
+          </div>
+          <div class="scenario-card">
+            <span class="scenario-tag">通知归档</span>
+            <h3>重要邮件留存</h3>
+            <p>把学校相关通知和学术邮件集中到校园邮箱，便于长期查询和管理。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== FAQ ==================== -->
+    <section class="faq-section section-pad" id="faq" data-component="faq">
+      <div class="container">
+        <div class="faq-layout">
+          <div>
+            <p class="label" style="margin-bottom: 12px;">FAQ</p>
+            <h2 class="h2" style="margin-bottom: 12px;">申请前可以先了解这些</h2>
+            <p class="body-lg">
+              首页只做说明和入口，具体审核状态、邮箱列表和邮件内容请登录工作台查看。
+            </p>
+          </div>
+          <div class="faq-list">
+            <details class="faq-item" open>
+              <summary>本站是武汉城市学院官方网站吗？</summary>
+              <p>不是。本站是由学生志愿者自发搭建、维护的完全公益、非盈利性服务平台（非官方建设）。所申请的邮箱后缀仅用于学术研究与沟通使用。</p>
+            </details>
+            <details class="faq-item">
+              <summary>首页可以直接收发邮件吗？</summary>
+              <p>首页只提供介绍和入口。邮箱申请、邮件查看和管理功能需要登录后的工作台。</p>
+            </details>
+            <details class="faq-item">
+              <summary>申请需要付费吗？审核时间多久？</summary>
+              <p>完全免费。平台不收取任何费用，由学生管理员利用课余时间在线审批，一般在提交申请后的 24 小时内完成审核。</p>
+            </details>
+            <details class="faq-item">
+              <summary>忘记账号或遇到使用问题怎么办？</summary>
+              <p>可以通过页脚中公布的管理员邮箱 admin@wic.edu.kg 联系我们，或在工作台的帮助反馈中心提交工单。</p>
+            </details>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== CTA ==================== -->
+    <section class="cta-section section-pad" data-component="cta">
+      <div class="container">
+        <div class="cta-panel">
+          <div>
+            <h2>准备好开通你的校园邮箱了吗？</h2>
+            <p>登录工作台后提交资料与邮箱申请，审核通过后即可使用。</p>
+          </div>
+          <button onclick="window.scrollTo({top:0,behavior:'smooth'})" class="btn btn-ghost">
+            前往工作台
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==================== Footer ==================== -->
+  <footer class="site-footer" data-component="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand-name">
+            <div class="footer-brand-logo">W</div>
+            WicMail
+          </div>
+          <p class="footer-desc">
+            本站是由武汉城市学院学生自建、运行的完全公益非盈利服务（非官方建设）。旨在为校内师生提供免费的专属教育邮箱申请与管理通道。
+          </p>
+          <div class="footer-socials">
+            <a href="https://github.com/opxqo" target="_blank" class="footer-social-btn" aria-label="GitHub">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+            </a>
+            <a href="https://www.wic.edu.kg" target="_blank" class="footer-social-btn" aria-label="学校官网">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            </a>
+            <a href="mailto:admin@wic.edu.kg" class="footer-social-btn" aria-label="邮件联系">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h3>快捷入口</h3>
+          <div class="footer-col-body">
+            <button onclick="window.scrollTo({top:0,behavior:'smooth'})" class="footer-link">登录工作台</button>
+            <button onclick="window.scrollTo({top:0,behavior:'smooth'})" class="footer-link">申请邮箱</button>
+            <button onclick="window.scrollTo({top:0,behavior:'smooth'})" class="footer-link">邮件中心</button>
+            <a href="https://www.wic.edu.kg" target="_blank" class="footer-link">学校官网</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h3>页面导航</h3>
+          <div class="footer-col-body">
+            <a href="#about" class="footer-link">服务介绍</a>
+            <a href="#process" class="footer-link">申请流程</a>
+            <a href="#features" class="footer-link">核心能力</a>
+            <a href="#faq" class="footer-link">常见问题</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h3>联系我们</h3>
+          <div class="footer-col-body">
+            <span class="footer-link">湖北省武汉市洪山区黄家湖大学城</span>
+            <span class="footer-link">027-86490575</span>
+            <a href="mailto:admin@wic.edu.kg" class="footer-link">admin@wic.edu.kg</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2024-2026 WicMail &middot; Wuhan City University. All rights reserved.</span>
+        <div class="footer-bottom-credit">
+          Designed & Built by <strong style="color: var(--color-white);">OPXQO LT</strong>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="#ef4444" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Nav scroll effect
+    const nav = document.getElementById('siteNav');
+    let lastScroll = 0;
+    function handleNavScroll() {
+      const y = window.scrollY;
+      if (y > 24) {
+        nav.classList.add('nav-solid');
+      } else {
+        nav.classList.remove('nav-solid');
+      }
+      lastScroll = y;
+    }
+    window.addEventListener('scroll', handleNavScroll, { passive: true });
+    handleNavScroll();
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          const offset = 80;
+          const top = target.getBoundingClientRect().top + window.scrollY - offset;
+          window.scrollTo({ top, behavior: 'smooth' });
+        }
+      });
+    });
+
+    // Intersection Observer for fade-up animations
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.section-header, .process-card, .feature-card, .scenario-card, .problem-card, .stat-item, .faq-item').forEach(el => {
+      el.classList.add('fade-up');
+      observer.observe(el);
+    });
+
+    // Stagger animation for grid children
+    document.querySelectorAll('.process-grid, .feature-grid, .scenario-grid, .stats-grid').forEach(grid => {
+      const gridObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const children = entry.target.children;
+            Array.from(children).forEach((child, i) => {
+              setTimeout(() => {
+                child.classList.add('visible');
+              }, i * 100);
+            });
+            gridObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+      gridObserver.observe(grid);
+    });
+
+    // Animated counter for stats
+    function animateCounters() {
+      const statValues = document.querySelectorAll('.stat-value');
+      statValues.forEach(sv => {
+        sv.style.opacity = '1';
+      });
+    }
+    const statsBar = document.querySelector('.stats-bar');
+    if (statsBar) {
+      const statsObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            animateCounters();
+            statsObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.3 });
+      statsObserver.observe(statsBar);
+    }
+  </script>
+</body>
+</html>

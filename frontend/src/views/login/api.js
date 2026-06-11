@@ -37,7 +37,7 @@ export default {
         id: profile.id,
         username: profile.username,
         profile: {
-          avatar: null,
+          avatar: profile.avatar_url || null,
           nickName: profile.real_name || profile.username,
           email: profile.email,
         },

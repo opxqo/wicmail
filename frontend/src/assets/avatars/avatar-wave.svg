@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80">
+  <circle cx="40" cy="40" r="40" fill="#ecfeff"/>
+  <!-- Wave 1 -->
+  <path d="M8 40 Q20 28 32 40 Q44 52 56 40 Q68 28 72 36" fill="none" stroke="#0891b2" stroke-width="4" stroke-linecap="round"/>
+  <!-- Wave 2 -->
+  <path d="M8 52 Q20 40 32 52 Q44 64 56 52 Q68 40 72 48" fill="none" stroke="#06b6d4" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- Wave 3 -->
+  <path d="M10 62 Q22 52 34 62 Q46 72 58 62" fill="none" stroke="#67e8f9" stroke-width="3" stroke-linecap="round"/>
+</svg>

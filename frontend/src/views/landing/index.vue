@@ -5,7 +5,7 @@
       <div class="nav-inner">
         <!-- Logo -->
         <router-link to="/" class="nav-logo" aria-label="WicMail 首页">
-          <img src="/wic-emblem.svg" alt="WicMail" class="nav-logo-img">
+          <img src="/wicmail-icon.svg" alt="WicMail" class="nav-logo-img">
           <span class="nav-logo-text">WicMail</span>
         </router-link>
 
@@ -79,7 +79,7 @@
 
               <!-- Logo + 标题 -->
               <div class="hero-title-row">
-                <img src="/wic-emblem.svg" alt="WicMail" class="hero-emblem">
+                <img src="/wicmail-icon.svg" alt="WicMail" class="hero-emblem">
                 <h1 class="hero-title">
                   WicMail
                 </h1>
@@ -149,7 +149,7 @@
                   <!-- 侧边栏 -->
                   <div class="demo-sidebar" :class="{ 'demo-sidebar-collapsed': demoCollapsed }">
                     <div class="demo-sidebar-logo">
-                      <img src="/wic-emblem.svg" alt="WicMail" class="demo-sidebar-logo-img">
+                      <img :src="demoDarkMode ? '/wicmail-icon-dark.svg' : '/wicmail-icon.svg'" alt="WicMail" class="demo-sidebar-logo-img">
                       <span v-if="!demoCollapsed" class="demo-sidebar-logo-text">WicMail</span>
                     </div>
                     <div class="demo-sidebar-nav">
@@ -459,7 +459,7 @@
                                 <div class="demo-upload-file-list-grid">
                                   <div v-for="(file, idx) in demoApplyUploads" :key="idx" class="demo-upload-file-card">
                                     <div v-if="file.type.startsWith('image/')" class="demo-upload-thumbnail-container">
-                                      <img :src="file.url || '/wic-emblem.svg'" class="demo-upload-thumbnail" @click="openAttachmentPreview(file)">
+                                      <img :src="file.url || '/wicmail-icon.svg'" class="demo-upload-thumbnail" @click="openAttachmentPreview(file)">
                                       <div class="demo-upload-thumbnail-hover">
                                         <i class="i-fe:eye mr-8 cursor-pointer text-14" @click="openAttachmentPreview(file)" />
                                         <i class="i-fe:trash-2 cursor-pointer text-14" @click="removeUpload(idx)" />
@@ -1176,13 +1176,19 @@
         <div class="footer-grid">
           <!-- 列1: 品牌 -->
           <div class="footer-brand">
-            <router-link to="/" class="footer-logo-link">
-              <img src="/wic-emblem.svg" alt="武汉城市学院校徽" class="footer-emblem">
+            <div class="footer-brand-header">
+              <router-link to="/" class="footer-logo-link">
+              <img src="/wicmail-icon.svg" alt="WicMail" class="footer-emblem">
               <div class="footer-brand-text">
                 <span class="footer-brand-name">WicMail</span>
                 <span class="footer-brand-sub">校园邮箱服务</span>
               </div>
             </router-link>
+              <div class="footer-logo-divider" />
+              <div class="footer-school-brand">
+                <SchoolLogo class="footer-school-logo" />
+              </div>
+            </div>
             <p class="footer-desc">
               本站是由武汉城市学院学生自建、运行的完全公益非盈利服务（非官方建设）。旨在为校内师生有学术交流、求职及认证需求时提供免费的专属教育邮箱申请与管理通道。
             </p>
@@ -1197,6 +1203,7 @@
                 <i class="i-fe:mail text-16" />
               </a>
             </div>
+            
           </div>
 
           <!-- 列2: 快捷入口 -->
@@ -1289,6 +1296,7 @@
 
 <script setup>
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from 'vue'
+import SchoolLogo from '@/components/SchoolLogo.vue'
 
 const pageRef = ref(null)
 const scrollY = ref(0)
@@ -1740,7 +1748,7 @@ const demoAttachmentPreviewName = ref('')
 
 function openAttachmentPreview(file) {
   demoAttachmentPreviewName.value = file.name || file.filename || '证明文件'
-  demoAttachmentPreviewUrl.value = file.url || '/wic-emblem.svg'
+  demoAttachmentPreviewUrl.value = file.url || '/wicmail-icon.svg'
   demoAttachmentPreviewVisible.value = true
 }
 
@@ -1870,7 +1878,7 @@ function simulateUpload(type) {
     name: filename,
     type: type === 'img' ? 'image/png' : 'application/pdf',
     size: Math.floor(Math.random() * 2000000) + 500000,
-    url: type === 'img' ? '/wic-emblem.svg' : '',
+    url: type === 'img' ? '/wicmail-icon.svg' : '',
   })
 }
 
@@ -4528,14 +4536,23 @@ onUnmounted(() => {
   }
 }
 
+.footer-brand-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
 .footer-logo-link {
   display: inline-flex;
   align-items: center;
   gap: 10px;
   text-decoration: none;
   color: inherit;
-  margin-bottom: 12px;
+  margin-bottom: 0;
 }
+
 
 .footer-logo-link:hover .footer-emblem {
   transform: scale(1.06);
@@ -4577,6 +4594,57 @@ onUnmounted(() => {
 .footer-socials {
   display: flex;
   gap: 10px;
+}
+
+.footer-school-brand {
+  margin-top: 0;
+  opacity: 0.85;
+  transition: opacity 0.2s ease;
+  display: flex;
+  align-items: center;
+}
+
+
+.footer-school-brand:hover {
+  opacity: 1;
+}
+
+.footer-school-logo {
+  height: 38px;
+  width: auto;
+  display: block;
+}
+
+.footer-logo-divider {
+  width: 1px;
+  height: 24px;
+  background: #cbd5e1;
+  transition: background 0.3s ease;
+}
+
+:global(.dark) .footer-logo-divider,
+.dark .footer-logo-divider {
+  background: #475569;
+}
+
+@media (max-width: 480px) {
+  .footer-logo-divider {
+    display: none;
+  }
+}
+
+
+.footer-school-logo :deep(text),
+.footer-school-logo :deep(tspan) {
+  fill: #1e293b;
+  transition: fill 0.3s ease;
+}
+
+:global(.dark) .footer-school-logo :deep(text),
+:global(.dark) .footer-school-logo :deep(tspan),
+.dark .footer-school-logo :deep(text),
+.dark .footer-school-logo :deep(tspan) {
+  fill: #f8fafc;
 }
 
 .footer-social-btn {

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80">
+  <circle cx="40" cy="40" r="40" fill="#fef2f2"/>
+  <!-- Gem shape -->
+  <polygon points="40,14 56,30 40,66 24,30" fill="#ef4444"/>
+  <polygon points="40,14 48,30 40,66" fill="#dc2626"/>
+  <polygon points="40,14 32,30 40,66" fill="#f87171"/>
+  <!-- Top facet -->
+  <polygon points="24,30 40,14 56,30 48,30 40,24 32,30" fill="#fca5a5"/>
+  <!-- Highlight -->
+  <polygon points="32,30 40,24 40,66" fill="#ef4444" opacity="0.7"/>
+</svg>

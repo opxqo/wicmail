@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="canvas:aspect-ratio" content="16:9">
+  <title>WicMail Logo 设计方案 · 生态绿</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ==================== Tokens ==================== */
+    :root {
+      --seed-primary: #059669;
+      --seed-primary-dark: #047857;
+      --seed-primary-light: #34d399;
+      --seed-bg: #f0fdf4;
+      --seed-surface: #ffffff;
+      --seed-surface-dark: #14352a;
+      --seed-fg: #0f2318;
+      --seed-fg-secondary: #3f5e50;
+      --seed-fg-dim: #7ba393;
+      --seed-fg-light: #ecfdf5;
+      --seed-fg-white: #f0fdf4;
+      --seed-fg-gray: #374f44;
+      --seed-border: rgba(5, 150, 105, 0.10);
+      --seed-border-light: rgba(5, 150, 105, 0.18);
+      --seed-border-dark: rgba(255, 255, 255, 0.06);
+      --seed-dark-bg: #071a12;
+      --seed-dark-surface: #0f2a1e;
+      --seed-bg-gray: #d1fae5;
+      --seed-radius: 12px;
+      --font-display: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+      --font-body: 'Inter', system-ui, sans-serif;
+    }
+
+    /* ==================== SVG Fill/Stroke Classes ==================== */
+    .f-fg { fill: var(--seed-fg); }
+    .f-fg-light { fill: var(--seed-fg-light); }
+    .f-fg-white { fill: var(--seed-fg-white); }
+    .f-fg-gray { fill: var(--seed-fg-gray); }
+    .f-primary { fill: var(--seed-primary); }
+    .f-primary-light { fill: var(--seed-primary-light); }
+    .f-surface { fill: var(--seed-surface); }
+    .f-surface-dark { fill: var(--seed-surface-dark); }
+    .f-dark-bg { fill: var(--seed-dark-bg); }
+    .f-white { fill: var(--seed-surface); }
+    .s-primary { stroke: var(--seed-primary); }
+    .s-primary-light { stroke: var(--seed-primary-light); }
+
+    /* ==================== Reset ==================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-font-smoothing: antialiased; }
+    body {
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--seed-fg);
+      background: var(--seed-bg);
+    }
+    ::selection { background: var(--seed-primary); color: var(--seed-surface); }
+
+    /* ==================== Layout ==================== */
+    .page { max-width: 1100px; margin: 0 auto; padding: 60px 32px 80px; }
+
+    /* ==================== Header ==================== */
+    .page-header {
+      margin-bottom: 64px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid var(--seed-border);
+    }
+    .page-header-label {
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--seed-primary);
+      margin-bottom: 12px;
+    }
+    .page-header h1 {
+      font-family: var(--font-display);
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      color: var(--seed-fg);
+      margin-bottom: 12px;
+    }
+    .page-header p {
+      font-size: 15px;
+      color: var(--seed-fg-secondary);
+      max-width: 55ch;
+      line-height: 1.65;
+    }
+
+    /* ==================== Section ==================== */
+    .section { margin-bottom: 56px; }
+    .section-label {
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--seed-fg-dim);
+      margin-bottom: 8px;
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--seed-fg);
+      margin-bottom: 6px;
+    }
+    .section-desc {
+      font-size: 14px;
+      color: var(--seed-fg-secondary);
+      margin-bottom: 24px;
+      max-width: 50ch;
+    }
+
+    /* ==================== Variant Card ==================== */
+    .variant-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .variant-card {
+      background: var(--seed-surface);
+      border: 1px solid var(--seed-border);
+      border-radius: var(--seed-radius);
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .variant-card:hover { border-color: var(--seed-border-light); }
+    .variant-card--full { grid-column: 1 / -1; }
+    .variant-preview {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 180px;
+      padding: 40px 32px;
+    }
+    .variant-preview--dark {
+      background: var(--seed-dark-bg);
+    }
+    .variant-preview--grid {
+      background:
+        linear-gradient(rgba(15,23,42,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15,23,42,0.04) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    .variant-info {
+      padding: 16px 20px;
+      border-top: 1px solid var(--seed-border);
+    }
+    .variant-name {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--seed-fg);
+      margin-bottom: 4px;
+    }
+    .variant-note {
+      font-size: 12px;
+      color: var(--seed-fg-dim);
+      line-height: 1.5;
+    }
+
+    /* ==================== Favicon Grid ==================== */
+    .favicon-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .favicon-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 28px 16px 20px;
+      background: var(--seed-surface);
+      border: 1px solid var(--seed-border);
+      border-radius: var(--seed-radius);
+    }
+    .favicon-cell--dark {
+      background: var(--seed-dark-bg);
+      border-color: rgba(255,255,255,0.06);
+    }
+    .favicon-size {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--seed-fg-dim);
+      font-variant-numeric: tabular-nums;
+    }
+    .favicon-cell--dark .favicon-size { color: rgba(255,255,255,0.4); }
+
+    /* ==================== Palette ==================== */
+    .palette-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .swatch {
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--seed-border);
+    }
+    .swatch-color {
+      height: 72px;
+    }
+    .swatch-info {
+      padding: 10px 12px;
+      background: var(--seed-surface);
+    }
+    .swatch-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--seed-fg);
+      margin-bottom: 2px;
+    }
+    .swatch-hex {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 11px;
+      color: var(--seed-fg-dim);
+    }
+
+    /* ==================== Typeface Spec ==================== */
+    .typeface-spec {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .typeface-card {
+      padding: 28px 24px;
+      background: var(--seed-surface);
+      border: 1px solid var(--seed-border);
+      border-radius: var(--seed-radius);
+    }
+    .typeface-card-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--seed-fg-dim);
+      margin-bottom: 12px;
+    }
+    .typeface-card-sample {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--seed-fg);
+      margin-bottom: 8px;
+    }
+    .typeface-card-meta {
+      font-size: 12px;
+      color: var(--seed-fg-dim);
+      line-height: 1.6;
+    }
+
+    /* ==================== Mono Row ==================== */
+    .mono-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+    }
+    .mono-card {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 140px;
+      padding: 32px;
+      border-radius: var(--seed-radius);
+      border: 1px solid var(--seed-border);
+    }
+    .mono-card--white { background: var(--seed-surface); }
+    .mono-card--black { background: var(--seed-fg); border-color: rgba(255,255,255,0.06); }
+    .mono-card--gray { background: var(--seed-bg-gray); }
+
+    /* ==================== Divider ==================== */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--seed-border);
+      margin: 48px 0;
+    }
+
+    /* ==================== SVG Logo Base ==================== */
+    .logo-svg { display: block; }
+    .logo-svg text {
+      font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+    }
+  </style>
+</head>
+<body>
+<div class="page" data-component="logo-showcase">
+<main>
+
+  <!-- ==================== Header ==================== -->
+  <header class="page-header" data-component="page-header">
+    <div class="page-header-label">Brand Identity · Eco Green</div>
+    <h1>WicMail Logo 设计方案</h1>
+    <p>为 WicMail 校园邮箱服务设计的字母/文字标体系 · 生态绿版。以自然、可持续的绿色为主色调，传递活力与亲和力。包含主 Logo 变体、深浅背景适配、单色版本、Favicon 图标及配色规范。</p>
+  </header>
+
+  <!-- ==================== A: Primary Wordmark ==================== -->
+  <section class="section" data-component="variant-a">
+    <div class="section-label">方案 A</div>
+    <div class="section-title">标准字标 · 权重对比</div>
+    <div class="section-desc">"Wic" 使用 Bold 800 强调品牌缩写，"Mail" 使用 Medium 500 形成轻重对比，整体简洁有力。</div>
+    <div class="variant-grid">
+      <!-- Light BG -->
+      <div class="variant-card">
+        <div class="variant-preview">
+          <svg class="logo-svg" viewBox="0 0 280 56" width="260" height="52" xmlns="http://www.w3.org/2000/svg">
+            <text x="0" y="44" font-size="48" fill="var(--seed-fg)">
+              <tspan font-weight="800" letter-spacing="-0.02em">Wic</tspan><tspan font-weight="500" letter-spacing="-0.01em" fill="var(--seed-primary)">Mail</tspan>
+            </text>
+          </svg>
+        </div>
+        <div class="variant-info">
+          <div class="variant-name">浅色背景</div>
+          <div class="variant-note">适用于网站导航、文档、浅色界面</div>
+        </div>
+      </div>
+      <!-- Dark BG -->
+      <div class="variant-card">
+        <div class="variant-preview variant-preview--dark">
+          <svg class="logo-svg" viewBox="0 0 280 56" width="260" height="52" xmlns="http://www.w3.org/2000/svg">
+            <text x="0" y="44" font-size="48" fill="var(--seed-fg-light)">
+              <tspan font-weight="800" letter-spacing="-0.02em">Wic</tspan><tspan font-weight="500" letter-spacing="-0.01em" fill="var(--seed-primary-light)">Mail</tspan>
+            </text>
+          </svg>
+        </div>
+        <div class="variant-info">
+          <div class="variant-name">深色背景</div>
+          <div class="variant-note">适用于深色主题、终端界面、暗色模式</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== B: Accent Dot ==================== -->
+  <section class="section" data-component="variant-b">
+    <div class="section-label">方案 B</div>
+    <div class="section-title">几何字标 · 绿色圆点</div>
+    <div class="section-desc">在字母末尾添加绿色实心圆点作为品牌标记，暗示"已送达"的邮件状态，增强记忆点。</div>
+    <div class="variant-grid">
+      <!-- Light -->
+      <div class="variant-card">
+        <div class="variant-preview">
+          <svg class="logo-svg" viewBox="0 0 310 56" width="290" height="52" xmlns="http://www.w3.org/2000/svg">
+            <text x="0" y="44" font-size="48" fill="var(--seed-fg)">
+              <tspan font-weight="800" letter-spacing="-0.02em">Wic</tspan><tspan font-weight="500" letter-spacing="-0.01em">Mail</tspan>
+            </text>
+            <circle cx="298" cy="44" r="6" fill="var(--seed-primary)"/>
+          </svg>
+        </div>
+        <div class="variant-info">
+          <div class="variant-name">浅色背景</div>
+          <div class="variant-note">全黑字标 + 品牌绿圆点标记</div>
+        </div>
+      </div>
+      <!-- Dark -->
+      <div class="variant-card">
+        <div class="variant-preview variant-preview--dark">
+          <svg class="logo-svg" viewBox="0 0 310 56" width="290" height="52" xmlns="http://www.w3.org/2000/svg">
+            <text x="0" y="44" font-size="48" fill="var(--seed-fg-light)">
+              <tspan font-weight="800" letter-spacing="-0.02em">Wic</tspan><tspan font-weight="500" letter-spacing="-0.01em">Mail</tspan>
+            </text>
+            <circle cx="298" cy="44" r="6" fill="var(--seed-primary-light)"/>
+          </svg>
+        </div>
+        <div class="variant-info">
+          <div class="variant-name">深色背景</div>
+          <div class="variant-note">浅白字标 + 亮绿圆点标记</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== C: Compact Geometric ==================== -->
+  <section class="section" data-component="variant-c">
+    <div class="section-label">方案 C</div>
+    <div class="section-title">紧凑几何 · 信封暗示</div>
+    <div class="section-desc">更紧凑的字间距，"W" 字母内部嵌入信封 V 形折线，将邮箱属性融入字标本身。</div>
+    <div class="variant-grid">
+      <!-- Light -->
+      <div class="variant-card">
+        <div class="variant-preview">
+          <svg class="logo-svg" viewBox="0 0 320 64" width="300" height="60" xmlns="http://www.w3.org/2000/svg">
+            <!-- Custom W with envelope hint -->
+            <g transform="translate(0, 4)">
+              <!-- W letter with integrated envelope V -->
+              <path d="M4 8 L4 48 L16 48 L24 28 L32 44 L40 28 L48 48 L60 48 L60 8 L50 8 L50 36 L42 18 L34 34 L26 18 L18 36 L18 8 Z" fill="var(--seed-fg)"/>
+              <!-- Envelope V inside W -->
+              <path d="M19 14 L32 24 L45 14" stroke="var(--seed-primary)" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+            <!-- Text "icMail" -->
+            <text x="68" y="48" font-size="46" fill="var(--seed-fg)">
+              <tspan font-weight="700" letter-spacing="-0.04em">ic</tspan><tspan font-weight="400" letter-spacing="-0.01em">Mail</tspan>
+            </text>
+          </svg>
+        </div>
+        <div class="variant-info">
+          <div class="variant-name">浅色背景</div>
+          <div class="variant-note">自定义 W 字形 + 信封 V 折线，紧凑几何排版</div>
+        </div>
+      </div>
+      <!-- Dark -->
+      <div class="variant-card">
+        <div class="variant-preview variant-preview--dark">
+          <svg class="logo-svg" viewBox="0 0 320 64" width="300" height="60" xmlns="http://www.w3.org/2000/svg">
+            <g transform="translate(0, 4)">
+              <path d="M4 8 L4 48 L16 48 L24 28 L32 44 L40 28 L48 48 L60 48 L60 8 L50 8 L50 36 L42 18 L34 34 L26 18 L18 36 L18 8 Z" fill="var(--seed-fg-light)"/>
+              <path d="M19 14 L32 24 L45 14" stroke="var(--seed-primary-light)" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+            <text x="68" y="48" font-size="46" fill="var(--seed-fg-light)">
+              <tspan font-weight="700" letter-spacing="-0.04em">ic</tspan><tspan font-weight="400" letter-spacing="-0.01em">Mail</tspan>
+            </text>
+          </svg>
+        </div>
+        <div class="variant-info">
+          <div class="variant-name">深色背景</div>
+          <div class="variant-note">高对比浅色字形，绿色 V 折线在暗底上更突出</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== D: Stacked Logo ==================== -->
+  <section class="section" data-component="variant-d">
+    <div class="section-label">方案 D</div>
+    <div class="section-title">纵向组合 · 图标 + 字标</div>
+    <div class="section-desc">信封图标在上、字标在下的纵向组合，适用于正方形头像、App 图标等场景。</div>
+    <div class="variant-grid">
+      <!-- Light -->
+      <div class="variant-card">
+        <div class="variant-preview">
+          <svg class="logo-svg" viewBox="0 0 140 140" width="130" height="130" xmlns="http://www.w3.org/2000/svg">
+            <!-- Envelope icon -->
+            <g transform="translate(30, 16)">
+              <rect x="0" y="10" width="80" height="56" rx="6" fill="none" stroke="var(--seed-primary)" stroke-width="3"/>
+              <path d="M3 16 L40 42 L77 16" stroke="var(--seed-primary)" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+            <!-- Wordmark -->
+            <text x="70" y="110" text-anchor="middle" font-size="28" fill="var(--seed-fg)">
+              <tspan font-weight="800" letter-spacing="-0.02em">Wic</tspan><tspan font-weight="500" letter-spacing="-0.01em">Mail</tspan>
+            </text>
+          </svg>
+        </div>
+        <div class="variant-info">
+          <div class="variant-name">浅色背景</div>
+          <div class="variant-note">信封图标 + 字标纵向排列</div>
+        </div>
+      </div>
+      <!-- Dark -->
+      <div class="variant-card">
+        <div class="variant-preview variant-preview--dark">
+          <svg class="logo-svg" viewBox="0 0 140 140" width="130" height="130" xmlns="http://www.w3.org/2000/svg">
+            <g transform="translate(30, 16)">
+              <rect x="0" y="10" width="80" height="56" rx="6" fill="none" stroke="var(--seed-primary-light)" stroke-width="3"/>
+              <path d="M3 16 L40 42 L77 16" stroke="var(--seed-primary-light)" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+            <text x="70" y="110" text-anchor="middle" font-size="28" fill="var(--seed-fg-light)">
+              <tspan font-weight="800" letter-spacing="-0.02em">Wic</tspan><tspan font-weight="500" letter-spacing="-0.01em">Mail</tspan>
+            </text>
+          </svg>
+        </div>
+        <div class="variant-info">
+          <div class="variant-name">深色背景</div>
+          <div class="variant-note">深色模式下的纵向组合</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ==================== Monochrome ==================== -->
+  <section class="section" data-component="monochrome">
+    <div class="section-label">单色版本</div>
+    <div class="section-title">Monochrome Variants</div>
+    <div class="section-desc">适用于印刷、水印、单色场景。保持辨识度不依赖颜色。</div>
+    <div class="mono-grid">
+      <!-- Pure black on white -->
+      <div class="mono-card mono-card--white">
+        <svg class="logo-svg" viewBox="0 0 280 56" width="220" height="44" xmlns="http://www.w3.org/2000/svg">
+          <text x="0" y="44" font-size="48" fill="var(--seed-fg)">
+            <tspan font-weight="800" letter-spacing="-0.02em">Wic</tspan><tspan font-weight="500" letter-spacing="-0.01em">Mail</tspan>
+          </text>
+        </svg>
+      </div>
+      <!-- Pure white on dark -->
+      <div class="mono-card mono-card--black">
+        <svg class="logo-svg" viewBox="0 0 280 56" width="220" height="44" xmlns="http://www.w3.org/2000/svg">
+          <text x="0" y="44" font-size="48" fill="var(--seed-fg-white)">
+            <tspan font-weight="800" letter-spacing="-0.02em">Wic</tspan><tspan font-weight="500" letter-spacing="-0.01em">Mail</tspan>
+          </text>
+        </svg>
+      </div>
+      <!-- Gray -->
+      <div class="mono-card mono-card--gray">
+        <svg class="logo-svg" viewBox="0 0 280 56" width="220" height="44" xmlns="http://www.w3.org/2000/svg">
+          <text x="0" y="44" font-size="48" fill="var(--seed-fg-gray)">
+            <tspan font-weight="800" letter-spacing="-0.02em">Wic</tspan><tspan font-weight="500" letter-spacing="-0.01em">Mail</tspan>
+          </text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ==================== Favicon ==================== -->
+  <section class="section" data-component="favicon">
+    <div class="section-label">图标</div>
+    <div class="section-title">Favicon &amp; App Icon</div>
+    <div class="section-desc">简化的 "W" 字母图标，封装在圆角方形容器中，适配各种尺寸。</div>
+    <div class="favicon-grid">
+      <!-- 64px Blue -->
+      <div class="favicon-cell">
+        <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="14" fill="var(--seed-primary)"/>
+          <path d="M14 18 L14 46 L22 46 L28 32 L32 42 L36 32 L42 46 L50 46 L50 18 L43 18 L43 36 L38 24 L32 36 L26 24 L21 36 L21 18 Z" fill="var(--seed-surface)"/>
+        </svg>
+        <span class="favicon-size">64 × 64</span>
+      </div>
+      <!-- 48px Blue -->
+      <div class="favicon-cell">
+        <svg width="48" height="48" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="14" fill="var(--seed-primary)"/>
+          <path d="M14 18 L14 46 L22 46 L28 32 L32 42 L36 32 L42 46 L50 46 L50 18 L43 18 L43 36 L38 24 L32 36 L26 24 L21 36 L21 18 Z" fill="var(--seed-surface)"/>
+        </svg>
+        <span class="favicon-size">48 × 48</span>
+      </div>
+      <!-- 32px Blue -->
+      <div class="favicon-cell">
+        <svg width="32" height="32" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="14" fill="var(--seed-primary)"/>
+          <path d="M14 18 L14 46 L22 46 L28 32 L32 42 L36 32 L42 46 L50 46 L50 18 L43 18 L43 36 L38 24 L32 36 L26 24 L21 36 L21 18 Z" fill="var(--seed-surface)"/>
+        </svg>
+        <span class="favicon-size">32 × 32</span>
+      </div>
+      <!-- 16px favicon -->
+      <div class="favicon-cell">
+        <svg width="16" height="16" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="14" fill="var(--seed-primary)"/>
+          <path d="M14 18 L14 46 L22 46 L28 32 L32 42 L36 32 L42 46 L50 46 L50 18 L43 18 L43 36 L38 24 L32 36 L26 24 L21 36 L21 18 Z" fill="var(--seed-surface)"/>
+        </svg>
+        <span class="favicon-size">16 × 16</span>
+      </div>
+      <!-- 64px Dark -->
+      <div class="favicon-cell favicon-cell--dark">
+        <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="14" fill="var(--seed-surface-dark)"/>
+          <path d="M14 18 L14 46 L22 46 L28 32 L32 42 L36 32 L42 46 L50 46 L50 18 L43 18 L43 36 L38 24 L32 36 L26 24 L21 36 L21 18 Z" fill="var(--seed-primary-light)"/>
+        </svg>
+        <span class="favicon-size">64 × 64 · Dark</span>
+      </div>
+      <!-- 48px Dark -->
+      <div class="favicon-cell favicon-cell--dark">
+        <svg width="48" height="48" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="14" fill="var(--seed-surface-dark)"/>
+          <path d="M14 18 L14 46 L22 46 L28 32 L32 42 L36 32 L42 46 L50 46 L50 18 L43 18 L43 36 L38 24 L32 36 L26 24 L21 36 L21 18 Z" fill="var(--seed-primary-light)"/>
+        </svg>
+        <span class="favicon-size">48 × 48 · Dark</span>
+      </div>
+      <!-- 64px White outline -->
+      <div class="favicon-cell favicon-cell--dark">
+        <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="14" fill="var(--seed-dark-bg)"/>
+          <path d="M14 18 L14 46 L22 46 L28 32 L32 42 L36 32 L42 46 L50 46 L50 18 L43 18 L43 36 L38 24 L32 36 L26 24 L21 36 L21 18 Z" fill="var(--seed-fg-white)"/>
+        </svg>
+        <span class="favicon-size">64 × 64 · Mono</span>
+      </div>
+      <!-- 64px Gradient -->
+      <div class="favicon-cell">
+        <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="g1" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="var(--seed-primary)"/>
+              <stop offset="100%" stop-color="var(--seed-primary-dark)"/>
+            </linearGradient>
+          </defs>
+          <rect width="64" height="64" rx="14" fill="url(#g1)"/>
+          <path d="M14 18 L14 46 L22 46 L28 32 L32 42 L36 32 L42 46 L50 46 L50 18 L43 18 L43 36 L38 24 L32 36 L26 24 L21 36 L21 18 Z" fill="var(--seed-surface)"/>
+        </svg>
+        <span class="favicon-size">64 × 64 · Gradient</span>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ==================== Color Palette ==================== -->
+  <section class="section" data-component="palette">
+    <div class="section-label">配色方案</div>
+    <div class="section-title">Color Palette</div>
+    <div class="section-desc">以生态绿为主色调，传递自然、活力与可持续的品牌形象。搭配中性绿色灰色系形成完整的设计系统。</div>
+    <div class="palette-row">
+      <!-- Primary -->
+      <div class="swatch">
+        <div class="swatch-color" style="background: var(--seed-primary);"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Primary</div>
+          <div class="swatch-hex">#059669</div>
+        </div>
+      </div>
+      <!-- Primary Dark -->
+      <div class="swatch">
+        <div class="swatch-color" style="background: var(--seed-primary-dark);"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Primary Dark</div>
+          <div class="swatch-hex">#047857</div>
+        </div>
+      </div>
+      <!-- Primary Light -->
+      <div class="swatch">
+        <div class="swatch-color" style="background: var(--seed-primary-light);"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Primary Light</div>
+          <div class="swatch-hex">#34D399</div>
+        </div>
+      </div>
+      <!-- Dark BG -->
+      <div class="swatch">
+        <div class="swatch-color" style="background: var(--seed-dark-bg);"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Dark BG</div>
+          <div class="swatch-hex">#071A12</div>
+        </div>
+      </div>
+      <!-- Light BG -->
+      <div class="swatch">
+        <div class="swatch-color" style="background: var(--seed-bg); border-bottom: 1px solid var(--seed-border);"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Light BG</div>
+          <div class="swatch-hex">#F0FDF4</div>
+        </div>
+      </div>
+    </div>
+    <div class="palette-row">
+      <!-- FG -->
+      <div class="swatch">
+        <div class="swatch-color" style="background: var(--seed-fg);"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Foreground</div>
+          <div class="swatch-hex">#0F2318</div>
+        </div>
+      </div>
+      <!-- FG Secondary -->
+      <div class="swatch">
+        <div class="swatch-color" style="background: var(--seed-fg-secondary);"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Secondary</div>
+          <div class="swatch-hex">#3F5E50</div>
+        </div>
+      </div>
+      <!-- FG Dim -->
+      <div class="swatch">
+        <div class="swatch-color" style="background: var(--seed-fg-dim);"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Dim</div>
+          <div class="swatch-hex">#7BA393</div>
+        </div>
+      </div>
+      <!-- Surface -->
+      <div class="swatch">
+        <div class="swatch-color" style="background: var(--seed-surface); border-bottom: 1px solid var(--seed-border);"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Surface</div>
+          <div class="swatch-hex">#FFFFFF</div>
+        </div>
+      </div>
+      <!-- Border -->
+      <div class="swatch">
+        <div class="swatch-color" style="background: var(--seed-border); border-bottom: 1px solid var(--seed-border);"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Border</div>
+          <div class="swatch-hex">rgba(5,150,105,0.10)</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ==================== Typography Spec ==================== -->
+  <section class="section" data-component="typography">
+    <div class="section-label">字体规范</div>
+    <div class="section-title">Typography Spec</div>
+    <div class="section-desc">Logo 使用 Plus Jakarta Sans 作为展示字体，Inter 作为系统回退。两者均为开源字体，支持全平台渲染。</div>
+    <div class="typeface-spec">
+      <div class="typeface-card">
+        <div class="typeface-card-label">Logo / Display</div>
+        <div class="typeface-card-sample" style="font-family: var(--font-display);">WicMail</div>
+        <div class="typeface-card-meta">
+          Plus Jakarta Sans · Bold 800<br>
+          Letter-spacing: -0.02em<br>
+          用于 Logo、导航、品牌露出
+        </div>
+      </div>
+      <div class="typeface-card">
+        <div class="typeface-card-label">Body / Fallback</div>
+        <div class="typeface-card-sample" style="font-family: var(--font-body); font-weight: 400; font-size: 28px;">WicMail</div>
+        <div class="typeface-card-meta">
+          Inter · Medium 500 / Regular 400<br>
+          Letter-spacing: -0.01em<br>
+          用于正文、辅助文本、系统回退
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== Usage Context Preview ==================== -->
+  <section class="section" data-component="usage-context">
+    <div class="section-label">使用场景</div>
+    <div class="section-title">In-Context Preview</div>
+    <div class="section-desc">模拟 Logo 在导航栏、社交头像、浏览器标签等实际场景中的效果。</div>
+    <div class="variant-grid">
+      <!-- Nav bar mock -->
+      <div class="variant-card variant-card--full">
+        <div class="variant-preview" style="flex-direction: column; align-items: stretch; padding: 0;">
+          <!-- Simulated nav bar -->
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 24px; height: 56px; border-bottom: 1px solid var(--seed-border);">
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <svg width="28" height="28" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                <rect width="64" height="64" rx="14" fill="var(--seed-primary)"/>
+                <path d="M14 18 L14 46 L22 46 L28 32 L32 42 L36 32 L42 46 L50 46 L50 18 L43 18 L43 36 L38 24 L32 36 L26 24 L21 36 L21 18 Z" fill="var(--seed-surface)"/>
+              </svg>
+              <svg class="logo-svg" viewBox="0 0 200 36" width="120" height="22" xmlns="http://www.w3.org/2000/svg">
+                <text x="0" y="30" font-size="30" fill="var(--seed-fg)">
+                  <tspan font-weight="800" letter-spacing="-0.02em">Wic</tspan><tspan font-weight="500" letter-spacing="-0.01em" fill="var(--seed-primary)">Mail</tspan>
+                </text>
+              </svg>
+            </div>
+            <div style="display: flex; align-items: center; gap: 20px;">
+              <span style="font-size: 13px; color: var(--seed-fg-secondary);">功能</span>
+              <span style="font-size: 13px; color: var(--seed-fg-secondary);">文档</span>
+              <span style="font-size: 13px; color: var(--seed-fg-secondary);">关于</span>
+              <span style="display: inline-flex; align-items: center; padding: 6px 16px; background: var(--seed-primary); color: var(--seed-surface); font-size: 13px; font-weight: 500; border-radius: 8px;">登录</span>
+            </div>
+          </div>
+          <!-- Nav dark bar -->
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 24px; height: 56px; background: var(--seed-dark-bg);">
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <svg width="28" height="28" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                <rect width="64" height="64" rx="14" fill="var(--seed-surface-dark)"/>
+                <path d="M14 18 L14 46 L22 46 L28 32 L32 42 L36 32 L42 46 L50 46 L50 18 L43 18 L43 36 L38 24 L32 36 L26 24 L21 36 L21 18 Z" fill="var(--seed-primary-light)"/>
+              </svg>
+              <svg class="logo-svg" viewBox="0 0 200 36" width="120" height="22" xmlns="http://www.w3.org/2000/svg">
+                <text x="0" y="30" font-size="30" fill="var(--seed-fg-light)">
+                  <tspan font-weight="800" letter-spacing="-0.02em">Wic</tspan><tspan font-weight="500" letter-spacing="-0.01em" fill="var(--seed-primary-light)">Mail</tspan>
+                </text>
+              </svg>
+            </div>
+            <div style="display: flex; align-items: center; gap: 20px;">
+              <span style="font-size: 13px; color: rgba(255,255,255,0.5);">功能</span>
+              <span style="font-size: 13px; color: rgba(255,255,255,0.5);">文档</span>
+              <span style="font-size: 13px; color: rgba(255,255,255,0.5);">关于</span>
+              <span style="display: inline-flex; align-items: center; padding: 6px 16px; background: var(--seed-primary); color: var(--seed-surface); font-size: 13px; font-weight: 500; border-radius: 8px;">登录</span>
+            </div>
+          </div>
+        </div>
+        <div class="variant-info">
+          <div class="variant-name">导航栏场景</div>
+          <div class="variant-note">浅色 / 深色导航栏中的 Logo + Favicon 组合效果</div>
+        </div>
+      </div>
+      <!-- Social avatar mock -->
+      <div class="variant-card">
+        <div class="variant-preview" style="gap: 16px;">
+          <!-- Circle avatar -->
+          <svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="40" cy="40" r="40" fill="var(--seed-primary)"/>
+            <path d="M18 24 L18 56 L28 56 L35 38 L40 50 L45 38 L52 56 L62 56 L62 24 L53 24 L53 44 L47 30 L40 44 L33 30 L27 44 L27 24 Z" fill="var(--seed-surface)"/>
+          </svg>
+          <svg width="48" height="48" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="40" cy="40" r="40" fill="var(--seed-primary)"/>
+            <path d="M18 24 L18 56 L28 56 L35 38 L40 50 L45 38 L52 56 L62 56 L62 24 L53 24 L53 44 L47 30 L40 44 L33 30 L27 44 L27 24 Z" fill="var(--seed-surface)"/>
+          </svg>
+        </div>
+        <div class="variant-info">
+          <div class="variant-name">社交头像</div>
+          <div class="variant-note">圆形头像中的 W 图标效果</div>
+        </div>
+      </div>
+      <!-- Browser tab mock -->
+      <div class="variant-card">
+        <div class="variant-preview" style="flex-direction: column; align-items: flex-start; padding: 24px 28px; gap: 8px;">
+          <!-- Tab -->
+          <div style="display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--seed-surface); border: 1px solid var(--seed-border); border-bottom: none; border-radius: 8px 8px 0 0;">
+            <svg width="16" height="16" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+              <rect width="64" height="64" rx="14" fill="var(--seed-primary)"/>
+              <path d="M14 18 L14 46 L22 46 L28 32 L32 42 L36 32 L42 46 L50 46 L50 18 L43 18 L43 36 L38 24 L32 36 L26 24 L21 36 L21 18 Z" fill="var(--seed-surface)"/>
+            </svg>
+            <span style="font-size: 12px; color: var(--seed-fg);">WicMail - 校园邮箱</span>
+            <span style="font-size: 14px; color: var(--seed-fg-dim); margin-left: 8px;">×</span>
+          </div>
+          <!-- Address bar -->
+          <div style="width: 100%; display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--seed-surface); border: 1px solid var(--seed-border); border-radius: 6px;">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 10L8 12L10 10M8 4V12" stroke="var(--seed-fg-dim)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="rotate(90 8 8)"/>
+            </svg>
+            <span style="font-size: 12px; color: var(--seed-fg-dim); font-family: 'SF Mono', monospace;">wic.edu.kg</span>
+          </div>
+        </div>
+        <div class="variant-info">
+          <div class="variant-name">浏览器标签</div>
+          <div class="variant-note">16px Favicon 在浏览器标签页中的辨识度</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div>
+</body>
+</html>

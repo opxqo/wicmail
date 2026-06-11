@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     app_name: str = "WicMail Backend"
     app_env: str = "development"
     cloudflare_email_secret_key: str = "change-me"
-    database_url: str = "mysql+asyncmy://wicmail:DkDTbD2kxEkS7BwW@175.178.102.49:3306/wicmail"
+    database_url: str = "mysql+asyncmy://root:password@localhost:3306/wicmail"
 
     # JWT 配置
     jwt_secret_key: str = "your-secret-key-change-in-production"

@@ -15,7 +15,7 @@
           class="w-full flex flex-col"
         >
           <h2 class="f-c-c text-24 text-#6a6a6a font-normal">
-            <img src="https://r2.wic.edu.kg/images/favicon.svg" class="mr-12 h-40 w-40" alt="logo">
+            <img src="/wicmail-icon.svg" class="mr-12 h-40 w-40" alt="logo">
             登录 WicMail
           </h2>
           <p class="mt-8 f-c-c text-13 opacity-40">
@@ -89,7 +89,7 @@
           class="w-full flex flex-col"
         >
           <h2 class="f-c-c text-24 text-#6a6a6a font-normal">
-            <img src="https://r2.wic.edu.kg/images/favicon.svg" class="mr-12 h-40 w-40" alt="logo">
+            <img src="/wicmail-icon.svg" class="mr-12 h-40 w-40" alt="logo">
             注册账号
           </h2>
           <p class="mt-8 f-c-c text-13 opacity-40">
@@ -100,7 +100,7 @@
             v-model:value="registerInfo.username"
             autofocus
             class="mt-24 h-40 items-center"
-            placeholder="请输入用户名 (小写字母/数字/下划线)"
+            placeholder="请输入用户名"
             :maxlength="20"
           >
             <template #prefix>
@@ -342,7 +342,6 @@ async function switchMode(toLogin) {
     duration: 400,
   }, 50)
 }
-
 
 async function handleLogin() {
   const { username, password } = loginInfo.value

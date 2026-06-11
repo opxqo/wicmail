@@ -24,8 +24,9 @@ export function createPermissionGuard(router) {
     const userStore = useUserStore()
     const permissionStore = usePermissionStore()
     if (!userStore.userInfo) {
-      const [user, permissions] = await Promise.all([getUserInfo(), getPermissions()])
+      const user = await getUserInfo()
       userStore.setUser(user)
+      const permissions = await getPermissions(user)
       permissionStore.setPermissions(permissions)
       const routeComponents = import.meta.glob('@/views/**/*.vue')
       permissionStore.accessRoutes.forEach((route) => {

@@ -18,6 +18,7 @@ class User(Base):
     username: Mapped[str] = mapped_column(String(100), unique=True, nullable=False, index=True)
     student_id: Mapped[Optional[str]] = mapped_column(String(20), unique=True, nullable=True, index=True)
     email: Mapped[Optional[str]] = mapped_column(String(255), unique=True, nullable=True)
+    avatar_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     real_name: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
     department: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)

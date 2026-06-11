@@ -26,7 +26,6 @@
         @click="handleLinkClick('https://github.com/opxqo')"
       />
 
-
       <ThemeSetting class="mr-16" />
 
       <UserAvatar />

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 310 56" width="310" height="56">
+  <!-- WicMail Wordmark with Accent Dot - Dark Background -->
+  <text x="0" y="44" font-family="'Plus Jakarta Sans', 'Inter', system-ui, sans-serif" font-size="48" fill="#ecfdf5">
+    <tspan font-weight="800" letter-spacing="-0.02em">Wic</tspan><tspan font-weight="500" letter-spacing="-0.01em">Mail</tspan>
+  </text>
+  <circle cx="298" cy="44" r="6" fill="#34d399"/>
+</svg>
