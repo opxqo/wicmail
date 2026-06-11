@@ -1,0 +1,18 @@
+# index.html 不缓存，确保用户始终获取最新版本
+/index.html
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+
+# Vite 构建产物带 hash，可长期缓存
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# 静态资源（图标、字体等）长期缓存
+/*.svg
+  Cache-Control: public, max-age=2592000
+/*.avif
+  Cache-Control: public, max-age=2592000
+/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+/*.png
+  Cache-Control: public, max-age=2592000

@@ -370,7 +370,7 @@ export const mockApi = {
         id: user.id,
         username: user.username,
         profile: {
-          avatar: null,
+          avatar: user.avatar_url || null,
           nickName: user.real_name || user.username,
           email: user.email,
         },

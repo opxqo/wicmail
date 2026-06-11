@@ -4,9 +4,10 @@
     <n-card>
       <div class="flex items-center gap-24">
         <div class="relative flex-shrink-0">
-          <n-avatar round :size="72" :src="profile?.avatar_url" class="bg-primary/10 text-28 text-primary">
-            {{ (userStore.nickName ?? userStore.username)?.charAt(0) }}
-          </n-avatar>
+          <div class="rounded-full overflow-hidden bg-primary/10 text-28 text-primary flex items-center justify-center flex-shrink-0" style="width: 72px; height: 72px;">
+            <img v-if="profile?.avatar_url" :src="profile.avatar_url" alt="avatar" class="w-full h-full object-cover" />
+            <span v-else>{{ (userStore.nickName ?? userStore.username)?.charAt(0) }}</span>
+          </div>
           <n-button
             size="tiny"
             circle
@@ -112,16 +113,16 @@
           <n-input v-model:value="editForm.real_name" placeholder="请输入真实姓名" />
         </n-form-item>
         <n-form-item label="学部" path="department">
-          <n-input v-model:value="editForm.department" placeholder="请输入学部" />
+          <n-select v-model:value="editForm.department" :options="departmentOptions" placeholder="请选择学部" @update:value="handleDepartmentChange" />
         </n-form-item>
         <n-form-item label="专业" path="major">
-          <n-input v-model:value="editForm.major" placeholder="请输入专业" />
+          <n-select v-model:value="editForm.major" :options="majorOptions" placeholder="请选择专业" :disabled="!editForm.department" />
         </n-form-item>
         <n-form-item label="班级" path="class_name">
-          <n-input v-model:value="editForm.class_name" placeholder="请输入班级" />
+          <n-select v-model:value="editForm.class_name" :options="classNameOptions" placeholder="请选择班级" />
         </n-form-item>
         <n-form-item label="年级" path="grade">
-          <n-input v-model:value="editForm.grade" placeholder="请输入年级，如 2024" />
+          <n-select v-model:value="editForm.grade" :options="gradeOptions" placeholder="请选择年级" />
         </n-form-item>
       </n-form>
     </MeModal>
@@ -180,6 +181,75 @@ const editForm = ref({
   grade: '',
 })
 
+// 武汉城市学院 学部与专业标准字典
+const DEPARTMENT_MAJORS = {
+  '信息工程学部': ['计算机科学与技术', '软件工程', '数据科学与大数据技术', '电子信息工程', '物联网工程'],
+  '机电工程学部': ['机械设计制造及其自动化', '电气工程及其自动化', '自动化', '机器人工程'],
+  '城市建设学部': ['土木工程', '建筑学', '工程造价', '风景园林'],
+  '医学部': ['护理学', '康复治疗学', '药学'],
+  '经济与管理学部': ['会计学', '财务管理', '市场营销', '国际经济与贸易', '电子商务'],
+  '艺术设计学部': ['视觉传达设计', '环境设计', '产品设计'],
+  '外语学部': ['英语', '商务英语']
+}
+
+// 动态学部下拉项，兼容历史非标准值
+const departmentOptions = computed(() => {
+  const standardDepts = Object.keys(DEPARTMENT_MAJORS)
+  const opts = standardDepts.map(dept => ({ label: dept, value: dept }))
+  const currentVal = editForm.value.department
+  if (currentVal && !standardDepts.includes(currentVal)) {
+    opts.unshift({ label: `${currentVal} (非标准)`, value: currentVal })
+  }
+  return opts
+})
+
+// 动态专业下拉项，根据学部联动，兼容历史非标准专业值
+const majorOptions = computed(() => {
+  const dept = editForm.value.department
+  if (!dept) return []
+  const standardMajors = DEPARTMENT_MAJORS[dept] || []
+  const opts = standardMajors.map(m => ({ label: m, value: m }))
+  const currentMajor = editForm.value.major
+  if (currentMajor && !standardMajors.includes(currentMajor)) {
+    opts.unshift({ label: `${currentMajor} (非标准)`, value: currentMajor })
+  }
+  return opts
+})
+
+// 学部变更时联动重置专业（若不属于新学部的专业列表）
+function handleDepartmentChange(value) {
+  const standardMajors = DEPARTMENT_MAJORS[value] || []
+  if (!standardMajors.includes(editForm.value.major)) {
+    editForm.value.major = ''
+  }
+}
+
+// 年级下拉选项（近 6 年）
+const gradeOptions = computed(() => {
+  const currentYear = new Date().getFullYear()
+  const standardGrades = []
+  for (let i = 0; i < 6; i++) {
+    standardGrades.push(String(currentYear - i))
+  }
+  const opts = standardGrades.map(g => ({ label: `${g} 级`, value: g }))
+  const currentVal = editForm.value.grade
+  if (currentVal && !standardGrades.includes(currentVal)) {
+    opts.unshift({ label: `${currentVal} (非标准)`, value: currentVal })
+  }
+  return opts
+})
+
+// 班级下拉选项（1 到 10 班）
+const classNameOptions = computed(() => {
+  const standardClasses = Array.from({ length: 10 }, (_, i) => String(i + 1))
+  const opts = standardClasses.map(c => ({ label: `${c} 班`, value: c }))
+  const currentVal = editForm.value.class_name
+  if (currentVal && !standardClasses.includes(currentVal)) {
+    opts.unshift({ label: `${currentVal} (非标准)`, value: currentVal })
+  }
+  return opts
+})
+
 // 资料完善度百分比
 const completionPercent = computed(() => {
   if (!profile.value)
@@ -190,13 +260,32 @@ const completionPercent = computed(() => {
 })
 
 function openEditModal() {
+  let dept = profile.value?.department || ''
+  // 智能修复旧版本数据库存储的无“学部”后缀的旧字段值
+  if (dept === '信息工程') dept = '信息工程学部'
+  else if (dept === '机电工程') dept = '机电工程学部'
+  else if (dept === '城市建设') dept = '城市建设学部'
+  else if (dept === '经济与管理') dept = '经济与管理学部'
+  else if (dept === '艺术设计') dept = '艺术设计学部'
+  else if (dept === '外语') dept = '外语学部'
+
+  // 纠错规范化年级和班级数据（剥离可能的中文后缀以符合纯数字标准）
+  let grade = profile.value?.grade || ''
+  if (grade) {
+    grade = grade.replace('级', '').trim()
+  }
+  let className = profile.value?.class_name || ''
+  if (className) {
+    className = className.replace('班', '').trim()
+  }
+
   editForm.value = {
     email: profile.value?.email || '',
     real_name: profile.value?.real_name || '',
-    department: profile.value?.department || '',
+    department: dept,
     major: profile.value?.major || '',
-    class_name: profile.value?.class_name || '',
-    grade: profile.value?.grade || '',
+    class_name: className,
+    grade: grade,
   }
   editModalRef.value.open()
 }

@@ -11,9 +11,10 @@
     <div class="flex">
       <n-card class="min-w-200 w-30%">
         <div class="flex items-center">
-          <n-avatar round :size="60" :src="userStore.avatar" class="flex-shrink-0 bg-primary/10 text-primary">
-            {{ (userStore.nickName ?? userStore.username)?.charAt(0) }}
-          </n-avatar>
+          <div class="rounded-full overflow-hidden bg-primary/10 text-primary flex items-center justify-center flex-shrink-0" style="width: 60px; height: 60px;">
+            <img v-if="userStore.avatar" :src="userStore.avatar" alt="avatar" class="w-full h-full object-cover" />
+            <span v-else class="text-20">{{ (userStore.nickName ?? userStore.username)?.charAt(0) }}</span>
+          </div>
           <div class="ml-20 flex-col">
             <span class="text-20 opacity-80">
               Hello, {{ userStore.nickName ?? userStore.username }}

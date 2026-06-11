@@ -1,148 +1,169 @@
 <template>
   <div class="avatar-editor">
-    <!-- 风格选择 -->
-    <div class="style-section">
-      <div class="section-title">
-        选择风格
-      </div>
-      <div class="style-grid">
-        <div
-          v-for="style in styles"
-          :key="style.name"
-          class="style-card"
-          :class="{ active: selectedStyle === style.name }"
-          @click="selectStyle(style.name)"
-        >
-          <img
-            :src="getStylePreviewUrl(style.name)"
-            :alt="style.label"
-            class="style-preview"
+    <!-- 左侧：参数控制区 -->
+    <div class="editor-left">
+      <!-- 风格选择 -->
+      <div class="style-section">
+        <div class="section-title">
+          选择风格
+        </div>
+        <div class="style-grid">
+          <div
+            v-for="style in styles"
+            :key="style.name"
+            class="style-card"
+            :class="{ active: selectedStyle === style.name }"
+            @click="selectStyle(style.name)"
           >
-          <div class="style-label">
-            {{ style.label }}
+            <img
+              :src="getStylePreviewUrl(style.name)"
+              :alt="style.label"
+              class="style-preview"
+            >
+            <div class="style-label">
+              {{ style.label }}
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- 参数调节 -->
-    <div class="options-section">
-      <div class="section-title">
-        自定义参数
-      </div>
+      <!-- 参数调节 -->
+      <div class="options-section">
+        <div class="section-title">
+          自定义参数
+        </div>
 
-      <!-- Seed -->
-      <div class="option-row">
-        <span class="option-label">种子 (Seed)</span>
-        <n-input v-model:value="options.seed" size="small" placeholder="默认使用用户名" @update:value="emitUpdate" />
-      </div>
+        <!-- Seed -->
+        <div class="option-row">
+          <span class="option-label">种子 (Seed)</span>
+          <n-input v-model:value="options.seed" size="small" placeholder="默认使用用户名" @update:value="emitUpdate" />
+        </div>
 
-      <!-- 背景色 -->
-      <div class="option-row">
-        <span class="option-label">背景色</span>
-        <div class="color-pickers">
-          <n-color-picker
-            v-for="(_, i) in options.backgroundColors"
-            :key="i"
-            v-model:value="options.backgroundColors[i]"
-            size="small"
-            :show-alpha="false"
-            :modes="['hex']"
-            class="color-picker-item"
+        <!-- 背景色 -->
+        <div class="option-row">
+          <span class="option-label">背景色</span>
+          <div class="color-pickers">
+            <n-color-picker
+              v-for="(_, i) in options.backgroundColors"
+              :key="i"
+              v-model:value="options.backgroundColors[i]"
+              size="small"
+              :show-alpha="false"
+              :modes="['hex']"
+              class="color-picker-item"
+              @update:value="emitUpdate"
+            />
+            <n-button
+              v-if="options.backgroundColors.length < 4"
+              size="tiny"
+              quaternary
+              @click="addBgColor"
+            >
+              + 添加
+            </n-button>
+            <n-button
+              v-if="options.backgroundColors.length > 1"
+              size="tiny"
+              quaternary
+              type="error"
+              @click="removeLastBgColor"
+            >
+              - 移除
+            </n-button>
+          </div>
+        </div>
+
+        <!-- 圆角 -->
+        <div class="option-row">
+          <span class="option-label">圆角</span>
+          <n-slider
+            v-model:value="options.borderRadius"
+            :min="0"
+            :max="50"
+            :step="1"
+            class="option-slider"
             @update:value="emitUpdate"
           />
-          <n-button
-            v-if="options.backgroundColors.length < 4"
-            size="tiny"
-            quaternary
-            @click="addBgColor"
-          >
-            + 添加
-          </n-button>
-          <n-button
-            v-if="options.backgroundColors.length > 1"
-            size="tiny"
-            quaternary
-            type="error"
-            @click="removeLastBgColor"
-          >
-            - 移除
-          </n-button>
+          <span class="option-value">{{ options.borderRadius }}%</span>
         </div>
-      </div>
 
-      <!-- 圆角 -->
-      <div class="option-row">
-        <span class="option-label">圆角</span>
-        <n-slider
-          v-model:value="options.borderRadius"
-          :min="0"
-          :max="50"
-          :step="1"
-          class="option-slider"
-          @update:value="emitUpdate"
-        />
-        <span class="option-value">{{ options.borderRadius }}%</span>
-      </div>
-
-      <!-- 翻转 -->
-      <div class="option-row">
-        <span class="option-label">翻转</span>
-        <n-select
-          v-model:value="options.flip"
-          :options="flipOptions"
-          size="small"
-          class="option-select"
-          @update:value="emitUpdate"
-        />
-      </div>
-
-      <!-- 旋转 -->
-      <div class="option-row">
-        <span class="option-label">旋转</span>
-        <n-slider
-          v-model:value="options.rotate"
-          :min="0"
-          :max="360"
-          :step="1"
-          class="option-slider"
-          @update:value="emitUpdate"
-        />
-        <span class="option-value">{{ options.rotate }}°</span>
-      </div>
-
-      <!-- 风格特色选项（动态加载） -->
-      <template v-if="styleOptions.length">
-        <n-divider class="my-8!" />
-        <div class="section-title text-12 opacity-50">
-          风格特色选项
-        </div>
-        <div v-for="opt in styleOptions" :key="opt.key" class="option-row">
-          <span class="option-label">{{ opt.label }}</span>
+        <!-- 翻转 -->
+        <div class="option-row">
+          <span class="option-label">翻转</span>
           <n-select
-            v-model:value="opt.value"
-            :options="opt.choices"
+            v-model:value="options.flip"
+            :options="flipOptions"
             size="small"
             class="option-select"
             @update:value="emitUpdate"
           />
         </div>
-      </template>
+
+        <!-- 旋转 -->
+        <div class="option-row">
+          <span class="option-label">旋转</span>
+          <n-slider
+            v-model:value="options.rotate"
+            :min="0"
+            :max="360"
+            :step="1"
+            class="option-slider"
+            @update:value="emitUpdate"
+          />
+          <span class="option-value">{{ options.rotate }}°</span>
+        </div>
+
+        <!-- 风格特色选项（动态加载） -->
+        <template v-if="styleOptions.length">
+          <n-divider class="my-8!" />
+          <div class="section-title text-12 opacity-50">
+            风格特色选项
+          </div>
+          <div v-for="opt in styleOptions" :key="opt.key" class="option-row">
+            <span class="option-label">{{ opt.label }}</span>
+            <n-select
+              v-model:value="opt.value"
+              :options="opt.choices"
+              size="small"
+              class="option-select"
+              @update:value="emitUpdate"
+            />
+          </div>
+        </template>
+      </div>
     </div>
 
-    <!-- 预览 -->
-    <div class="preview-section">
-      <div class="section-title">
-        预览
-      </div>
-      <div class="preview-container">
-        <img :src="previewUrl" alt="avatar preview" class="preview-image" :style="previewStyle">
-      </div>
-      <div class="preview-sizes">
-        <img :src="previewUrl" alt="" class="preview-small" :style="previewStyle">
-        <span class="text-12 opacity-50">40px</span>
-        <img :src="previewUrl" alt="" class="preview-medium" :style="previewStyle">
-        <span class="text-12 opacity-50">72px</span>
+    <!-- 右侧：实时预览与快捷操作 -->
+    <div class="editor-right">
+      <div class="preview-section">
+        <div class="section-title">
+          实时预览
+        </div>
+        <div class="preview-container">
+          <img :src="previewUrl" alt="avatar preview" class="preview-image" :style="previewStyle">
+        </div>
+        <div class="preview-sizes">
+          <div class="preview-size-item">
+            <img :src="previewUrl" alt="" class="preview-medium" :style="previewStyle">
+            <span class="size-label">72px</span>
+          </div>
+          <div class="preview-size-item">
+            <img :src="previewUrl" alt="" class="preview-small" :style="previewStyle">
+            <span class="size-label">40px</span>
+          </div>
+        </div>
+        
+        <div class="editor-actions">
+          <n-button secondary type="primary" class="flex-1" @click="randomize">
+            <template #icon>
+              <i class="i-fe:shuffle" />
+            </template>
+            随机搭配
+          </n-button>
+          <n-button secondary @click="resetOptions">
+            重置
+          </n-button>
+        </div>
       </div>
     </div>
   </div>
@@ -375,25 +396,116 @@ watch(() => props.username, (val) => {
     emitUpdate()
   }
 })
+
+// 随机搭配
+async function randomize() {
+  const randomStyle = styles[Math.floor(Math.random() * styles.length)].name
+  
+  // 1. 先加载随机风格的选项定义
+  await selectStyle(randomStyle)
+  
+  // 2. 随机核心配置
+  const randomSeed = Math.random().toString(36).substring(2, 10)
+  const randomColors = ['b6e3f4', 'c0aede', 'd1d4f9', 'ffd5dc', 'ffdfbf', 'ffc3a0', 'bbf7d0', 'fecdd3', 'e2e8f0', 'cbd5e1']
+  const bgCount = Math.floor(Math.random() * 3) + 1
+  const bgColors = []
+  while (bgColors.length < bgCount) {
+    const c = randomColors[Math.floor(Math.random() * randomColors.length)]
+    if (!bgColors.includes(c)) bgColors.push(c)
+  }
+  
+  options.value = {
+    seed: randomSeed,
+    backgroundColors: bgColors,
+    borderRadius: Math.random() > 0.5 ? 50 : (Math.random() > 0.5 ? 0 : Math.floor(Math.random() * 30)),
+    flip: flipOptions[Math.floor(Math.random() * flipOptions.length)].value,
+    rotate: Math.random() > 0.5 ? 0 : Math.floor(Math.random() * 36) * 10,
+  }
+  
+  // 3. 随机选择该风格下的微调特色选项
+  if (styleOptions.value.length) {
+    styleOptions.value.forEach(opt => {
+      if (opt.choices.length > 1) {
+        const idx = Math.floor(Math.random() * (opt.choices.length - 1)) + 1
+        opt.value = opt.choices[idx].value
+      }
+    })
+  }
+  
+  emitUpdate()
+}
+
+// 重置参数
+function resetOptions() {
+  options.value = {
+    seed: props.username || '',
+    backgroundColors: ['b6e3f4', 'c0aede', 'd1d4f9'],
+    borderRadius: 50,
+    flip: 'none',
+    rotate: 0,
+  }
+  if (styleOptions.value.length) {
+    styleOptions.value.forEach(opt => {
+      opt.value = '__random__'
+    })
+  }
+  emitUpdate()
+}
 </script>
 
 <style scoped>
 .avatar-editor {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.editor-left {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
+  max-height: 480px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+/* 自定义控制区滚动条 */
+.editor-left::-webkit-scrollbar {
+  width: 5px;
+}
+.editor-left::-webkit-scrollbar-track {
+  background: transparent;
+}
+.editor-left::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+:global(.dark) .editor-left::-webkit-scrollbar-thumb,
+.dark .editor-left::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+.editor-right {
+  position: sticky;
+  top: 0;
 }
 
 .section-title {
   font-size: 13px;
   font-weight: 600;
   color: #64748b;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+}
+:global(.dark) .section-title,
+.dark .section-title {
+  color: #94a3b8;
 }
 
+/* 风格选择网格，在双栏下左侧空间缩小，4列最为精美 */
 .style-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 8px;
 }
 
@@ -401,53 +513,87 @@ watch(() => props.username, (val) => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   padding: 8px 4px;
   border-radius: 8px;
-  border: 2px solid transparent;
+  border: 1px solid #e2e8f0;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
   background: #f8fafc;
 }
-.style-card:hover {
-  border-color: #a7f3d0;
-  background: #ecfdf5;
+:global(.dark) .style-card,
+.dark .style-card {
+  background: #1e293b;
+  border-color: #334155;
 }
-.style-card.active {
+
+.style-card:hover {
   border-color: #059669;
   background: #ecfdf5;
 }
+:global(.dark) .style-card:hover,
+.dark .style-card:hover {
+  background: #064e3b;
+  border-color: #059669;
+}
+
+.style-card.active {
+  border-color: #059669;
+  background: #ecfdf5;
+  box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.15);
+}
+:global(.dark) .style-card.active,
+.dark .style-card.active {
+  background: #064e3b;
+  border-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+}
 
 .style-preview {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   object-fit: cover;
+  background: #e2e8f0;
+}
+:global(.dark) .style-preview,
+.dark .style-preview {
+  background: #334155;
 }
 
 .style-label {
   font-size: 11px;
-  color: #64748b;
+  font-weight: 500;
+  color: #475569;
   text-align: center;
+}
+:global(.dark) .style-label,
+.dark .style-label {
+  color: #cbd5e1;
 }
 
 .options-section {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .option-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .option-label {
-  font-size: 13px;
+  font-size: 12px;
+  font-weight: 500;
   color: #64748b;
-  min-width: 70px;
+  min-width: 80px;
   flex-shrink: 0;
+}
+:global(.dark) .option-label,
+.dark .option-label {
+  color: #94a3b8;
 }
 
 .option-slider {
@@ -455,10 +601,15 @@ watch(() => props.username, (val) => {
 }
 
 .option-value {
-  font-size: 12px;
-  color: #94a3b8;
-  min-width: 36px;
+  font-size: 11px;
+  font-family: monospace;
+  color: #64748b;
+  min-width: 32px;
   text-align: right;
+}
+:global(.dark) .option-value,
+.dark .option-value {
+  color: #94a3b8;
 }
 
 .option-select {
@@ -468,50 +619,144 @@ watch(() => props.username, (val) => {
 .color-pickers {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex: 1;
   flex-wrap: wrap;
 }
 
+/* 彻底解决 n-color-picker 被 flex 拉伸的问题 */
 .color-picker-item {
-  width: 48px !important;
+  width: 36px !important;
+  height: 36px !important;
+  flex-grow: 0 !important;
+  flex-shrink: 0 !important;
+  border-radius: 6px !important;
+  overflow: hidden;
 }
 
 .preview-section {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+}
+:global(.dark) .preview-section,
+.dark .preview-section {
+  background: #1e293b;
+  border-color: #334155;
 }
 
 .preview-container {
   display: flex;
   justify-content: center;
-  padding: 16px;
-  background: repeating-conic-gradient(#e5e7eb 0% 25%, transparent 0% 50%) 0 0 / 16px 16px;
+  align-items: center;
+  padding: 24px;
+  background: repeating-conic-gradient(#e2e8f0 0% 25%, transparent 0% 50%) 0 0 / 16px 16px;
   border-radius: 12px;
+  width: 100%;
+  aspect-ratio: 1;
+  border: 1px dashed #cbd5e1;
+  box-sizing: border-box;
+}
+:global(.dark) .preview-container,
+.dark .preview-container {
+  background: repeating-conic-gradient(#334155 0% 25%, transparent 0% 50%) 0 0 / 16px 16px;
+  border-color: #475569;
 }
 
 .preview-image {
   width: 128px;
   height: 128px;
   object-fit: cover;
+  filter: drop-shadow(0 4px 6px -1px rgba(0, 0, 0, 0.1));
 }
 
 .preview-sizes {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
-  gap: 12px;
-  margin-top: 12px;
+  gap: 20px;
+  margin: 16px 0;
+  width: 100%;
+}
+
+.preview-size-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.size-label {
+  font-size: 10px;
+  font-family: monospace;
+  color: #94a3b8;
 }
 
 .preview-small {
   width: 40px;
   height: 40px;
   object-fit: cover;
+  border-radius: 50%;
+  background: #f1f5f9;
+}
+:global(.dark) .preview-small,
+.dark .preview-small {
+  background: #334155;
 }
 
 .preview-medium {
   width: 72px;
   height: 72px;
   object-fit: cover;
+  border-radius: 50%;
+  background: #f1f5f9;
+}
+:global(.dark) .preview-medium,
+.dark .preview-medium {
+  background: #334155;
+}
+
+.editor-actions {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+/* 响应式样式与移动端置顶 */
+@media (max-width: 576px) {
+  .avatar-editor {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .editor-left {
+    max-height: none;
+    overflow-y: visible;
+    padding-right: 0;
+  }
+  
+  .style-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+  
+  .editor-right {
+    order: -1; /* 移动端预览置顶 */
+    position: static;
+  }
+  
+  .preview-container {
+    padding: 16px;
+    height: auto;
+    max-height: 180px;
+  }
+  
+  .preview-image {
+    width: 96px;
+    height: 96px;
+  }
 }
 </style>

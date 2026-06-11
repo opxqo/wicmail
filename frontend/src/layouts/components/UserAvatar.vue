@@ -9,9 +9,10 @@
 <template>
   <n-dropdown :options="options" @select="handleSelect">
     <div id="user-dropdown" class="flex cursor-pointer items-center">
-      <n-avatar round :size="36" :src="userStore.avatar" class="bg-primary/10 text-primary">
-        {{ (userStore.nickName ?? userStore.username)?.charAt(0) }}
-      </n-avatar>
+      <div class="rounded-full overflow-hidden bg-primary/10 text-primary flex items-center justify-center flex-shrink-0" style="width: 36px; height: 36px;">
+        <img v-if="userStore.avatar" :src="userStore.avatar" alt="avatar" class="w-full h-full object-cover" />
+        <span v-else>{{ (userStore.nickName ?? userStore.username)?.charAt(0) }}</span>
+      </div>
       <div v-if="userStore.userInfo" class="ml-12 flex-col flex-shrink-0 items-center">
         <span class="text-14">{{ userStore.nickName ?? userStore.username }}</span>
         <span class="text-12 opacity-50">[{{ userStore.currentRole?.name }}]</span>
