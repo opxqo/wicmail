@@ -57,7 +57,7 @@
             type="primary"
             class="ml-12"
             tag="a"
-            href="https://github.com/zclzone/vue-naive-admin/tree/2.x"
+            href="https://github.com/opxqo"
             target="__blank"
           >
             代码仓库

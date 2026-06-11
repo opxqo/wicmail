@@ -36,7 +36,7 @@
     </div>
 
     <!-- 统计卡片 -->
-    <div class="mt-12 grid grid-cols-4 gap-12">
+    <div class="grid grid-cols-4 mt-12 gap-12">
       <n-card v-for="item in statCards" :key="item.label" class="text-center">
         <n-statistic :label="item.label" :value="item.value">
           <template #prefix>
@@ -65,10 +65,16 @@
         </template>
         <div v-for="mb in myMailboxes" :key="mb.id" class="mb-8 flex items-center justify-between rounded-8 bg-gray-100 p-12">
           <div>
-            <div class="text-14 font-bold">{{ mb.address }}</div>
-            <div class="mt-2 text-12 opacity-50">{{ mb.display_name }}</div>
+            <div class="text-14 font-bold">
+              {{ mb.address }}
+            </div>
+            <div class="mt-2 text-12 opacity-50">
+              {{ mb.display_name }}
+            </div>
           </div>
-          <n-tag type="success" size="small" round>活跃</n-tag>
+          <NTag type="success" size="small" round>
+            活跃
+          </NTag>
         </div>
         <n-empty v-if="!myMailboxes.length" description="暂无邮箱" />
       </n-card>
@@ -77,11 +83,11 @@
 </template>
 
 <script setup>
-import { h, ref, onMounted } from 'vue'
 import { NTag } from 'naive-ui'
+import { h, onMounted, ref } from 'vue'
+import { getEmails, getMyMailboxes } from '@/api/wicmail'
 import { AppPage } from '@/components'
 import { useUserStore } from '@/store'
-import { mockApi, isMock } from '@/mock/data'
 
 const userStore = useUserStore()
 
@@ -117,17 +123,24 @@ const emailColumns = [
 ]
 
 onMounted(async () => {
-  if (isMock()) {
+  try {
     const [emailRes, mbRes] = await Promise.all([
-      mockApi.getEmails({ page: 1, page_size: 5 }),
-      mockApi.getMyMailboxes(),
+      getEmails({ page: 1, page_size: 5 }),
+      getMyMailboxes(),
     ])
-    recentEmails.value = emailRes.data.emails
-    myMailboxes.value = mbRes.data
-    statCards.value[0].value = mbRes.data.length
-    statCards.value[1].value = emailRes.data.total
-    statCards.value[2].value = emailRes.data.emails.filter(e => !e.is_read).length
-    statCards.value[3].value = 1
+    const emailData = emailRes.data || emailRes
+    const mbData = mbRes.data || mbRes
+    const emails = emailData.emails || []
+    const mailboxes = Array.isArray(mbData) ? mbData : (mbData.mailboxes || [])
+
+    recentEmails.value = emails
+    myMailboxes.value = mailboxes
+    statCards.value[0].value = mailboxes.length
+    statCards.value[1].value = emailData.total || emails.length
+    statCards.value[2].value = emails.filter(e => !e.is_read).length
+  }
+  catch (err) {
+    console.error('Dashboard 加载失败:', err)
   }
 })
 </script>

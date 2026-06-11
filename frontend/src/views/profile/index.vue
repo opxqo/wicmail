@@ -3,7 +3,7 @@
     <!-- 用户概览卡片 -->
     <n-card>
       <div class="flex items-center gap-24">
-        <n-avatar round :size="72" class="bg-primary/10 text-primary text-28 flex-shrink-0">
+        <n-avatar round :size="72" class="flex-shrink-0 bg-primary/10 text-28 text-primary">
           {{ (userStore.nickName ?? userStore.username)?.charAt(0) }}
         </n-avatar>
         <div class="flex-1">
@@ -67,6 +67,9 @@
       </template>
 
       <n-descriptions label-placement="left" :label-style="{ width: '120px' }" :column="1" bordered>
+        <n-descriptions-item label="学号">
+          <span>{{ profile?.student_id || '未设置' }}</span>
+        </n-descriptions-item>
         <n-descriptions-item label="邮箱">
           <span :class="{ 'opacity-30': !profile?.email }">{{ profile?.email || '未填写' }}</span>
         </n-descriptions-item>
@@ -115,12 +118,12 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { getProfile, updateProfile } from '@/api/wicmail'
 import { MeModal } from '@/components'
 import { useModal } from '@/composables'
 import { useUserStore } from '@/store'
 import { getUserInfo } from '@/store/helper'
-import { mockApi, isMock } from '@/mock/data'
 
 const userStore = useUserStore()
 const profile = ref(null)
@@ -138,7 +141,8 @@ const editForm = ref({
 
 // 资料完善度百分比
 const completionPercent = computed(() => {
-  if (!profile.value) return 0
+  if (!profile.value)
+    return 0
   const total = 6 // email, real_name, department, major, class_name, grade
   const missing = profile.value.missing_fields?.length || 0
   return Math.round(((total - missing) / total) * 100)
@@ -158,9 +162,7 @@ function openEditModal() {
 
 async function handleSave() {
   try {
-    if (isMock()) {
-      await mockApi.updateProfile(null, editForm.value)
-    }
+    await updateProfile(editForm.value)
     $message.success('资料修改成功')
     await loadProfile()
   }
@@ -170,15 +172,16 @@ async function handleSave() {
 }
 
 async function loadProfile() {
-  if (isMock()) {
-    const { useAuthStore } = await import('@/store')
-    const token = useAuthStore().accessToken
-    const res = await mockApi.getProfile(token)
-    profile.value = res.data
+  try {
+    const res = await getProfile()
+    profile.value = res.data || res
 
     // 同步 userStore
     const user = await getUserInfo()
     userStore.setUser(user)
+  }
+  catch (err) {
+    console.error('加载个人资料失败:', err)
   }
 }
 

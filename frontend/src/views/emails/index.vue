@@ -37,7 +37,9 @@
           </div>
           <div class="meta-row">
             <span class="meta-label">邮箱：</span>
-            <n-tag size="small" type="info" round>{{ currentEmail.mailbox_address }}</n-tag>
+            <NTag size="small" type="info" round>
+              {{ currentEmail.mailbox_address }}
+            </NTag>
           </div>
         </div>
 
@@ -50,7 +52,9 @@
         <!-- 附件 -->
         <template v-if="currentEmail.attachments?.length">
           <n-divider />
-          <h4 class="flex items-center gap-8"><i class="i-fe:paperclip text-16" /> 附件 ({{ currentEmail.attachments.length }})</h4>
+          <h4 class="flex items-center gap-8">
+            <i class="i-fe:paperclip text-16" /> 附件 ({{ currentEmail.attachments.length }})
+          </h4>
           <div class="mt-8 flex flex-col gap-8">
             <div v-for="att in currentEmail.attachments" :key="att.id" class="flex items-center justify-between rounded-8 bg-gray-100 p-12">
               <div class="flex items-center gap-8">
@@ -77,10 +81,10 @@
 </template>
 
 <script setup>
-import { h, ref, onMounted } from 'vue'
 import { NTag } from 'naive-ui'
+import { h, onMounted, ref } from 'vue'
+import { getEmailDetail, getEmails, markEmailRead, markEmailUnread } from '@/api/wicmail'
 import { AppPage } from '@/components'
-import { mockApi, isMock } from '@/mock/data'
 
 const loading = ref(false)
 const emails = ref([])
@@ -122,7 +126,8 @@ const columns = [
     key: 'attachment_count',
     width: 70,
     render(row) {
-      if (row.attachment_count <= 0) return ''
+      if (row.attachment_count <= 0)
+        return ''
       return h('span', { class: 'flex items-center gap-2' }, [
         h('i', { class: 'i-fe:paperclip text-14' }),
         String(row.attachment_count),
@@ -145,30 +150,42 @@ function rowProps(row) {
 }
 
 async function openEmail(row) {
-  if (isMock()) {
-    const res = await mockApi.getEmailDetail(row.id)
-    currentEmail.value = res.data
+  try {
+    const res = await getEmailDetail(row.id)
+    currentEmail.value = res.data || res
     drawerVisible.value = true
     if (!row.is_read) {
-      await mockApi.markEmailRead(row.id)
+      await markEmailRead(row.id)
       row.is_read = true
     }
+  }
+  catch (err) {
+    $message.error('加载邮件详情失败')
+    console.error(err)
   }
 }
 
 async function toggleRead() {
-  if (!currentEmail.value || !isMock()) return
-  if (currentEmail.value.is_read) {
-    await mockApi.markEmailUnread(currentEmail.value.id)
-    currentEmail.value.is_read = false
+  if (!currentEmail.value)
+    return
+  try {
+    if (currentEmail.value.is_read) {
+      await markEmailUnread(currentEmail.value.id)
+      currentEmail.value.is_read = false
+    }
+    else {
+      await markEmailRead(currentEmail.value.id)
+      currentEmail.value.is_read = true
+    }
+    // 同步列表中的状态
+    const item = emails.value.find(e => e.id === currentEmail.value.id)
+    if (item)
+      item.is_read = currentEmail.value.is_read
   }
-  else {
-    await mockApi.markEmailRead(currentEmail.value.id)
-    currentEmail.value.is_read = true
+  catch (err) {
+    $message.error('操作失败')
+    console.error(err)
   }
-  // 同步列表中的状态
-  const item = emails.value.find(e => e.id === currentEmail.value.id)
-  if (item) item.is_read = currentEmail.value.is_read
 }
 
 function handlePageChange(page) {
@@ -177,20 +194,24 @@ function handlePageChange(page) {
 }
 
 function formatSize(bytes) {
-  if (bytes < 1024) return bytes + ' B'
-  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
-  return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
+  if (bytes < 1024)
+    return `${bytes} B`
+  if (bytes < 1024 * 1024)
+    return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
 async function loadEmails() {
   loading.value = true
   try {
-    if (isMock()) {
-      const res = await mockApi.getEmails({ page: pagination.page, page_size: pagination.pageSize })
-      emails.value = res.data.emails
-      pagination.itemCount = res.data.total
-      pagination.pageCount = Math.ceil(res.data.total / pagination.pageSize)
-    }
+    const res = await getEmails({ page: pagination.page, page_size: pagination.pageSize })
+    const data = res.data || res
+    emails.value = data.emails || []
+    pagination.itemCount = data.total || 0
+    pagination.pageCount = Math.ceil((data.total || 0) / pagination.pageSize)
+  }
+  catch (err) {
+    console.error('加载邮件列表失败:', err)
   }
   finally {
     loading.value = false

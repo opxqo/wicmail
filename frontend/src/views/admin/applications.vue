@@ -22,7 +22,7 @@
     <n-modal v-model:show="reviewModal.visible" preset="dialog" style="max-width: 560px;" :title="reviewModal.title" positive-text="确认" negative-text="取消" @positive-click="handleReview">
       <!-- 申请材料展示 -->
       <div v-if="reviewModal.attachments?.length" class="mb-16">
-        <div class="mb-8 text-14 font-bold flex items-center gap-6">
+        <div class="mb-8 flex items-center gap-6 text-14 font-bold">
           <i class="i-fe:paperclip text-14" /> 申请材料（{{ reviewModal.attachments.length }} 份）
         </div>
         <div class="attachments-grid">
@@ -35,8 +35,12 @@
             <img v-if="att.url && isImage(att.content_type)" :src="att.url" class="attachment-thumb" alt="preview">
             <i v-else-if="isImage(att.content_type)" class="i-fe:image text-32 opacity-20" />
             <i v-else class="i-fe:file-text text-32 opacity-20" />
-            <div class="mt-6 text-12 truncate" :title="att.filename">{{ att.filename }}</div>
-            <div class="text-11 opacity-40">{{ formatSize(att.size) }}</div>
+            <div class="mt-6 truncate text-12" :title="att.filename">
+              {{ att.filename }}
+            </div>
+            <div class="text-11 opacity-40">
+              {{ formatSize(att.size) }}
+            </div>
           </div>
         </div>
         <n-divider class="my-12!" />
@@ -59,10 +63,10 @@
 </template>
 
 <script setup>
-import { h, ref, onMounted } from 'vue'
-import { NTag, NButton, NSpace } from 'naive-ui'
+import { NButton, NSpace, NTag } from 'naive-ui'
+import { h, onMounted, ref } from 'vue'
+import { approveApplication, getAdminApplications, rejectApplication } from '@/api/wicmail'
 import { AppPage } from '@/components'
-import { mockApi, isMock } from '@/mock/data'
 
 const loading = ref(false)
 const applications = ref([])
@@ -100,10 +104,13 @@ function isImage(contentType) {
 }
 
 function formatSize(bytes) {
-  if (!bytes) return '0 B'
-  if (bytes < 1024) return bytes + ' B'
-  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
-  return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
+  if (!bytes)
+    return '0 B'
+  if (bytes < 1024)
+    return `${bytes} B`
+  if (bytes < 1024 * 1024)
+    return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
 function previewAttachment(att) {
@@ -132,7 +139,8 @@ const columns = [
     width: 80,
     render(row) {
       const count = row.attachments?.length || 0
-      if (!count) return h('span', { class: 'opacity-30 text-12' }, '-')
+      if (!count)
+        return h('span', { class: 'opacity-30 text-12' }, '-')
       return h(NTag, { size: 'small', type: 'info', round: true, bordered: false }, {
         icon: () => h('i', { class: 'i-fe:paperclip text-12 mr-2' }),
         default: () => `${count} 份`,
@@ -153,7 +161,8 @@ const columns = [
     width: 160,
     fixed: 'right',
     render(row) {
-      if (row.status !== 'pending') return h('span', { class: 'opacity-40' }, '已处理')
+      if (row.status !== 'pending')
+        return h('span', { class: 'opacity-40' }, '已处理')
       return h(NSpace, null, {
         default: () => [
           h(NButton, { type: 'success', size: 'small', onClick: () => openReview(row, 'approve') }, { default: () => '批准' }),
@@ -174,14 +183,13 @@ function openReview(row, action) {
 }
 
 async function handleReview() {
-  if (!isMock()) return
   try {
     if (reviewModal.action === 'approve') {
-      await mockApi.approveApplication(reviewModal.appId, reviewModal.comment)
+      await approveApplication(reviewModal.appId, reviewModal.comment)
       $message.success('已批准')
     }
     else {
-      await mockApi.rejectApplication(reviewModal.appId, reviewModal.comment)
+      await rejectApplication(reviewModal.appId, reviewModal.comment)
       $message.success('已拒绝')
     }
     await loadApplications()
@@ -194,10 +202,12 @@ async function handleReview() {
 async function loadApplications() {
   loading.value = true
   try {
-    if (isMock()) {
-      const res = await mockApi.getAdminApplications(statusFilter.value)
-      applications.value = res.data
-    }
+    const res = await getAdminApplications(statusFilter.value)
+    const data = res.data || res
+    applications.value = Array.isArray(data) ? data : []
+  }
+  catch (err) {
+    console.error('加载申请列表失败:', err)
   }
   finally {
     loading.value = false

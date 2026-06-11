@@ -293,6 +293,52 @@ let tokenCounter = 0
 
 export const mockApi = {
   // ---- 认证 ----
+  async register({ username, student_id, password }) {
+    await delay()
+    if (!username || username.length < 3 || username.length > 50) {
+      return Promise.reject({ code: 400, message: '用户名长度需在 3 到 50 个字符之间' })
+    }
+    if (!/^[a-z0-9_-]+$/.test(username)) {
+      return Promise.reject({ code: 400, message: '用户名只能包含小写字母、数字、下划线和横线' })
+    }
+    if (!student_id || student_id.length > 20) {
+      return Promise.reject({ code: 400, message: '学号格式不正确' })
+    }
+    const upperStudentId = student_id.toUpperCase()
+    if (!/^[A-Z0-9]+$/.test(upperStudentId)) {
+      return Promise.reject({ code: 400, message: '学号只能包含字母和数字' })
+    }
+    if (!password || password.length < 6 || password.length > 100) {
+      return Promise.reject({ code: 400, message: '密码长度需在 6 到 100 个字符之间' })
+    }
+    if (users.some(u => u.username === username)) {
+      return Promise.reject({ code: 400, message: '用户名已存在' })
+    }
+    if (users.some(u => u.student_id === upperStudentId)) {
+      return Promise.reject({ code: 400, message: '该学号已被注册' })
+    }
+    const newUser = {
+      id: users.length + 1,
+      username,
+      student_id: upperStudentId,
+      email: null,
+      real_name: null,
+      department: null,
+      major: null,
+      class_name: null,
+      grade: null,
+      is_active: true,
+      is_admin: false,
+      profile_complete: false,
+      missing_fields: ['邮箱', '真实姓名', '学部', '专业', '班级', '年级'],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }
+    users.push(newUser)
+    credentials[username] = { password, userId: newUser.id }
+    return { code: 0, data: newUser }
+  },
+
   async login({ username, password }) {
     await delay()
     const cred = credentials[username]
@@ -316,7 +362,8 @@ export const mockApi = {
     await delay()
     const username = token?.replace('mock-token-', '')?.split('-')[0]
     const user = users.find(u => u.username === username)
-    if (!user) return Promise.reject({ code: 401, message: '未登录' })
+    if (!user)
+      return Promise.reject({ code: 401, message: '未登录' })
     return {
       code: 0,
       data: {
@@ -341,7 +388,8 @@ export const mockApi = {
     await delay()
     const username = token?.replace('mock-token-', '')?.split('-')[0]
     const user = users.find(u => u.username === username)
-    if (!user) return Promise.reject({ code: 401, message: '未登录' })
+    if (!user)
+      return Promise.reject({ code: 401, message: '未登录' })
     return { code: 0, data: user }
   },
 
@@ -349,7 +397,8 @@ export const mockApi = {
     await delay()
     const username = token?.replace('mock-token-', '')?.split('-')[0]
     const user = users.find(u => u.username === username)
-    if (!user) return Promise.reject({ code: 401, message: '未登录' })
+    if (!user)
+      return Promise.reject({ code: 401, message: '未登录' })
     Object.assign(user, data)
     return { code: 0, data: user }
   },
@@ -428,21 +477,24 @@ export const mockApi = {
   async getEmailDetail(id) {
     await delay()
     const email = emails.find(e => e.id === id)
-    if (!email) return Promise.reject({ code: 404, message: '邮件不存在' })
+    if (!email)
+      return Promise.reject({ code: 404, message: '邮件不存在' })
     return { code: 0, data: email }
   },
 
   async markEmailRead(id) {
     await delay()
     const email = emails.find(e => e.id === id)
-    if (email) email.is_read = true
+    if (email)
+      email.is_read = true
     return { code: 0, data: { status: 'ok', email_id: id, is_read: true } }
   },
 
   async markEmailUnread(id) {
     await delay()
     const email = emails.find(e => e.id === id)
-    if (email) email.is_read = false
+    if (email)
+      email.is_read = false
     return { code: 0, data: { status: 'ok', email_id: id, is_read: false } }
   },
 
@@ -450,15 +502,18 @@ export const mockApi = {
   async getAdminApplications(status) {
     await delay()
     let result = [...applications]
-    if (status) result = result.filter(a => a.status === status)
+    if (status)
+      result = result.filter(a => a.status === status)
     return { code: 0, data: result }
   },
 
   async approveApplication(id, comment) {
     await delay()
     const app = applications.find(a => a.id === id)
-    if (!app) return Promise.reject({ code: 404, message: '申请不存在' })
-    if (app.status !== 'pending') return Promise.reject({ code: 400, message: `申请已处理（当前状态: ${app.status}）` })
+    if (!app)
+      return Promise.reject({ code: 404, message: '申请不存在' })
+    if (app.status !== 'pending')
+      return Promise.reject({ code: 400, message: `申请已处理（当前状态: ${app.status}）` })
     app.status = 'approved'
     app.review_comment = comment || null
     app.reviewed_at = new Date().toISOString()
@@ -476,8 +531,10 @@ export const mockApi = {
   async rejectApplication(id, comment) {
     await delay()
     const app = applications.find(a => a.id === id)
-    if (!app) return Promise.reject({ code: 404, message: '申请不存在' })
-    if (app.status !== 'pending') return Promise.reject({ code: 400, message: `申请已处理（当前状态: ${app.status}）` })
+    if (!app)
+      return Promise.reject({ code: 404, message: '申请不存在' })
+    if (app.status !== 'pending')
+      return Promise.reject({ code: 400, message: `申请已处理（当前状态: ${app.status}）` })
     app.status = 'rejected'
     app.review_comment = comment || null
     app.reviewed_at = new Date().toISOString()
@@ -492,7 +549,8 @@ export const mockApi = {
   async toggleUserActive(userId) {
     await delay()
     const user = users.find(u => u.id === userId)
-    if (!user) return Promise.reject({ code: 404, message: '用户不存在' })
+    if (!user)
+      return Promise.reject({ code: 404, message: '用户不存在' })
     user.is_active = !user.is_active
     const action = user.is_active ? '启用' : '禁用'
     return { code: 0, data: { status: 'ok', message: `已${action}用户: ${user.username}`, is_active: user.is_active } }

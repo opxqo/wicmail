@@ -10,19 +10,25 @@
       <div v-else-if="!mailboxes.length" class="py-40 text-center">
         <n-empty description="暂无邮箱">
           <template #extra>
-            <n-button type="primary" @click="$router.push('/mailbox-apply')">申请邮箱</n-button>
+            <n-button type="primary" @click="$router.push('/mailbox-apply')">
+              申请邮箱
+            </n-button>
           </template>
         </n-empty>
       </div>
-      <div v-else class="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-3">
+      <div v-else class="grid grid-cols-1 gap-12 lg:grid-cols-3 md:grid-cols-2">
         <n-card v-for="mb in mailboxes" :key="mb.id" hoverable>
           <div class="flex items-center gap-12">
-            <n-avatar round :size="48" class="bg-primary/10 text-primary flex-shrink-0">
+            <n-avatar round :size="48" class="flex-shrink-0 bg-primary/10 text-primary">
               <i class="i-fe:mail text-20" />
             </n-avatar>
             <div class="flex-1 overflow-hidden">
-              <div class="text-16 font-bold truncate">{{ mb.address }}</div>
-              <div class="mt-4 text-12 opacity-50 truncate">{{ mb.display_name || '未设置显示名称' }}</div>
+              <div class="truncate text-16 font-bold">
+                {{ mb.address }}
+              </div>
+              <div class="mt-4 truncate text-12 opacity-50">
+                {{ mb.display_name || '未设置显示名称' }}
+              </div>
             </div>
           </div>
           <div class="mt-16 flex items-center justify-between">
@@ -40,9 +46,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
+import { getMyMailboxes } from '@/api/wicmail'
 import { AppPage } from '@/components'
-import { mockApi, isMock } from '@/mock/data'
 
 const loading = ref(false)
 const mailboxes = ref([])
@@ -50,10 +56,12 @@ const mailboxes = ref([])
 onMounted(async () => {
   loading.value = true
   try {
-    if (isMock()) {
-      const res = await mockApi.getMyMailboxes()
-      mailboxes.value = res.data
-    }
+    const res = await getMyMailboxes()
+    const data = res.data || res
+    mailboxes.value = Array.isArray(data) ? data : (data.mailboxes || [])
+  }
+  catch (err) {
+    console.error('加载邮箱列表失败:', err)
   }
   finally {
     loading.value = false

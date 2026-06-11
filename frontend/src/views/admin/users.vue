@@ -10,10 +10,10 @@
 </template>
 
 <script setup>
-import { h, ref, onMounted } from 'vue'
-import { NTag, NButton, NPopconfirm } from 'naive-ui'
+import { NButton, NPopconfirm, NSpace, NTag } from 'naive-ui'
+import { h, onMounted, ref } from 'vue'
+import { deleteUser, getAdminUsers, toggleUserActive } from '@/api/wicmail'
 import { AppPage } from '@/components'
-import { mockApi, isMock } from '@/mock/data'
 
 const loading = ref(false)
 const users = ref([])
@@ -47,36 +47,58 @@ const columns = [
   {
     title: '操作',
     key: 'actions',
-    width: 120,
+    width: 180,
     fixed: 'right',
     render(row) {
-      return h(NPopconfirm, { onPositiveClick: () => toggleActive(row) }, {
-        trigger: () => h(NButton, { size: 'small', type: row.is_active ? 'error' : 'success', ghost: true }, { default: () => row.is_active ? '禁用' : '启用' }),
-        default: () => `确认${row.is_active ? '禁用' : '启用'}用户 ${row.username}？`,
+      return h(NSpace, { size: 8 }, {
+        default: () => [
+          h(NPopconfirm, { onPositiveClick: () => toggleActive(row) }, {
+            trigger: () => h(NButton, { size: 'small', type: row.is_active ? 'error' : 'success', ghost: true, disabled: row.is_admin }, { default: () => row.is_active ? '禁用' : '启用' }),
+            default: () => `确认${row.is_active ? '禁用' : '启用'}用户 ${row.username}？`,
+          }),
+          h(NPopconfirm, { onPositiveClick: () => removeUser(row) }, {
+            trigger: () => h(NButton, { size: 'small', type: 'error', ghost: true, disabled: row.is_admin }, { default: () => '删除' }),
+            default: () => `确认删除用户 ${row.username}？此操作不可撤销。`,
+          }),
+        ],
       })
     },
   },
 ]
 
 async function toggleActive(row) {
-  if (!isMock()) return
   try {
-    const res = await mockApi.toggleUserActive(row.id)
-    row.is_active = res.data.is_active
-    $message.success(res.data.message)
+    const res = await toggleUserActive(row.id)
+    const data = res.data || res
+    row.is_active = data.is_active ?? !row.is_active
+    $message.success(data.message || '操作成功')
   }
   catch (err) {
     $message.error(err.message || '操作失败')
   }
 }
 
+async function removeUser(row) {
+  try {
+    const res = await deleteUser(row.id)
+    const data = res.data || res
+    $message.success(data.message || '删除成功')
+    await loadUsers()
+  }
+  catch (err) {
+    $message.error(err.message || '删除失败')
+  }
+}
+
 async function loadUsers() {
   loading.value = true
   try {
-    if (isMock()) {
-      const res = await mockApi.getAdminUsers()
-      users.value = res.data
-    }
+    const res = await getAdminUsers()
+    const data = res.data || res
+    users.value = Array.isArray(data) ? data : []
+  }
+  catch (err) {
+    console.error('加载用户列表失败:', err)
   }
   finally {
     loading.value = false

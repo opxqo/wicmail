@@ -33,7 +33,9 @@
         </svg>
       </div>
       <div class="loader-subtitle-wrap">
-        <p class="loader-subtitle">City University of Wuhan</p>
+        <p class="loader-subtitle">
+          City University of Wuhan
+        </p>
       </div>
     </div>
   </div>
@@ -249,24 +251,78 @@ onUnmounted(() => {
   animation: meteorPass 3.8s linear infinite;
 }
 
-.meteor-field span:nth-child(1) { --meteor-index: 1; animation-delay: 0.1s; }
-.meteor-field span:nth-child(2) { --meteor-index: 4; animation-delay: 0.7s; }
-.meteor-field span:nth-child(3) { --meteor-index: 8; animation-delay: 1.2s; }
-.meteor-field span:nth-child(4) { --meteor-index: 11; animation-delay: 1.8s; }
-.meteor-field span:nth-child(5) { --meteor-index: 14; animation-delay: 2.4s; }
-.meteor-field span:nth-child(6) { --meteor-index: 17; animation-delay: 3s; }
-.meteor-field span:nth-child(7) { --meteor-index: 3; animation-delay: 3.6s; }
-.meteor-field span:nth-child(8) { --meteor-index: 7; animation-delay: 4.2s; }
-.meteor-field span:nth-child(9) { --meteor-index: 13; animation-delay: 4.8s; }
-.meteor-field span:nth-child(10) { --meteor-index: 2; animation-delay: 5.4s; }
-.meteor-field span:nth-child(11) { --meteor-index: 6; animation-delay: 6s; }
-.meteor-field span:nth-child(12) { --meteor-index: 10; animation-delay: 6.6s; }
-.meteor-field span:nth-child(13) { --meteor-index: 15; animation-delay: 7.2s; }
-.meteor-field span:nth-child(14) { --meteor-index: 18; animation-delay: 7.8s; }
-.meteor-field span:nth-child(15) { --meteor-index: 5; animation-delay: 8.4s; }
-.meteor-field span:nth-child(16) { --meteor-index: 9; animation-delay: 9s; }
-.meteor-field span:nth-child(17) { --meteor-index: 12; animation-delay: 9.6s; }
-.meteor-field span:nth-child(18) { --meteor-index: 16; animation-delay: 10.2s; }
+.meteor-field span:nth-child(1) {
+  --meteor-index: 1;
+  animation-delay: 0.1s;
+}
+.meteor-field span:nth-child(2) {
+  --meteor-index: 4;
+  animation-delay: 0.7s;
+}
+.meteor-field span:nth-child(3) {
+  --meteor-index: 8;
+  animation-delay: 1.2s;
+}
+.meteor-field span:nth-child(4) {
+  --meteor-index: 11;
+  animation-delay: 1.8s;
+}
+.meteor-field span:nth-child(5) {
+  --meteor-index: 14;
+  animation-delay: 2.4s;
+}
+.meteor-field span:nth-child(6) {
+  --meteor-index: 17;
+  animation-delay: 3s;
+}
+.meteor-field span:nth-child(7) {
+  --meteor-index: 3;
+  animation-delay: 3.6s;
+}
+.meteor-field span:nth-child(8) {
+  --meteor-index: 7;
+  animation-delay: 4.2s;
+}
+.meteor-field span:nth-child(9) {
+  --meteor-index: 13;
+  animation-delay: 4.8s;
+}
+.meteor-field span:nth-child(10) {
+  --meteor-index: 2;
+  animation-delay: 5.4s;
+}
+.meteor-field span:nth-child(11) {
+  --meteor-index: 6;
+  animation-delay: 6s;
+}
+.meteor-field span:nth-child(12) {
+  --meteor-index: 10;
+  animation-delay: 6.6s;
+}
+.meteor-field span:nth-child(13) {
+  --meteor-index: 15;
+  animation-delay: 7.2s;
+}
+.meteor-field span:nth-child(14) {
+  --meteor-index: 18;
+  animation-delay: 7.8s;
+}
+.meteor-field span:nth-child(15) {
+  --meteor-index: 5;
+  animation-delay: 8.4s;
+}
+.meteor-field span:nth-child(16) {
+  --meteor-index: 9;
+  animation-delay: 9s;
+}
+.meteor-field span:nth-child(17) {
+  --meteor-index: 12;
+  animation-delay: 9.6s;
+}
+.meteor-field span:nth-child(18) {
+  --meteor-index: 16;
+  animation-delay: 10.2s;
+}
 
 @keyframes loaderPopIn {
   0% {

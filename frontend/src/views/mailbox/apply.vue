@@ -56,14 +56,14 @@
                   <div v-for="(img, index) in imageList" :key="index" class="image-card">
                     <n-image width="120" height="120" :src="img.url" object-fit="cover" class="rounded-8" preview-disabled />
                     <div class="image-card-actions">
-                      <n-button text type="primary" size="tiny" @click="previewImage(img)">
+                      <NButton text type="primary" size="tiny" @click="previewImage(img)">
                         <i class="i-fe:eye text-14" />
-                      </n-button>
-                      <n-button text type="error" size="tiny" @click="removeImage(index)">
+                      </NButton>
+                      <NButton text type="error" size="tiny" @click="removeImage(index)">
                         <i class="i-fe:trash-2 text-14" />
-                      </n-button>
+                      </NButton>
                     </div>
-                    <div class="image-card-name text-11 opacity-60 mt-4 truncate max-w-120px">
+                    <div class="image-card-name mt-4 max-w-120px truncate text-11 opacity-60">
                       {{ img.fileName }}
                     </div>
                   </div>
@@ -92,10 +92,12 @@
               :on-exceed="handleFileExceed"
               :on-before-upload="onBeforeFileUpload"
             >
-              <n-button type="primary" ghost>
-                <template #icon><i class="i-fe:upload text-16" /></template>
+              <NButton type="primary" ghost>
+                <template #icon>
+                  <i class="i-fe:upload text-16" />
+                </template>
                 上传补充材料
-              </n-button>
+              </NButton>
             </n-upload>
           </div>
         </n-form-item>
@@ -108,14 +110,18 @@
             <span class="text-13 opacity-60">提交后管理员将审核你的申请，审核结果将通过系统通知</span>
           </div>
           <n-space>
-            <n-button type="primary" :loading="submitting" :disabled="submitting" @click="handleSubmit">
-              <template #icon><i class="i-fe:send text-16" /></template>
+            <NButton type="primary" :loading="submitting" :disabled="submitting" @click="handleSubmit">
+              <template #icon>
+                <i class="i-fe:send text-16" />
+              </template>
               提交申请
-            </n-button>
-            <n-button :disabled="submitting" @click="handleReset">
-              <template #icon><i class="i-fe:refresh-ccw text-16" /></template>
+            </NButton>
+            <NButton :disabled="submitting" @click="handleReset">
+              <template #icon>
+                <i class="i-fe:refresh-ccw text-16" />
+              </template>
               重置
-            </n-button>
+            </NButton>
           </n-space>
         </div>
       </n-form>
@@ -142,7 +148,9 @@
           <div class="flex items-center gap-8 text-14 font-bold">
             <i :class="getFileIcon(att.content_type)" class="text-16" />
             {{ att.filename }}
-            <n-tag size="tiny" :bordered="false">{{ formatSize(att.size) }}</n-tag>
+            <NTag size="tiny" :bordered="false">
+              {{ formatSize(att.size) }}
+            </NTag>
           </div>
           <div class="mt-8">
             <img v-if="att.url && isImage(att.content_type)" :src="att.url" class="preview-image" alt="preview">
@@ -162,10 +170,10 @@
 </template>
 
 <script setup>
-import { h, ref, onMounted } from 'vue'
-import { NTag, NButton } from 'naive-ui'
+import { NButton, NTag } from 'naive-ui'
+import { h, onMounted, ref } from 'vue'
+import { applyMailbox, getMyApplications } from '@/api/wicmail'
 import { AppPage } from '@/components'
-import { mockApi, isMock } from '@/mock/data'
 
 const formRef = ref(null)
 const submitting = ref(false)
@@ -186,7 +194,7 @@ const form = ref({
 const rules = {
   prefix: [
     { required: true, message: '请输入邮箱前缀' },
-    { pattern: /^[a-zA-Z0-9][a-zA-Z0-9._-]{2,29}$/, message: '只能包含字母、数字、点、横杠、下划线，3-30字符' },
+    { pattern: /^[a-z0-9][\w.-]{2,29}$/i, message: '只能包含字母、数字、点、横杠、下划线，3-30字符' },
   ],
 }
 
@@ -213,16 +221,21 @@ function isImage(contentType) {
 }
 
 function getFileIcon(contentType) {
-  if (isImage(contentType)) return 'i-fe:image'
-  if (contentType?.includes('pdf')) return 'i-fe:file-text'
+  if (isImage(contentType))
+    return 'i-fe:image'
+  if (contentType?.includes('pdf'))
+    return 'i-fe:file-text'
   return 'i-fe:file'
 }
 
 function formatSize(bytes) {
-  if (!bytes) return '0 B'
-  if (bytes < 1024) return bytes + ' B'
-  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
-  return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
+  if (!bytes)
+    return '0 B'
+  if (bytes < 1024)
+    return `${bytes} B`
+  if (bytes < 1024 * 1024)
+    return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
 // ========== 主材料图片上传 ==========
@@ -297,7 +310,8 @@ function handleFileExceed() {
 
 // ========== 查看历史申请附件 ==========
 function showAttachments(row) {
-  if (!row.attachments?.length) return
+  if (!row.attachments?.length)
+    return
   previewModal.title = `申请材料 - ${row.requested_address}`
   previewModal.attachments = row.attachments
   previewModal.visible = true
@@ -321,7 +335,8 @@ const columns = [
     width: 110,
     render(row) {
       const count = row.attachments?.length || 0
-      if (!count) return h('span', { class: 'opacity-40' }, '无')
+      if (!count)
+        return h('span', { class: 'opacity-40' }, '无')
       return h(NButton, { size: 'small', text: true, type: 'primary', onClick: () => showAttachments(row) }, {
         icon: () => h('i', { class: 'i-fe:paperclip text-14' }),
         default: () => `${count} 份材料`,
@@ -352,34 +367,32 @@ async function handleSubmit() {
   catch { return }
   submitting.value = true
   try {
-    if (isMock()) {
-      // 收集主材料图片
-      const images = imageList.map(img => ({
-        name: img.fileName,
-        type: img.file?.type || 'image/jpeg',
-        size: img.file?.size || 0,
-        url: img.url || null,
+    // 收集主材料图片
+    const images = imageList.map(img => ({
+      name: img.fileName,
+      type: img.file?.type || 'image/jpeg',
+      size: img.file?.size || 0,
+      url: img.url || null,
+    }))
+    // 收集补充材料文件
+    const files = fileList.value
+      .filter(f => f.status === 'finished')
+      .map(f => ({
+        name: f.name,
+        type: f.type || 'application/pdf',
+        size: f.file?.size || 0,
+        url: f.url || null,
       }))
-      // 收集补充材料文件
-      const files = fileList.value
-        .filter(f => f.status === 'finished')
-        .map(f => ({
-          name: f.name,
-          type: f.type || 'application/pdf',
-          size: f.file?.size || 0,
-          url: f.url || null,
-        }))
 
-      await mockApi.applyMailbox({
-        ...form.value,
-        attachments: [...images, ...files],
-      })
-      $message.success('申请已提交，等待审核')
-      form.value = { prefix: '', display_name: '', reason: '' }
-      imageList.splice(0, imageList.length)
-      fileList.value = []
-      await loadApplications()
-    }
+    await applyMailbox({
+      ...form.value,
+      attachments: [...images, ...files],
+    })
+    $message.success('申请已提交，等待审核')
+    form.value = { prefix: '', display_name: '', reason: '' }
+    imageList.splice(0, imageList.length)
+    fileList.value = []
+    await loadApplications()
   }
   catch (err) {
     $message.error(err.message || '申请失败')
@@ -390,10 +403,12 @@ async function handleSubmit() {
 async function loadApplications() {
   loading.value = true
   try {
-    if (isMock()) {
-      const res = await mockApi.getMyApplications()
-      applications.value = res.data.applications
-    }
+    const res = await getMyApplications()
+    const data = res.data || res
+    applications.value = data.applications || (Array.isArray(data) ? data : [])
+  }
+  catch (err) {
+    console.error('加载申请记录失败:', err)
   }
   finally {
     loading.value = false

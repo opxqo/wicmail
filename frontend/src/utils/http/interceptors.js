@@ -15,6 +15,11 @@ export function setupInterceptors(axiosInstance) {
   function resResolve(response) {
     const { data, status, config, statusText, headers } = response
     if (headers['content-type']?.includes('json')) {
+      // 后端直接返回数据（无 code 字段），包装为标准格式
+      if (data?.code === undefined) {
+        return Promise.resolve({ code: 200, data })
+      }
+      // Mock 格式：有 code 字段
       if (SUCCESS_CODES.includes(data?.code)) {
         return Promise.resolve(data)
       }
@@ -65,6 +70,7 @@ async function resReject(error) {
   const code = data?.code ?? status
 
   const needTip = config?.needTip !== false
-  const message = resolveResError(code, data?.message ?? error.message, needTip)
+  // 兼容 FastAPI 错误格式 {"detail": "..."} 和 Mock 格式 {"message": "..."}
+  const message = resolveResError(code, data?.detail ?? data?.message ?? error.message, needTip)
   return Promise.reject({ code, message, error: error.response?.data || error.response })
 }

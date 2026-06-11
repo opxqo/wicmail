@@ -183,3 +183,42 @@ async def toggle_user_active(
 
     action = "启用" if user.is_active else "禁用"
     return {"status": "ok", "message": f"已{action}用户: {user.username}", "is_active": user.is_active}
+
+
+@router.delete("/users/{user_id}")
+async def delete_user(
+    user_id: int,
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_admin_user),
+):
+    """删除用户（硬删除）"""
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if user is None:
+        raise HTTPException(status_code=404, detail="用户不存在")
+
+    if user.id == admin.id:
+        raise HTTPException(status_code=400, detail="不能删除自己")
+
+    if user.is_admin:
+        raise HTTPException(status_code=400, detail="不能删除管理员账户")
+
+    # 将该用户审核过的申请记录的 reviewed_by 置空
+    reviewed_result = await db.execute(
+        select(MailboxApplication).where(MailboxApplication.reviewed_by == user_id)
+    )
+    for app in reviewed_result.scalars().all():
+        app.reviewed_by = None
+
+    # 删除该用户的邮箱申请记录
+    apps_result = await db.execute(
+        select(MailboxApplication).where(MailboxApplication.user_id == user_id)
+    )
+    for app in apps_result.scalars().all():
+        await db.delete(app)
+
+    # 删除用户
+    await db.delete(user)
+    await db.flush()
+
+    return {"status": "ok", "message": f"已删除用户: {user.username}"}
