@@ -1,160 +1,197 @@
-# WicMail 校园邮箱平台
+<p align="center">
+  <a href="https://github.com/opxqo/wicmail">
+    <img src="frontend/public/wicmail-stacked.svg" alt="WicMail Logo" width="200">
+  </a>
+</p>
 
-> 为校园学生提供 `@wic.edu.kg` 邮箱申请与管理服务的全栈平台
+<h1 align="center">WicMail</h1>
 
-## 项目简介
+<p align="center">
+  <strong>校园邮箱申请与管理平台</strong>
+</p>
 
-WicMail 是一个校园邮箱申请与管理平台，采用前后端分离 + 微服务架构。学生可以申请专属的校园邮箱（`{prefix}@wic.edu.kg`），管理员可以审核申请，系统自动接收和管理邮件。
+<p align="center">
+  <a href="https://github.com/opxqo/wicmail/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/opxqo/wicmail?style=flat-square" alt="License">
+  </a>
+  <a href="https://github.com/opxqo/wicmail">
+    <img src="https://img.shields.io/github/languages/code-size/opxqo/wicmail?style=flat-square" alt="Code Size">
+  </a>
+  <a href="https://github.com/opxqo/wicmail">
+    <img src="https://img.shields.io/github/repo-size/opxqo/wicmail?style=flat-square" alt="Repo Size">
+  </a>
+  <a href="https://github.com/opxqo/wicmail/stargazers">
+    <img src="https://img.shields.io/github/stars/opxqo/wicmail?style=flat-square" alt="Stars">
+  </a>
+  <a href="https://github.com/opxqo/wicmail/network/members">
+    <img src="https://img.shields.io/github/forks/opxqo/wicmail?style=flat-square" alt="Forks">
+  </a>
+</p>
 
-### 核心功能
+<p align="center">
+  为校园学生提供 <code>@wic.edu.kg</code> 邮箱申请与管理服务的全栈平台
+</p>
 
-- **用户注册与认证**：学生注册账号，完善个人资料
-- **邮箱申请**：申请自定义前缀的校园邮箱（如 `zhangsan@wic.edu.kg`）
-- **管理审核**：管理员审核邮箱申请，批准或拒绝
-- **邮件接收**：通过 Cloudflare Email Routing 自动接收邮件
-- **邮件管理**：查看邮件列表、详情，标记已读/未读
-- **个人中心**：修改密码、更新个人资料
+---
 
-## 系统架构
+## ✨ 核心特性
 
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>🎓 学生端</h3>
+      <ul>
+        <li>注册账号并完善个人资料</li>
+        <li>申请自定义前缀的校园邮箱</li>
+        <li>查看申请审核状态</li>
+        <li>接收和管理邮件</li>
+        <li>修改密码和个人信息</li>
+      </ul>
+    </td>
+    <td width="50%" valign="top">
+      <h3>👨‍💼 管理端</h3>
+      <ul>
+        <li>审核邮箱申请（批准/拒绝）</li>
+        <li>管理用户账号（启用/禁用）</li>
+        <li>查看所有申请记录</li>
+        <li>系统配置管理</li>
+      </ul>
+    </td>
+  </tr>
+</table>
+
+## 🏗️ 系统架构
+
+```mermaid
+flowchart LR
+    subgraph External["🌐 外部服务"]
+        Sender["发件人"]
+        CF["Cloudflare Email Routing"]
+    end
+
+    subgraph Frontend["📱 前端应用"]
+        SPA["Vue 3 SPA<br/>:3200"]
+    end
+
+    subgraph Backend["⚙️ 后端服务"]
+        WIC["backend-wic<br/>:8001<br/>用户服务"]
+        MAIL["backend-mail<br/>:8000<br/>邮件服务"]
+    end
+
+    subgraph Database["💾 数据存储"]
+        DB[("MySQL<br/>wicmail")]
+    end
+
+    Sender -->|"发送邮件"| CF
+    CF -->|"Webhook 转发"| MAIL
+    SPA -->|"REST API"| WIC
+    WIC -->|"读写"| DB
+    MAIL -->|"读写"| DB
+
+    style Frontend fill:#2563eb,color:#fff
+    style Backend fill:#059669,color:#fff
+    style Database fill:#d97706,color:#fff
+    style External fill:#6b7280,color:#fff
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                         WicMail 系统架构                            │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  ┌──────────────┐      ┌──────────────────┐      ┌──────────────┐  │
-│  │   前端应用    │      │   后端服务集群    │      │   外部服务    │  │
-│  │   Vue 3 SPA  │      │                  │      │              │  │
-│  │   :3200      │      │  ┌────────────┐  │      │ Cloudflare   │  │
-│  │              │──────│  │ backend-wic │  │      │ Email Routing│  │
-│  │              │ API  │  │   :8001     │  │      │              │  │
-│  │              │      │  └────────────┘  │      │              │  │
-│  │              │      │                  │      │              │  │
-│  │              │      │  ┌────────────┐  │      │              │  │
-│  │              │      │  │backend-mail│←─│──────│──────────────│──│─
-│  │              │      │  │   :8000    │  │ Webhook            │  │
-│  └──────────────┘      │  └────────────┘  │      └──────────────┘  │
-│                        │                  │                         │
-│                        └────────┬─────────┘                         │
-│                                 │                                   │
-│                                 ▼                                   │
-│                        ┌────────────────┐                           │
-│                        │    MySQL DB     │                           │
-│                        │    wicmail      │                           │
-│                        │  175.178.102.49 │                           │
-│                        └────────────────┘                           │
-└─────────────────────────────────────────────────────────────────────┘
-```
 
-### 架构特点
+### 📦 架构特点
 
-- **前后端分离**：独立开发、部署，通过 REST API 通信
-- **双后端架构**：
-  - `backend-wic`：用户服务（注册/登录/邮箱申请/管理审核）
-  - `backend-mail`：邮件服务（接收/解析/存储邮件）
-- **共享数据库**：两个后端共享同一个 MySQL 数据库，通过表级别隔离职责
-- **Cloudflare 集成**：通过 Cloudflare Email Routing 接收外部邮件
+| 特性 | 说明 |
+|:---|:---|
+| **前后端分离** | 独立开发、部署，通过 REST API 通信 |
+| **双后端架构** | `backend-wic` 负责用户服务，`backend-mail` 负责邮件服务 |
+| **共享数据库** | 两个后端共享同一个 MySQL 数据库，通过表级别隔离职责 |
+| **Cloudflare 集成** | 通过 Cloudflare Email Routing 自动接收外部邮件 |
 
-## 技术栈
+## 🛠️ 技术栈
+
+<div align="center">
 
 ### 前端
 
-| 技术 | 版本 | 用途 |
-|---|---|---|
-| Vue | 3.5 | 核心框架 |
-| Vite | 8.0 | 构建工具 |
-| Naive UI | - | UI 组件库 |
-| UnoCSS | - | 原子化 CSS 框架 |
-| Pinia | 3.0 | 状态管理 |
-| Vue Router | 5.0 | 路由管理 |
-| Axios | 1.13 | HTTP 请求 |
+![Vue.js](https://img.shields.io/badge/Vue-3.5-4FC08D?style=for-the-badge&logo=vuedotjs&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-8.0-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![Naive UI](https://img.shields.io/badge/Naive_UI-Component-18A058?style=for-the-badge)
+![UnoCSS](https://img.shields.io/badge/UnoCSS-Atomic-333?style=for-the-badge)
+![Pinia](https://img.shields.io/badge/Pinia-3.0-FCCD5B?style=for-the-badge&logo=pinia&logoColor=white)
 
 ### 后端
 
-| 技术 | 版本 | 用途 |
-|---|---|---|
-| Python | 3.11+ | 编程语言 |
-| FastAPI | - | Web 框架 |
-| SQLAlchemy | - | ORM（asyncmy 异步驱动） |
-| Alembic | - | 数据库迁移 |
-| PyJWT | - | JWT 认证 |
-| bcrypt | - | 密码加密 |
+![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-Web-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-ORM-D71F00?style=for-the-badge)
+![MySQL](https://img.shields.io/badge/MySQL-Database-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
 
-### 基础设施
+</div>
 
-| 服务 | 说明 |
-|---|---|
-| MySQL | 数据库 (`wicmail` @ `175.178.102.49:3306`) |
-| Cloudflare | 域名解析、邮件路由 |
-| Zeabur | 服务部署平台 |
-
-## 项目结构
+## 📁 项目结构
 
 ```
 wicmail/
-├── backend-mail/          # 邮件接收服务（端口 8000）
+├── backend-mail/              # 📧 邮件接收服务（端口 8000）
 │   ├── app/
-│   │   ├── main.py        # FastAPI 入口
-│   │   ├── config.py      # 配置管理
-│   │   ├── database.py    # 数据库连接
-│   │   ├── models/        # 数据模型
-│   │   ├── routers/       # API 路由
-│   │   ├── schemas/       # Pydantic Schema
-│   │   └── services/      # 业务逻辑
-│   ├── alembic/           # 数据库迁移
-│   ├── .env.example       # 环境变量模板
-│   └── requirements.txt   # Python 依赖
+│   │   ├── main.py            # FastAPI 入口
+│   │   ├── config.py          # 配置管理
+│   │   ├── database.py        # 数据库连接
+│   │   ├── models/            # 数据模型
+│   │   ├── routers/           # API 路由
+│   │   ├── schemas/           # Pydantic Schema
+│   │   └── services/          # 业务逻辑
+│   ├── alembic/               # 数据库迁移
+│   └── requirements.txt       # Python 依赖
 │
-├── backend-wic/           # 用户服务（端口 8001）
+├── backend-wic/               # 👤 用户服务（端口 8001）
 │   ├── app/
-│   │   ├── main.py        # FastAPI 入口
-│   │   ├── config.py      # 配置管理
-│   │   ├── database.py    # 数据库连接
-│   │   ├── models/        # 数据模型
-│   │   ├── routers/       # API 路由
-│   │   ├── schemas/       # Pydantic Schema
-│   │   └── services/      # 业务逻辑
-│   ├── alembic/           # 数据库迁移
-│   ├── .env.example       # 环境变量模板
-│   └── requirements.txt   # Python 依赖
+│   │   ├── main.py            # FastAPI 入口
+│   │   ├── config.py          # 配置管理
+│   │   ├── database.py        # 数据库连接
+│   │   ├── models/            # 数据模型
+│   │   ├── routers/           # API 路由
+│   │   ├── schemas/           # Pydantic Schema
+│   │   └── services/          # 业务逻辑
+│   ├── alembic/               # 数据库迁移
+│   └── requirements.txt       # Python 依赖
 │
-├── frontend/              # Vue 3 前端应用（端口 3200）
+├── frontend/                  # 🖥️ Vue 3 前端应用（端口 3200）
 │   ├── src/
-│   │   ├── api/           # API 接口定义
-│   │   ├── assets/        # 静态资源
-│   │   ├── components/    # 公共组件
-│   │   ├── composables/   # 组合式函数
-│   │   ├── layouts/       # 布局组件
-│   │   ├── router/        # 路由配置
-│   │   ├── stores/        # Pinia 状态
-│   │   ├── styles/        # 全局样式
-│   │   ├── utils/         # 工具函数
-│   │   └── views/         # 页面视图
-│   ├── .env.example       # 环境变量模板
-│   └── package.json       # Node.js 依赖
+│   │   ├── api/               # API 接口定义
+│   │   ├── components/        # 公共组件
+│   │   ├── composables/       # 组合式函数
+│   │   ├── layouts/           # 布局组件
+│   │   ├── router/            # 路由配置
+│   │   ├── stores/            # Pinia 状态
+│   │   ├── styles/            # 全局样式
+│   │   └── views/             # 页面视图
+│   └── package.json           # Node.js 依赖
 │
-├── AGENTS.md              # AI 助手指引
-├── CLAUDE.md              # 项目架构说明
-└── README.md              # 本文件
+├── design/                    # 🎨 设计资源
+│   ├── avatars/               # 头像设计
+│   └── logo/                  # Logo 资源
+│
+└── README.md                  # 📖 本文件
 ```
 
-## 快速开始
+## 🚀 快速开始
 
-### 环境要求
+### 📋 环境要求
 
-- **后端**：Python 3.11+、MySQL 8.0+
-- **前端**：Node.js 18+、npm/pnpm
+| 组件 | 版本要求 |
+|:---|:---|
+| Python | 3.11+ |
+| Node.js | 18+ |
+| MySQL | 8.0+ |
 
-### 1. 克隆项目
+### 1️⃣ 克隆项目
 
 ```bash
 git clone https://github.com/opxqo/wicmail.git
 cd wicmail
 ```
 
-### 2. 后端部署
+### 2️⃣ 启动后端服务
 
-#### backend-mail（邮件服务）
+<details>
+<summary><strong>📧 backend-mail（邮件服务）</strong></summary>
 
 ```bash
 cd backend-mail
@@ -173,11 +210,14 @@ cp .env.example .env
 # 数据库迁移
 alembic upgrade head
 
-# 启动服务（端口 8000）
+# 启动服务
 uvicorn app.main:app --reload --port 8000
 ```
 
-#### backend-wic（用户服务）
+</details>
+
+<details>
+<summary><strong>👤 backend-wic（用户服务）</strong></summary>
 
 ```bash
 cd backend-wic
@@ -196,11 +236,13 @@ cp .env.example .env
 # 数据库迁移
 alembic upgrade head
 
-# 启动服务（端口 8001）
+# 启动服务
 uvicorn app.main:app --reload --port 8001
 ```
 
-### 3. 前端部署
+</details>
+
+### 3️⃣ 启动前端
 
 ```bash
 cd frontend
@@ -210,15 +252,20 @@ npm install
 
 # 配置环境变量
 cp .env.example .env
-# 编辑 .env 文件，配置后端 API 地址
 
-# 启动开发服务器（端口 3200）
+# 启动开发服务器
 npm run dev
 ```
 
-### 4. 环境变量配置
+### 4️⃣ 访问应用
 
-#### backend-mail/.env
+- 前端：http://localhost:3200
+- backend-wic API 文档：http://localhost:8001/docs
+- backend-mail API 文档：http://localhost:8000/docs
+
+## ⚙️ 环境变量配置
+
+### backend-mail/.env
 
 ```env
 # 数据库配置
@@ -235,7 +282,7 @@ DEFAULT_ADMIN_USERNAME=admin
 DEFAULT_ADMIN_PASSWORD=admin123456
 ```
 
-#### backend-wic/.env
+### backend-wic/.env
 
 ```env
 # 数据库配置
@@ -248,7 +295,7 @@ JWT_SECRET_KEY=your-secret-key-here
 MAILBOX_DOMAIN=wic.edu.kg
 ```
 
-#### frontend/.env
+### frontend/.env
 
 ```env
 # 后端 API 地址
@@ -258,7 +305,7 @@ VITE_PROXY_TARGET=http://localhost:8001
 VITE_USE_MOCK=false
 ```
 
-## 数据库设计
+## 📊 数据库设计
 
 ### ER 图
 
@@ -337,21 +384,21 @@ erDiagram
 ### 表说明
 
 | 表名 | 说明 | 主要字段 |
-|---|---|---|
+|:---|:---|:---|
 | `users` | 用户账号表 | username, student_id, email, hashed_password, real_name, department, major |
 | `mailboxes` | 邮箱地址表 | address (xxx@wic.edu.kg), display_name, is_active |
 | `email_messages` | 邮件内容表 | mailbox_id, subject, body_text, body_html, envelope_from, is_read |
 | `attachments` | 附件元数据表 | email_id, filename, content_type, size, storage_path |
 | `mailbox_applications` | 邮箱申请表 | user_id, requested_address, status (pending/approved/rejected) |
 
-## API 文档
+## 📡 API 文档
 
 ### backend-wic（用户服务）
 
 #### 认证接口
 
 | 方法 | 路径 | 认证 | 说明 |
-|---|---|---|---|
+|:---|:---|:---|:---|
 | `POST` | `/api/auth/register` | 无 | 用户注册 |
 | `POST` | `/api/auth/login` | 无 | 用户登录，返回 JWT |
 | `GET` | `/api/auth/me` | JWT | 获取当前用户信息 |
@@ -362,7 +409,7 @@ erDiagram
 #### 邮箱接口
 
 | 方法 | 路径 | 认证 | 说明 |
-|---|---|---|---|
+|:---|:---|:---|:---|
 | `POST` | `/api/mailbox/apply` | JWT | 申请邮箱 |
 | `GET` | `/api/mailbox/applications` | JWT | 我的申请记录 |
 | `GET` | `/api/mailbox` | JWT | 我的已开通邮箱 |
@@ -370,7 +417,7 @@ erDiagram
 #### 邮件接口
 
 | 方法 | 路径 | 认证 | 说明 |
-|---|---|---|---|
+|:---|:---|:---|:---|
 | `GET` | `/api/emails` | JWT | 获取我的邮件列表 |
 | `GET` | `/api/emails/{id}` | JWT | 获取邮件详情 |
 | `PATCH` | `/api/emails/{id}/read` | JWT | 标记已读 |
@@ -379,7 +426,7 @@ erDiagram
 #### 管理接口
 
 | 方法 | 路径 | 认证 | 说明 |
-|---|---|---|---|
+|:---|:---|:---|:---|
 | `GET` | `/api/admin/applications` | JWT+Admin | 获取所有申请 |
 | `PATCH` | `/api/admin/applications/{id}/approve` | JWT+Admin | 批准申请 |
 | `PATCH` | `/api/admin/applications/{id}/reject` | JWT+Admin | 拒绝申请 |
@@ -389,7 +436,7 @@ erDiagram
 ### backend-mail（邮件服务）
 
 | 方法 | 路径 | 认证 | 说明 |
-|---|---|---|---|
+|:---|:---|:---|:---|
 | `GET` | `/health` | 无 | 健康检查 |
 | `POST` | `/api/auth/login` | 无 | 管理员登录 |
 | `GET` | `/api/auth/me` | JWT | 当前用户信息 |
@@ -399,9 +446,9 @@ erDiagram
 | `PATCH` | `/api/emails/{id}/read` | JWT | 标记已读 |
 | `PATCH` | `/api/emails/{id}/unread` | JWT | 标记未读 |
 
-## 业务流程
+## 🔄 业务流程
 
-### 1. 用户注册与邮箱申请
+### 📝 用户注册与邮箱申请
 
 ```mermaid
 sequenceDiagram
@@ -424,7 +471,7 @@ sequenceDiagram
     W-->>U: 申请已提交，等待审核
 ```
 
-### 2. 管理员审核
+### ✅ 管理员审核
 
 ```mermaid
 sequenceDiagram
@@ -443,7 +490,7 @@ sequenceDiagram
     W-->>A: 审核通过，邮箱已创建
 ```
 
-### 3. 邮件接收
+### 📬 邮件接收
 
 ```mermaid
 sequenceDiagram
@@ -466,7 +513,7 @@ sequenceDiagram
     M-->>CF: 接收成功
 ```
 
-### 4. 邮件查看
+### 📖 邮件查看
 
 ```mermaid
 sequenceDiagram
@@ -486,11 +533,9 @@ sequenceDiagram
     W-->>U: 返回邮件详情
 ```
 
-## 部署指南
+## 🚢 部署指南
 
 ### Docker 部署
-
-两个后端均提供 Dockerfile，可使用 Docker 部署：
 
 ```bash
 # backend-mail
@@ -517,64 +562,78 @@ npm run build  # 生成 dist 目录
 
 构建产物可部署到任何静态文件服务器（Nginx、Vercel、Netlify 等）。
 
-## 开发指南
-
-### 代码规范
-
-- 所有代码注释、提交信息使用 **中文**
-- 前端使用 ESLint（@antfu/eslint-config）
-- Git 提交通过 `simple-git-hooks + lint-staged` 自动格式化
-
-### 测试
+## 🧪 测试
 
 ```bash
 # 后端测试（需要真实 MySQL）
 cd backend-mail  # 或 backend-wic
 pytest tests/ -v
-
-# 前端暂无测试配置
 ```
 
-### 常见问题
+## ❓ 常见问题
 
-#### Q: JWT Secret 需要一致吗？
+<details>
+<summary><strong>Q: JWT Secret 需要一致吗？</strong></summary>
 
 **A: 是的**。两个后端的 `.env` 中 `JWT_SECRET_KEY` 必须相同，否则认证体系无法互通。
+</details>
 
-#### Q: 如何脱离后端开发前端？
+<details>
+<summary><strong>Q: 如何脱离后端开发前端？</strong></summary>
 
 **A:** 在 `frontend/.env` 中设置 `VITE_USE_MOCK=true`，前端将使用内置的 Mock 数据。
+</details>
 
-#### Q: 邮箱域名可以修改吗？
+<details>
+<summary><strong>Q: 邮箱域名可以修改吗？</strong></summary>
 
 **A:** 在 `backend-wic/.env` 中修改 `MAILBOX_DOMAIN` 配置项。
+</details>
 
-#### Q: 如何配置 Cloudflare 邮件接收？
+<details>
+<summary><strong>Q: 如何配置 Cloudflare 邮件接收？</strong></summary>
 
 **A:**
 1. 在 Cloudflare 配置 Email Routing 规则
 2. 设置转发到后端服务地址：`https://your-domain.com/api/inbound/cloudflare`
 3. 在 `backend-mail/.env` 中配置 `CLOUDFLARE_EMAIL_SECRET_KEY`
+</details>
 
-## 已知问题
+## ⚠️ 已知问题
 
 1. **邮箱创建竞态**：backend-mail 的 `get_or_create_mailbox` 可能与 backend-wic 的审批流程产生竞态
 2. **JWT Secret 不一致**：两个后端默认使用不同的 Secret，需手动统一
 3. **附件存储**：目前仅记录元数据，实际文件存储待实现
 
-## 改进建议
+## 💡 改进建议
 
-- 引入 API Gateway 统一入口
-- 添加 WebSocket 实现邮件实时推送
-- 实现邮件全文检索
-- 集成对象存储服务存储附件
-- 添加邮件转发功能
+- [ ] 引入 API Gateway 统一入口
+- [ ] 添加 WebSocket 实现邮件实时推送
+- [ ] 实现邮件全文检索
+- [ ] 集成对象存储服务存储附件
+- [ ] 添加邮件转发功能
 
-## 开源协议
+## 📄 开源协议
 
-MIT License
+本项目采用 [MIT License](LICENSE) 开源协议。
 
-## 联系方式
+## 🤝 贡献
 
-- GitHub: [opxqo/wicmail](https://github.com/opxqo/wicmail)
-- 问题反馈：[Issues](https://github.com/opxqo/wicmail/issues)
+欢迎提交 Issue 和 Pull Request！
+
+1. Fork 本仓库
+2. 创建你的特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交你的更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 打开一个 Pull Request
+
+## 📞 联系方式
+
+- **GitHub**: [opxqo/wicmail](https://github.com/opxqo/wicmail)
+- **Issues**: [GitHub Issues](https://github.com/opxqo/wicmail/issues)
+
+---
+
+<p align="center">
+  如果觉得有用，请给个 ⭐ 支持一下！
+</p>
