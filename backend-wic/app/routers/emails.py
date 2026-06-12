@@ -1,6 +1,8 @@
 """用户邮件查看路由 - 限自己的邮箱"""
+from typing import Optional
+
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import select, func, and_
+from sqlalchemy import select, func, and_, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -8,7 +10,7 @@ from app.database import get_db
 from app.models.user import User
 from app.models.mailbox import MailboxApplication
 from app.models.email import EmailMessage
-from app.schemas.email import EmailDetail, EmailListResponse, EmailSummary, AttachmentOut
+from app.schemas.email import EmailDetail, EmailListResponse, EmailSummary, AttachmentOut, UnreadCountResponse
 from app.services.auth import get_current_user
 
 router = APIRouter(prefix="/api/emails", tags=["邮件"])
@@ -32,18 +34,43 @@ async def _get_user_mailbox_ids(db: AsyncSession, user: User) -> list[int]:
 async def list_emails(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
+    q: Optional[str] = Query(None, description="搜索关键词（匹配发件人、主题、正文）"),
+    sender: Optional[str] = Query(None, description="按发件人筛选"),
+    is_read: Optional[bool] = Query(None, description="按已读/未读筛选"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """我的邮件列表"""
+    """我的邮件列表（支持搜索和筛选）"""
     mailbox_ids = await _get_user_mailbox_ids(db, current_user)
 
     if not mailbox_ids:
         return EmailListResponse(total=0, page=page, page_size=page_size, emails=[])
 
+    # 基础条件：属于用户的邮箱
+    conditions = [EmailMessage.mailbox_id.in_(mailbox_ids)]
+
+    # 关键词搜索：匹配发件人、主题、正文
+    if q:
+        keyword = f"%{q}%"
+        conditions.append(or_(
+            EmailMessage.header_from.like(keyword),
+            EmailMessage.subject.like(keyword),
+            EmailMessage.body_text.like(keyword),
+        ))
+
+    # 按发件人筛选
+    if sender:
+        conditions.append(EmailMessage.header_from.like(f"%{sender}%"))
+
+    # 按已读/未读筛选
+    if is_read is not None:
+        conditions.append(EmailMessage.is_read == is_read)
+
+    where_clause = and_(*conditions)
+
     # 总数
     count_result = await db.execute(
-        select(func.count(EmailMessage.id)).where(EmailMessage.mailbox_id.in_(mailbox_ids))
+        select(func.count(EmailMessage.id)).where(where_clause)
     )
     total = count_result.scalar()
 
@@ -52,7 +79,7 @@ async def list_emails(
     result = await db.execute(
         select(EmailMessage)
         .options(selectinload(EmailMessage.mailbox), selectinload(EmailMessage.attachments))
-        .where(EmailMessage.mailbox_id.in_(mailbox_ids))
+        .where(where_clause)
         .order_by(EmailMessage.received_at.desc())
         .offset(offset)
         .limit(page_size)
@@ -75,6 +102,28 @@ async def list_emails(
         ))
 
     return EmailListResponse(total=total, page=page, page_size=page_size, emails=emails)
+
+
+@router.get("/unread-count", response_model=UnreadCountResponse)
+async def get_unread_count(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """未读邮件数量"""
+    mailbox_ids = await _get_user_mailbox_ids(db, current_user)
+
+    if not mailbox_ids:
+        return UnreadCountResponse(unread_count=0)
+
+    result = await db.execute(
+        select(func.count(EmailMessage.id)).where(
+            and_(
+                EmailMessage.mailbox_id.in_(mailbox_ids),
+                EmailMessage.is_read == False,
+            )
+        )
+    )
+    return UnreadCountResponse(unread_count=result.scalar() or 0)
 
 
 @router.get("/{email_id}", response_model=EmailDetail)

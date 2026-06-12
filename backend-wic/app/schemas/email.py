@@ -56,3 +56,7 @@ class EmailListResponse(BaseModel):
     page: int
     page_size: int
     emails: List[EmailSummary]
+
+
+class UnreadCountResponse(BaseModel):
+    unread_count: int

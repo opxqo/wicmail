@@ -81,6 +81,10 @@ export function markEmailUnread(id) {
   return request.patch(`/api/emails/${id}/unread`)
 }
 
+export function getUnreadCount() {
+  return request.get('/api/emails/unread-count')
+}
+
 // ---- 管理员 ----
 
 export function getAdminApplications(status) {
