@@ -11,7 +11,7 @@ WicMail 是一个**校园邮箱申请与管理平台**，采用前后端分离 +
 | **frontend** | Vue 3 + Vite + Element Plus | 5173 | Web 前端 SPA |
 
 > [!IMPORTANT]
-> 两个后端**共享同一个 MySQL 数据库** (`wicmail` @ `175.178.102.49:3306`)，使用相同的表结构。
+> 两个后端**共享同一个 MySQL 数据库** (`wicmail` @ `your-database-host:3306`)，使用相同的表结构。
 
 ## 系统架构图
 

@@ -109,4 +109,4 @@ Copy `.env.example` to `.env` in each module:
 
 - Both backends have Dockerfiles and Procfiles for Zeabur deployment
 - No CI/CD pipelines configured
-- Target: MySQL at 175.178.102.49, services on Zeabur
+- Target: MySQL at your-database-host, services on Zeabur

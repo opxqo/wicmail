@@ -1,10 +1,11 @@
 import pymysql
 import sys
+import os
 
-HOST = "175.178.102.49"
-PORT = 3306
-USER = "wicmail"
-PASSWORD = "DkDTbD2kxEkS7BwW"
+HOST = os.getenv("DB_HOST", "your-database-host")
+PORT = int(os.getenv("DB_PORT", "3306"))
+USER = os.getenv("DB_USER", "your-username")
+PASSWORD = os.getenv("DB_PASSWORD", "your-password")
 
 def test_connection():
     try:

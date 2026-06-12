@@ -269,7 +269,7 @@ npm run dev
 
 ```env
 # 数据库配置
-DATABASE_URL=mysql+asyncmy://用户名:密码@175.178.102.49:3306/wicmail
+DATABASE_URL=mysql+asyncmy://用户名:密码@your-database-host:3306/wicmail
 
 # JWT 配置（两个后端需保持一致）
 JWT_SECRET_KEY=your-secret-key-here
@@ -286,7 +286,7 @@ DEFAULT_ADMIN_PASSWORD=admin123456
 
 ```env
 # 数据库配置
-DATABASE_URL=mysql+asyncmy://用户名:密码@175.178.102.49:3306/wicmail
+DATABASE_URL=mysql+asyncmy://用户名:密码@your-database-host:3306/wicmail
 
 # JWT 配置（两个后端需保持一致）
 JWT_SECRET_KEY=your-secret-key-here
