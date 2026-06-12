@@ -158,14 +158,23 @@
 
 **Response `200`:**
 ```json
-{ "id": 101, "mailbox_address": "zhangsan@wic.edu.kg", "subject": "Welcome", "header_from": "Admin <admin@wic.edu.kg>", "header_to": "zhangsan@wic.edu.kg", "header_cc": null, "header_reply_to": null, "envelope_from": "admin@wic.edu.kg", "envelope_to": "zhangsan@wic.edu.kg", "message_id": "<abc123@mail.wic.edu.kg>", "sent_at": "2026-06-12T09:28:00", "received_at": "2026-06-12T09:30:00", "raw_size": 15234, "body_text": "Hello ...", "body_html": "<p>Hello ...</p>", "parse_status": "completed", "is_read": false, "attachments": [{ "id": 1, "filename": "report.pdf", "content_type": "application/pdf", "size": 52400 }] }
+{ "id": 101, "mailbox_address": "zhangsan@wic.edu.kg", "subject": "Welcome", "header_from": "Admin <admin@wic.edu.kg>", "header_to": "zhangsan@wic.edu.kg", "header_cc": null, "header_reply_to": null, "envelope_from": "admin@wic.edu.kg", "envelope_to": "zhangsan@wic.edu.kg", "message_id": "<abc123@mail.wic.edu.kg>", "sent_at": "2026-06-12T09:28:00", "received_at": "2026-06-12T09:30:00", "raw_size": 15234, "body_text": "Hello ...", "body_html": "<p>Hello ...</p>", "parse_status": "completed", "is_read": false, "attachments": [{ "id": 1, "filename": "report.pdf", "content_type": "application/pdf", "size": 52400, "has_file": true }] }
 ```
 
-### 3.4 `PATCH /api/emails/{email_id}/read` — 标记已读 🔑
+### 3.4 `GET /api/emails/attachments/{attachment_id}/download` — 获取附件下载链接 🔑
+
+仅允许下载当前用户已审批邮箱下邮件的 R2 附件。历史元数据附件没有实际文件时返回 `404`。
+
+**Response `200`:**
+```json
+{ "download_url": "https://...", "filename": "report.pdf", "content_type": "application/pdf", "size": 52400, "expires_in": 3600 }
+```
+
+### 3.5 `PATCH /api/emails/{email_id}/read` — 标记已读 🔑
 
 **Response `200`:** `{ "status": "ok", "email_id": 101, "is_read": true }`
 
-### 3.5 `PATCH /api/emails/{email_id}/unread` — 标记未读 🔑
+### 3.6 `PATCH /api/emails/{email_id}/unread` — 标记未读 🔑
 
 **Response `200`:** `{ "status": "ok", "email_id": 101, "is_read": false }`
 
@@ -445,7 +454,7 @@
 
 ---
 
-## 接口总表（42 个）
+## 接口总表（54 个）
 
 | # | 方法 | 路径 | 认证 |
 |---|------|------|------|
@@ -461,44 +470,45 @@
 | 10 | GET | `/api/emails` | 🔑 |
 | 11 | GET | `/api/emails/unread-count` | 🔑 |
 | 12 | GET | `/api/emails/{id}` | 🔑 |
-| 13 | PATCH | `/api/emails/{id}/read` | 🔑 |
-| 14 | PATCH | `/api/emails/{id}/unread` | 🔑 |
-| 15 | GET | `/api/admin/users` | 👑 |
-| 16 | GET | `/api/admin/users/{id}` | 👑 |
-| 17 | PATCH | `/api/admin/users/{id}` | 👑 |
-| 18 | PATCH | `/api/admin/users/{id}/toggle-active` | 👑 |
-| 19 | DELETE | `/api/admin/users/{id}` | 👑 |
-| 20 | POST | `/api/admin/users/{id}/reset-password` | 👑 |
-| 21 | GET | `/api/admin/applications` | 👑 |
-| 22 | GET | `/api/admin/applications/{id}` | 👑 |
-| 23 | PATCH | `/api/admin/applications/{id}/approve` | 👑 |
-| 24 | PATCH | `/api/admin/applications/{id}/reject` | 👑 |
-| 25 | POST | `/api/admin/applications/batch-approve` | 👑 |
-| 26 | POST | `/api/admin/applications/batch-reject` | 👑 |
-| 27 | GET | `/api/admin/mailboxes` | 👑 |
-| 28 | GET | `/api/admin/mailboxes/{id}` | 👑 |
-| 29 | POST | `/api/admin/mailboxes` | 👑 |
-| 30 | PATCH | `/api/admin/mailboxes/{id}/toggle-active` | 👑 |
-| 31 | DELETE | `/api/admin/mailboxes/{id}` | 👑 |
-| 32 | GET | `/api/admin/emails` | 👑 |
-| 33 | GET | `/api/admin/emails/search` | 👑 |
-| 34 | GET | `/api/admin/emails/{id}` | 👑 |
-| 35 | DELETE | `/api/admin/emails/{id}` | 👑 |
-| 36 | POST | `/api/admin/emails/batch-delete` | 👑 |
-| 37 | GET | `/api/admin/stats/overview` | 👑 |
-| 38 | GET | `/api/admin/stats/users` | 👑 |
-| 39 | GET | `/api/admin/stats/emails` | 👑 |
-| 40 | GET | `/api/admin/stats/applications` | 👑 |
-| 41 | GET | `/api/admin/stats/mailboxes` | 👑 |
-| 42 | GET | `/api/admin/stats/storage` | 👑 |
-| 43 | GET | `/api/admin/logs` | 👑 |
-| 44 | GET | `/api/admin/logs/export` | 👑 |
-| 45 | GET | `/api/admin/logs/{id}` | 👑 |
-| 46 | GET | `/api/admin/config` | 👑 |
-| 47 | PATCH | `/api/admin/config` | 👑 |
-| 48 | POST | `/api/admin/config/test-cloudflare` | 👑 |
-| 49 | GET | `/api/admin/config/domain-check` | 👑 |
-| 50 | GET | `/api/admin/admins` | 👑 |
-| 51 | POST | `/api/admin/admins` | 👑 |
-| 52 | DELETE | `/api/admin/admins/{id}` | 👑 |
-| 53 | PATCH | `/api/admin/admins/{id}/role` | 👑 |
+| 13 | GET | `/api/emails/attachments/{attachment_id}/download` | 🔑 |
+| 14 | PATCH | `/api/emails/{id}/read` | 🔑 |
+| 15 | PATCH | `/api/emails/{id}/unread` | 🔑 |
+| 16 | GET | `/api/admin/users` | 👑 |
+| 17 | GET | `/api/admin/users/{id}` | 👑 |
+| 18 | PATCH | `/api/admin/users/{id}` | 👑 |
+| 19 | PATCH | `/api/admin/users/{id}/toggle-active` | 👑 |
+| 20 | DELETE | `/api/admin/users/{id}` | 👑 |
+| 21 | POST | `/api/admin/users/{id}/reset-password` | 👑 |
+| 22 | GET | `/api/admin/applications` | 👑 |
+| 23 | GET | `/api/admin/applications/{id}` | 👑 |
+| 24 | PATCH | `/api/admin/applications/{id}/approve` | 👑 |
+| 25 | PATCH | `/api/admin/applications/{id}/reject` | 👑 |
+| 26 | POST | `/api/admin/applications/batch-approve` | 👑 |
+| 27 | POST | `/api/admin/applications/batch-reject` | 👑 |
+| 28 | GET | `/api/admin/mailboxes` | 👑 |
+| 29 | GET | `/api/admin/mailboxes/{id}` | 👑 |
+| 30 | POST | `/api/admin/mailboxes` | 👑 |
+| 31 | PATCH | `/api/admin/mailboxes/{id}/toggle-active` | 👑 |
+| 32 | DELETE | `/api/admin/mailboxes/{id}` | 👑 |
+| 33 | GET | `/api/admin/emails` | 👑 |
+| 34 | GET | `/api/admin/emails/search` | 👑 |
+| 35 | GET | `/api/admin/emails/{id}` | 👑 |
+| 36 | DELETE | `/api/admin/emails/{id}` | 👑 |
+| 37 | POST | `/api/admin/emails/batch-delete` | 👑 |
+| 38 | GET | `/api/admin/stats/overview` | 👑 |
+| 39 | GET | `/api/admin/stats/users` | 👑 |
+| 40 | GET | `/api/admin/stats/emails` | 👑 |
+| 41 | GET | `/api/admin/stats/applications` | 👑 |
+| 42 | GET | `/api/admin/stats/mailboxes` | 👑 |
+| 43 | GET | `/api/admin/stats/storage` | 👑 |
+| 44 | GET | `/api/admin/logs` | 👑 |
+| 45 | GET | `/api/admin/logs/export` | 👑 |
+| 46 | GET | `/api/admin/logs/{id}` | 👑 |
+| 47 | GET | `/api/admin/config` | 👑 |
+| 48 | PATCH | `/api/admin/config` | 👑 |
+| 49 | POST | `/api/admin/config/test-cloudflare` | 👑 |
+| 50 | GET | `/api/admin/config/domain-check` | 👑 |
+| 51 | GET | `/api/admin/admins` | 👑 |
+| 52 | POST | `/api/admin/admins` | 👑 |
+| 53 | DELETE | `/api/admin/admins/{id}` | 👑 |
+| 54 | PATCH | `/api/admin/admins/{id}/role` | 👑 |

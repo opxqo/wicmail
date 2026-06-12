@@ -13,3 +13,4 @@ cryptography
 bcrypt
 pyjwt
 dnspython
+boto3>=1.34.0

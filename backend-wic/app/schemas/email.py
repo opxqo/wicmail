@@ -9,6 +9,7 @@ class AttachmentOut(BaseModel):
     filename: str
     content_type: str
     size: int
+    has_file: bool = False
 
     model_config = {"from_attributes": True}
 

@@ -81,6 +81,12 @@ export function markEmailUnread(id) {
   return request.patch(`/api/emails/${id}/unread`)
 }
 
+export function downloadAttachment(id) {
+  if (isMock())
+    return mockApi.downloadAttachment(id)
+  return request.get(`/api/emails/attachments/${id}/download`)
+}
+
 export function getUnreadCount() {
   if (isMock())
     return mockApi.getUnreadCount()

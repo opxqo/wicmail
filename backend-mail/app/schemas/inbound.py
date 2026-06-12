@@ -2,6 +2,17 @@ from typing import Any, Optional
 from pydantic import BaseModel, Field
 
 
+class WorkerAttachmentMeta(BaseModel):
+    """Worker 已上传到 R2 的附件元数据"""
+    filename: str
+    content_type: str
+    size: int
+    r2_key: str
+    content_sha256: Optional[str] = None
+    is_inline: bool = False
+    content_id: Optional[str] = None
+
+
 class CloudflareInboundEmail(BaseModel):
     """Cloudflare Email Worker 推送的邮件 payload"""
     source: Optional[str] = None
@@ -27,6 +38,7 @@ class CloudflareInboundEmail(BaseModel):
     raw_encoding: Optional[str] = None
     raw_sha256: Optional[str] = None
     raw_too_large: bool = False
+    attachments: list[WorkerAttachmentMeta] = Field(default_factory=list)
 
     received_at: Optional[str] = None
 

@@ -113,11 +113,25 @@
           </h4>
           <div class="mt-8 flex flex-col gap-8">
             <div v-for="att in currentEmail.attachments" :key="att.id" class="flex items-center justify-between rounded-8 bg-gray-100 p-12">
-              <div class="flex items-center gap-8">
+              <div class="min-w-0 flex items-center gap-8">
                 <i class="i-fe:file-text text-16" />
-                <span class="text-14">{{ att.filename }}</span>
+                <span class="truncate text-14">{{ att.filename }}</span>
               </div>
-              <span class="text-12 opacity-50">{{ formatSize(att.size) }}</span>
+              <div class="ml-12 flex shrink-0 items-center gap-12">
+                <span class="text-12 opacity-50">{{ formatSize(att.size) }}</span>
+                <n-button
+                  v-if="att.has_file"
+                  size="small"
+                  text
+                  type="primary"
+                  @click.stop="handleDownloadAttachment(att)"
+                >
+                  <template #icon>
+                    <i class="i-fe:download" />
+                  </template>
+                  下载
+                </n-button>
+              </div>
             </div>
           </div>
         </template>
@@ -139,7 +153,13 @@
 <script setup>
 import { NTag } from 'naive-ui'
 import { h, onMounted, reactive, ref } from 'vue'
-import { getEmailDetail, getEmails, markEmailRead, markEmailUnread } from '@/api/wicmail'
+import {
+  downloadAttachment as getAttachmentDownloadUrl,
+  getEmailDetail,
+  getEmails,
+  markEmailRead,
+  markEmailUnread,
+} from '@/api/wicmail'
 import { AppPage } from '@/components'
 import { useUserStore } from '@/store'
 
@@ -270,6 +290,22 @@ async function toggleRead() {
   }
   catch (err) {
     $message.error('操作失败')
+    console.error(err)
+  }
+}
+
+async function handleDownloadAttachment(att) {
+  try {
+    const res = await getAttachmentDownloadUrl(att.id)
+    const data = res.data || res
+    if (!data.download_url) {
+      $message.error('下载链接无效')
+      return
+    }
+    window.open(data.download_url, '_blank', 'noopener,noreferrer')
+  }
+  catch (err) {
+    $message.error(err?.message || '获取下载链接失败')
     console.error(err)
   }
 }

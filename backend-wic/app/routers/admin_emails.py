@@ -187,7 +187,16 @@ async def get_email_detail(
         received_at=msg.received_at, raw_size=msg.raw_size,
         body_text=msg.body_text, body_html=msg.body_html,
         parse_status=msg.parse_status, is_read=msg.is_read,
-        attachments=[AttachmentOut(id=a.id, filename=a.filename, content_type=a.content_type, size=a.size) for a in msg.attachments],
+        attachments=[
+            AttachmentOut(
+                id=a.id,
+                filename=a.filename,
+                content_type=a.content_type,
+                size=a.size,
+                has_file=a.storage_backend == "r2" and bool(a.storage_path),
+            )
+            for a in msg.attachments
+        ],
     )
 
 

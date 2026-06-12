@@ -18,6 +18,13 @@ class Settings(BaseSettings):
     # CORS 允许的源（逗号分隔）
     cors_origins: str = "*"
 
+    # Cloudflare R2 附件下载配置
+    r2_account_id: str = ""
+    r2_access_key_id: str = ""
+    r2_secret_access_key: str = ""
+    r2_bucket_name: str = "wicmail-attachments"
+    r2_presign_expire_seconds: int = 3600
+
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}
 
 

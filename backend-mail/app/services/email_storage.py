@@ -109,8 +109,23 @@ async def save_inbound_email(
     session.add(email_msg)
     await session.flush()
 
-    # 保存附件元数据
-    if parsed and parsed.attachments:
+    # 保存附件元数据：优先使用 Worker 已上传到 R2 的结果
+    if payload.attachments:
+        for att in payload.attachments:
+            attachment = Attachment(
+                email_id=email_msg.id,
+                filename=att.filename,
+                content_type=att.content_type,
+                size=att.size,
+                storage_path=att.r2_key,
+                storage_backend="r2",
+                content_sha256=att.content_sha256,
+                is_inline=att.is_inline,
+                content_id=att.content_id,
+            )
+            session.add(attachment)
+        await session.flush()
+    elif parsed and parsed.attachments:
         for att in parsed.attachments:
             attachment = Attachment(
                 email_id=email_msg.id,

@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WicMail 头像库 · 视觉氛围探索</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=DM+Serif+Display&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ==================== All Color Tokens in :root ==================== */
+    :root {
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+
+      /* Nudgeable seeds */
+      --font-base-size: 13px;
+      --section-padding-y: 64px;
+      --section-padding-x: 40px;
+
+      /* Shared page chrome */
+      --page-dark: #0e0e12;
+      --page-light-text: #f0f0f0;
+      --divider-highlight: rgba(255,255,255,0.08);
+
+      /* ── Cyber Night palette ── */
+      --cyber-bg: #0e0e12;
+      --cyber-fg: #f0f0f0;
+      --cyber-accent: #00dc82;
+      --cyber-card: #16161c;
+      --cyber-border: rgba(0,220,130,0.08);
+      --cyber-border-hover: rgba(0,220,130,0.3);
+      --cyber-glow: rgba(0,220,130,0.08);
+      --cyber-name: rgba(255,255,255,0.35);
+
+      /* ── Warm Sunset palette ── */
+      --warm-bg: #faf6f1;
+      --warm-fg: #3d2e1e;
+      --warm-accent: #c2703e;
+      --warm-card: #ffffff;
+      --warm-muted: #8b7355;
+      --warm-img-border: #f5ebe0;
+      --warm-shadow: rgba(139,115,85,0.08);
+      --warm-shadow-hover: rgba(139,115,85,0.14);
+
+      /* ── Editorial Clean palette ── */
+      --edit-bg: #ffffff;
+      --edit-fg: #1a1a1a;
+      --edit-accent: #999999;
+      --edit-muted: #888888;
+      --edit-border: #eeeeee;
+      --edit-name: #aaaaaa;
+
+      /* ── Playful Pop palette ── */
+      --pop-bg: #f0fdf4;
+      --pop-fg: #0f2318;
+      --pop-accent: #059669;
+      --pop-accent-alt: #0891b2;
+      --pop-muted: #3f5e50;
+      --pop-c1-bg: #ecfdf5; --pop-c1-bd: #a7f3d0;
+      --pop-c2-bg: #fef3c7; --pop-c2-bd: #fde68a;
+      --pop-c3-bg: #ecfdf5; --pop-c3-bd: #a7f3d0;
+      --pop-c4-bg: #ede9fe; --pop-c4-bd: #c4b5fd;
+      --pop-c5-bg: #fce7f3; --pop-c5-bd: #fbcfe8;
+      --pop-c6-bg: #fff7ed; --pop-c6-bd: #fed7aa;
+      --pop-c7-bg: #dbeafe; --pop-c7-bd: #bfdbfe;
+      --pop-c8-bg: #e0f2fe; --pop-c8-bd: #bae6fd;
+      --pop-c9-bg: #ecfeff; --pop-c9-bd: #a5f3fc;
+      --pop-c10-bg: #f0fdf4; --pop-c10-bd: #bbf7d0;
+      --pop-c11-bg: #1e1b4b; --pop-c11-bd: #312e81; --pop-c11-fg: #e0e7ff;
+      --pop-c12-bg: #fef2f2; --pop-c12-bd: #fecaca;
+
+      /* ── Summary palette ── */
+      --summary-bg: #0e0e12;
+      --summary-fg: #f0f0f0;
+      --summary-accent: #00dc82;
+      --summary-text: rgba(255,255,255,0.6);
+      --summary-head: rgba(255,255,255,0.3);
+      --summary-border: rgba(255,255,255,0.06);
+      --summary-border-faint: rgba(255,255,255,0.04);
+      --tag-green-bg: rgba(0,220,130,0.12);
+      --tag-warm-bg: rgba(245,158,11,0.12);
+      --tag-warm-fg: #f59e0b;
+      --tag-gray-bg: rgba(255,255,255,0.06);
+      --tag-gray-fg: rgba(255,255,255,0.5);
+      --tag-pop-bg: rgba(5,150,105,0.12);
+      --tag-pop-fg: #34d399;
+    }
+
+    /* ==================== Shared ==================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--page-dark); color: var(--page-light-text); }
+    .section { padding: var(--section-padding-y) var(--section-padding-x); position: relative; }
+    .section-inner { max-width: 960px; margin: 0 auto; }
+    .theme-label {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.12em;
+      text-transform: uppercase; margin-bottom: 6px; opacity: 0.5;
+    }
+    .theme-title { margin-bottom: 8px; }
+    .theme-desc { font-size: var(--font-base-size); opacity: 0.55; margin-bottom: 32px; max-width: 48ch; line-height: 1.6; }
+    .avatar-grid { display: grid; gap: 16px; }
+    .avatar-cell {
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      cursor: pointer; transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .avatar-cell:hover { transform: translateY(-4px) scale(1.03); }
+    .avatar-cell img { border-radius: 50%; object-fit: cover; }
+    .avatar-cell .name { font-weight: 500; }
+
+    /* ==================== Divider ==================== */
+    .divider-bar {
+      height: 1px; background: linear-gradient(90deg, transparent, var(--divider-highlight), transparent);
+      margin: 0 40px;
+    }
+
+    /* ==================== Theme 1: Cyber Night ==================== */
+    .theme-cyber {
+      background: var(--cyber-bg);
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+    }
+    .theme-cyber .theme-label { color: var(--cyber-accent); }
+    .theme-cyber .theme-title {
+      font-size: 28px; font-weight: 700; letter-spacing: -0.03em; color: var(--cyber-fg);
+    }
+    .theme-cyber .avatar-grid { grid-template-columns: repeat(6, 1fr); }
+    .theme-cyber .avatar-cell {
+      padding: 20px 8px 14px;
+      background: var(--cyber-card);
+      border: 1px solid var(--cyber-border);
+      border-radius: var(--radius-sm);
+    }
+    .theme-cyber .avatar-cell:hover {
+      border-color: var(--cyber-border-hover);
+      box-shadow: 0 0 20px var(--cyber-glow);
+    }
+    .theme-cyber .avatar-cell img { width: 52px; height: 52px; }
+    .theme-cyber .avatar-cell .name {
+      font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--cyber-name);
+    }
+
+    /* ==================== Theme 2: Warm Sunset ==================== */
+    .theme-warm {
+      background: var(--warm-bg);
+      font-family: 'Nunito', 'Inter', system-ui, sans-serif;
+      color: var(--warm-fg);
+    }
+    .theme-warm .theme-label { color: var(--warm-accent); }
+    .theme-warm .theme-title {
+      font-size: 26px; font-weight: 800; letter-spacing: -0.01em; color: var(--warm-fg);
+    }
+    .theme-warm .theme-desc { color: var(--warm-muted); }
+    .theme-warm .avatar-grid { grid-template-columns: repeat(4, 1fr); gap: 20px; }
+    .theme-warm .avatar-cell {
+      padding: 28px 12px 18px;
+      background: var(--warm-card);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 2px 12px var(--warm-shadow);
+    }
+    .theme-warm .avatar-cell:hover {
+      box-shadow: 0 6px 24px var(--warm-shadow-hover);
+    }
+    .theme-warm .avatar-cell img { width: 72px; height: 72px; border: 3px solid var(--warm-img-border); }
+    .theme-warm .avatar-cell .name {
+      font-size: 12px; font-weight: 700; color: var(--warm-muted);
+    }
+
+    /* ==================== Theme 3: Editorial Clean ==================== */
+    .theme-editorial {
+      background: var(--edit-bg);
+      font-family: 'Inter', system-ui, sans-serif;
+      color: var(--edit-fg);
+    }
+    .theme-editorial .theme-label { color: var(--edit-accent); }
+    .theme-editorial .theme-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 36px; font-weight: 400; letter-spacing: -0.01em; color: var(--edit-fg);
+    }
+    .theme-editorial .theme-desc { color: var(--edit-muted); font-size: 14px; }
+    .theme-editorial .avatar-grid { grid-template-columns: repeat(6, 1fr); gap: 28px; }
+    .theme-editorial .avatar-cell {
+      padding: 16px 0 10px;
+      border-bottom: 1px solid var(--edit-border);
+      border-radius: 0;
+      background: none;
+    }
+    .theme-editorial .avatar-cell:hover { border-bottom-color: var(--edit-fg); }
+    .theme-editorial .avatar-cell img { width: 56px; height: 56px; }
+    .theme-editorial .avatar-cell .name {
+      font-size: 11px; font-weight: 400; color: var(--edit-name); letter-spacing: 0.02em;
+    }
+
+    /* ==================== Theme 4: Playful Pop ==================== */
+    .theme-pop {
+      background: var(--pop-bg);
+      font-family: 'Nunito', 'Inter', system-ui, sans-serif;
+      color: var(--pop-fg);
+    }
+    .theme-pop .theme-label { color: var(--pop-accent); }
+    .theme-pop .theme-title {
+      font-size: 32px; font-weight: 800; letter-spacing: -0.02em;
+      background: linear-gradient(135deg, var(--pop-accent), var(--pop-accent-alt));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .theme-pop .theme-desc { color: var(--pop-muted); }
+    .theme-pop .avatar-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .theme-pop .avatar-cell {
+      padding: 24px 12px 16px;
+      border-radius: var(--radius-lg);
+      border: 2px solid transparent;
+    }
+    .theme-pop .avatar-cell:nth-child(1)  { background: var(--pop-c1-bg); border-color: var(--pop-c1-bd); }
+    .theme-pop .avatar-cell:nth-child(2)  { background: var(--pop-c2-bg); border-color: var(--pop-c2-bd); }
+    .theme-pop .avatar-cell:nth-child(3)  { background: var(--pop-c3-bg); border-color: var(--pop-c3-bd); }
+    .theme-pop .avatar-cell:nth-child(4)  { background: var(--pop-c4-bg); border-color: var(--pop-c4-bd); }
+    .theme-pop .avatar-cell:nth-child(5)  { background: var(--pop-c5-bg); border-color: var(--pop-c5-bd); }
+    .theme-pop .avatar-cell:nth-child(6)  { background: var(--pop-c6-bg); border-color: var(--pop-c6-bd); }
+    .theme-pop .avatar-cell:nth-child(7)  { background: var(--pop-c7-bg); border-color: var(--pop-c7-bd); }
+    .theme-pop .avatar-cell:nth-child(8)  { background: var(--pop-c8-bg); border-color: var(--pop-c8-bd); }
+    .theme-pop .avatar-cell:nth-child(9)  { background: var(--pop-c9-bg); border-color: var(--pop-c9-bd); }
+    .theme-pop .avatar-cell:nth-child(10) { background: var(--pop-c10-bg); border-color: var(--pop-c10-bd); }
+    .theme-pop .avatar-cell:nth-child(11) { background: var(--pop-c11-bg); border-color: var(--pop-c11-bd); }
+    .theme-pop .avatar-cell:nth-child(12) { background: var(--pop-c12-bg); border-color: var(--pop-c12-bd); }
+    .theme-pop .avatar-cell:hover { transform: translateY(-6px) rotate(-1deg) scale(1.05); }
+    .theme-pop .avatar-cell img { width: 68px; height: 68px; }
+    .theme-pop .avatar-cell .name {
+      font-size: 13px; font-weight: 700; color: var(--pop-fg);
+    }
+    .theme-pop .avatar-cell:nth-child(11) .name { color: var(--pop-c11-fg); }
+
+    /* ==================== Summary ==================== */
+    .summary {
+      background: var(--summary-bg);
+      padding: var(--section-padding-y) var(--section-padding-x);
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+    }
+    .summary-inner { max-width: 960px; margin: 0 auto; }
+    .summary h2 {
+      font-size: 22px; font-weight: 700; letter-spacing: -0.02em;
+      color: var(--summary-fg); margin-bottom: 24px;
+    }
+    .compare-table {
+      width: 100%; border-collapse: collapse;
+      font-size: 13px; color: var(--summary-text);
+    }
+    .compare-table th {
+      text-align: left; font-size: 10px; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--summary-head); padding: 8px 12px;
+      border-bottom: 1px solid var(--summary-border);
+    }
+    .compare-table td {
+      padding: 10px 12px; border-bottom: 1px solid var(--summary-border-faint);
+      vertical-align: top;
+    }
+    .compare-table td:first-child { color: var(--summary-accent); font-weight: 500; }
+    .tag {
+      display: inline-block; padding: 2px 8px; border-radius: 4px;
+      font-size: 11px; font-weight: 500; margin-right: 4px;
+    }
+    .tag--green { background: var(--tag-green-bg); color: var(--summary-accent); }
+    .tag--warm { background: var(--tag-warm-bg); color: var(--tag-warm-fg); }
+    .tag--gray { background: var(--tag-gray-bg); color: var(--tag-gray-fg); }
+    .tag--pop { background: var(--tag-pop-bg); color: var(--tag-pop-fg); }
+  </style>
+</head>
+<body>
+<main>
+
+  <!-- ==================== Theme 1: Cyber Night ==================== -->
+  <section class="section theme-cyber" data-component="theme-cyber">
+    <div class="section-inner">
+      <div class="theme-label">氛围 01 · Cyber Night</div>
+      <h2 class="theme-title">暗夜科技</h2>
+      <p class="theme-desc">深色背景 + 霓虹绿点缀，等宽字体标签，6 列紧凑网格。适合暗色主题产品、终端风格界面。</p>
+      <div class="avatar-grid">
+        <div class="avatar-cell"><img src="avatar-mountain.svg" alt="山峦"><span class="name">山峦</span></div>
+        <div class="avatar-cell"><img src="avatar-sun.svg" alt="太阳"><span class="name">太阳</span></div>
+        <div class="avatar-cell"><img src="avatar-leaf.svg" alt="树叶"><span class="name">树叶</span></div>
+        <div class="avatar-cell"><img src="avatar-star.svg" alt="星星"><span class="name">星星</span></div>
+        <div class="avatar-cell"><img src="avatar-cat.svg" alt="猫咪"><span class="name">猫咪</span></div>
+        <div class="avatar-cell"><img src="avatar-fox.svg" alt="狐狸"><span class="name">狐狸</span></div>
+        <div class="avatar-cell"><img src="avatar-owl.svg" alt="猫头鹰"><span class="name">猫头鹰</span></div>
+        <div class="avatar-cell"><img src="avatar-cloud.svg" alt="云朵"><span class="name">云朵</span></div>
+        <div class="avatar-cell"><img src="avatar-wave.svg" alt="海浪"><span class="name">海浪</span></div>
+        <div class="avatar-cell"><img src="avatar-sprout.svg" alt="嫩芽"><span class="name">嫩芽</span></div>
+        <div class="avatar-cell"><img src="avatar-moon.svg" alt="月亮"><span class="name">月亮</span></div>
+        <div class="avatar-cell"><img src="avatar-gem.svg" alt="宝石"><span class="name">宝石</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider-bar"></div>
+
+  <!-- ==================== Theme 2: Warm Sunset ==================== -->
+  <section class="section theme-warm" data-component="theme-warm">
+    <div class="section-inner">
+      <div class="theme-label">氛围 02 · Warm Sunset</div>
+      <h2 class="theme-title">暖阳柔光</h2>
+      <p class="theme-desc">奶油底色 + 暖棕文字，圆角卡片配柔和投影，72px 大头像。温馨亲和，适合社区和校园场景。</p>
+      <div class="avatar-grid">
+        <div class="avatar-cell"><img src="avatar-mountain.svg" alt="山峦"><span class="name">山峦</span></div>
+        <div class="avatar-cell"><img src="avatar-sun.svg" alt="太阳"><span class="name">太阳</span></div>
+        <div class="avatar-cell"><img src="avatar-leaf.svg" alt="树叶"><span class="name">树叶</span></div>
+        <div class="avatar-cell"><img src="avatar-star.svg" alt="星星"><span class="name">星星</span></div>
+        <div class="avatar-cell"><img src="avatar-cat.svg" alt="猫咪"><span class="name">猫咪</span></div>
+        <div class="avatar-cell"><img src="avatar-fox.svg" alt="狐狸"><span class="name">狐狸</span></div>
+        <div class="avatar-cell"><img src="avatar-owl.svg" alt="猫头鹰"><span class="name">猫头鹰</span></div>
+        <div class="avatar-cell"><img src="avatar-cloud.svg" alt="云朵"><span class="name">云朵</span></div>
+        <div class="avatar-cell"><img src="avatar-wave.svg" alt="海浪"><span class="name">海浪</span></div>
+        <div class="avatar-cell"><img src="avatar-sprout.svg" alt="嫩芽"><span class="name">嫩芽</span></div>
+        <div class="avatar-cell"><img src="avatar-moon.svg" alt="月亮"><span class="name">月亮</span></div>
+        <div class="avatar-cell"><img src="avatar-gem.svg" alt="宝石"><span class="name">宝石</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider-bar"></div>
+
+  <!-- ==================== Theme 3: Editorial Clean ==================== -->
+  <section class="section theme-editorial" data-component="theme-editorial">
+    <div class="section-inner">
+      <div class="theme-label">氛围 03 · Editorial Clean</div>
+      <h2 class="theme-title">杂志极简</h2>
+      <p class="theme-desc">纯白底色 + 衬线标题，无边框卡片仅用底线分隔，6 列疏朗排版。克制优雅，适合品牌展示页。</p>
+      <div class="avatar-grid">
+        <div class="avatar-cell"><img src="avatar-mountain.svg" alt="山峦"><span class="name">山峦</span></div>
+        <div class="avatar-cell"><img src="avatar-sun.svg" alt="太阳"><span class="name">太阳</span></div>
+        <div class="avatar-cell"><img src="avatar-leaf.svg" alt="树叶"><span class="name">树叶</span></div>
+        <div class="avatar-cell"><img src="avatar-star.svg" alt="星星"><span class="name">星星</span></div>
+        <div class="avatar-cell"><img src="avatar-cat.svg" alt="猫咪"><span class="name">猫咪</span></div>
+        <div class="avatar-cell"><img src="avatar-fox.svg" alt="狐狸"><span class="name">狐狸</span></div>
+        <div class="avatar-cell"><img src="avatar-owl.svg" alt="猫头鹰"><span class="name">猫头鹰</span></div>
+        <div class="avatar-cell"><img src="avatar-cloud.svg" alt="云朵"><span class="name">云朵</span></div>
+        <div class="avatar-cell"><img src="avatar-wave.svg" alt="海浪"><span class="name">海浪</span></div>
+        <div class="avatar-cell"><img src="avatar-sprout.svg" alt="嫩芽"><span class="name">嫩芽</span></div>
+        <div class="avatar-cell"><img src="avatar-moon.svg" alt="月亮"><span class="name">月亮</span></div>
+        <div class="avatar-cell"><img src="avatar-gem.svg" alt="宝石"><span class="name">宝石</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider-bar"></div>
+
+  <!-- ==================== Theme 4: Playful Pop ==================== -->
+  <section class="section theme-pop" data-component="theme-pop">
+    <div class="section-inner">
+      <div class="theme-label">氛围 04 · Playful Pop</div>
+      <h2 class="theme-title">活力糖果</h2>
+      <p class="theme-desc">彩色卡片 + 弹性 hover 动效，渐变标题，每张卡片独立配色。活泼有趣，适合年轻用户和校园产品。</p>
+      <div class="avatar-grid">
+        <div class="avatar-cell"><img src="avatar-mountain.svg" alt="山峦"><span class="name">山峦</span></div>
+        <div class="avatar-cell"><img src="avatar-sun.svg" alt="太阳"><span class="name">太阳</span></div>
+        <div class="avatar-cell"><img src="avatar-leaf.svg" alt="树叶"><span class="name">树叶</span></div>
+        <div class="avatar-cell"><img src="avatar-star.svg" alt="星星"><span class="name">星星</span></div>
+        <div class="avatar-cell"><img src="avatar-cat.svg" alt="猫咪"><span class="name">猫咪</span></div>
+        <div class="avatar-cell"><img src="avatar-fox.svg" alt="狐狸"><span class="name">狐狸</span></div>
+        <div class="avatar-cell"><img src="avatar-owl.svg" alt="猫头鹰"><span class="name">猫头鹰</span></div>
+        <div class="avatar-cell"><img src="avatar-cloud.svg" alt="云朵"><span class="name">云朵</span></div>
+        <div class="avatar-cell"><img src="avatar-wave.svg" alt="海浪"><span class="name">海浪</span></div>
+        <div class="avatar-cell"><img src="avatar-sprout.svg" alt="嫩芽"><span class="name">嫩芽</span></div>
+        <div class="avatar-cell"><img src="avatar-moon.svg" alt="月亮"><span class="name">月亮</span></div>
+        <div class="avatar-cell"><img src="avatar-gem.svg" alt="宝石"><span class="name">宝石</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider-bar"></div>
+
+  <!-- ==================== Comparison Summary ==================== -->
+  <section class="summary" data-component="summary">
+    <div class="summary-inner">
+      <h2>视觉氛围对比</h2>
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>氛围</th>
+            <th>背景</th>
+            <th>字体</th>
+            <th>卡片密度</th>
+            <th>头像尺寸</th>
+            <th>情绪关键词</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>暗夜科技</td>
+            <td>Cyber Dark</td>
+            <td>Space Grotesk</td>
+            <td>6列 · 紧凑</td>
+            <td>52px</td>
+            <td><span class="tag tag--green">科技</span><span class="tag tag--green">冷静</span><span class="tag tag--green">专业</span></td>
+          </tr>
+          <tr>
+            <td>暖阳柔光</td>
+            <td>Warm Cream</td>
+            <td>Nunito</td>
+            <td>4列 · 宽松</td>
+            <td>72px</td>
+            <td><span class="tag tag--warm">温暖</span><span class="tag tag--warm">亲和</span><span class="tag tag--warm">社区</span></td>
+          </tr>
+          <tr>
+            <td>杂志极简</td>
+            <td>Pure White</td>
+            <td>DM Serif + Inter</td>
+            <td>6列 · 疏朗</td>
+            <td>56px</td>
+            <td><span class="tag tag--gray">克制</span><span class="tag tag--gray">优雅</span><span class="tag tag--gray">品牌</span></td>
+          </tr>
+          <tr>
+            <td>活力糖果</td>
+            <td>Mint Fresh</td>
+            <td>Nunito</td>
+            <td>4列 · 中等</td>
+            <td>68px</td>
+            <td><span class="tag tag--pop">活泼</span><span class="tag tag--pop">有趣</span><span class="tag tag--pop">年轻</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

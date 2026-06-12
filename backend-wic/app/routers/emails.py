@@ -1,15 +1,17 @@
 """用户邮件查看路由 - 限自己的邮箱"""
 from typing import Optional
+from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select, func, and_, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.config import settings
 from app.database import get_db
 from app.models.user import User
 from app.models.mailbox import MailboxApplication
-from app.models.email import EmailMessage
+from app.models.email import Attachment, EmailMessage
 from app.schemas.email import EmailDetail, EmailListResponse, EmailSummary, AttachmentOut, UnreadCountResponse
 from app.services.auth import get_current_user
 
@@ -126,6 +128,81 @@ async def get_unread_count(
     return UnreadCountResponse(unread_count=result.scalar() or 0)
 
 
+@router.get("/attachments/{attachment_id}/download")
+async def download_attachment(
+    attachment_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """获取当前用户可访问附件的 R2 预签名下载链接"""
+    mailbox_ids = await _get_user_mailbox_ids(db, current_user)
+    if not mailbox_ids:
+        raise HTTPException(status_code=404, detail="附件不存在")
+
+    result = await db.execute(
+        select(Attachment)
+        .join(EmailMessage, Attachment.email_id == EmailMessage.id)
+        .where(
+            and_(
+                Attachment.id == attachment_id,
+                EmailMessage.mailbox_id.in_(mailbox_ids),
+            )
+        )
+    )
+    attachment = result.scalar_one_or_none()
+
+    if attachment is None:
+        raise HTTPException(status_code=404, detail="附件不存在")
+
+    if attachment.storage_backend != "r2" or not attachment.storage_path:
+        raise HTTPException(status_code=404, detail="附件文件不可用")
+
+    if not all([
+        settings.r2_account_id,
+        settings.r2_access_key_id,
+        settings.r2_secret_access_key,
+        settings.r2_bucket_name,
+    ]):
+        raise HTTPException(status_code=503, detail="R2 下载配置不完整")
+
+    try:
+        import boto3
+        from botocore.config import Config as BotoConfig
+    except ImportError as exc:
+        raise HTTPException(status_code=503, detail="R2 下载依赖未安装") from exc
+
+    s3_client = boto3.client(
+        "s3",
+        endpoint_url=f"https://{settings.r2_account_id}.r2.cloudflarestorage.com",
+        aws_access_key_id=settings.r2_access_key_id,
+        aws_secret_access_key=settings.r2_secret_access_key,
+        config=BotoConfig(signature_version="s3v4"),
+        region_name="auto",
+    )
+    encoded_filename = quote(attachment.filename)
+    content_disposition = (
+        f"attachment; filename*=UTF-8''{encoded_filename}"
+    )
+
+    download_url = s3_client.generate_presigned_url(
+        "get_object",
+        Params={
+            "Bucket": settings.r2_bucket_name,
+            "Key": attachment.storage_path,
+            "ResponseContentDisposition": content_disposition,
+        },
+        ExpiresIn=settings.r2_presign_expire_seconds,
+    )
+
+    return {
+        "download_url": download_url,
+        "filename": attachment.filename,
+        "content_type": attachment.content_type,
+        "size": attachment.size,
+        "expires_in": settings.r2_presign_expire_seconds,
+    }
+
+
 @router.get("/{email_id}", response_model=EmailDetail)
 async def get_email_detail(
     email_id: int,
@@ -166,7 +243,13 @@ async def get_email_detail(
         parse_status=msg.parse_status,
         is_read=msg.is_read,
         attachments=[
-            AttachmentOut(id=a.id, filename=a.filename, content_type=a.content_type, size=a.size)
+            AttachmentOut(
+                id=a.id,
+                filename=a.filename,
+                content_type=a.content_type,
+                size=a.size,
+                has_file=a.storage_backend == "r2" and bool(a.storage_path),
+            )
             for a in msg.attachments
         ],
     )

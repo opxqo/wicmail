@@ -208,8 +208,8 @@ const emails = [
     received_at: '2024-09-24T14:30:05',
     raw_size: 15360,
     attachments: [
-      { id: 1, filename: '项目分工方案.pdf', content_type: 'application/pdf', size: 102400 },
-      { id: 2, filename: '进度计划.xlsx', content_type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', size: 51200 },
+      { id: 1, filename: '项目分工方案.pdf', content_type: 'application/pdf', size: 102400, has_file: true },
+      { id: 2, filename: '进度计划.xlsx', content_type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', size: 51200, has_file: true },
     ],
   },
   {
@@ -253,7 +253,7 @@ const emails = [
     received_at: '2024-09-22T09:15:02',
     raw_size: 4096,
     attachments: [
-      { id: 3, filename: '周报模板.docx', content_type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', size: 25600 },
+      { id: 3, filename: '周报模板.docx', content_type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', size: 25600, has_file: false },
     ],
   },
   {
@@ -541,6 +541,25 @@ export const mockApi = {
     if (email)
       email.is_read = false
     return { code: 0, data: { status: 'ok', email_id: id, is_read: false } }
+  },
+
+  async downloadAttachment(id) {
+    await delay()
+    const attachment = emails
+      .flatMap(e => e.attachments || [])
+      .find(att => att.id === id)
+    if (!attachment || !attachment.has_file)
+      return Promise.reject({ code: 404, message: '附件文件不可用' })
+    return {
+      code: 0,
+      data: {
+        download_url: 'https://example.com/mock-download',
+        filename: attachment.filename,
+        content_type: attachment.content_type,
+        size: attachment.size,
+        expires_in: 3600,
+      },
+    }
   },
 
   // ---- 管理员 ----
