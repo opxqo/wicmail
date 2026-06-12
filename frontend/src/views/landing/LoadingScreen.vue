@@ -82,8 +82,8 @@ const logoShapes = [
 ]
 
 onMounted(() => {
-  setTimeout(() => { isExiting.value = true }, 4200)
-  setTimeout(() => { visible.value = false }, 5200)
+  setTimeout(() => isExiting.value = true, 4200)
+  setTimeout(() => visible.value = false, 5200)
 })
 </script>
 

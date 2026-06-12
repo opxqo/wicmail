@@ -24,8 +24,8 @@
 </template>
 
 <script setup>
-import { h, computed, nextTick, onMounted, ref, watch } from 'vue'
 import { NBadge } from 'naive-ui'
+import { computed, h, nextTick, onMounted, ref, watch } from 'vue'
 import { useAppStore, usePermissionStore, useUserStore } from '@/store'
 import { isExternal } from '@/utils'
 

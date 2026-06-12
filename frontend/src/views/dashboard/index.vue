@@ -3,8 +3,8 @@
     <div class="flex">
       <n-card class="min-w-200 w-30%">
         <div class="flex items-center">
-          <div class="rounded-full overflow-hidden bg-primary/10 text-primary flex items-center justify-center flex-shrink-0" style="width: 60px; height: 60px;">
-            <img v-if="userStore.avatar" :src="userStore.avatar" alt="avatar" class="w-full h-full object-cover" />
+          <div class="flex flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-primary" style="width: 60px; height: 60px;">
+            <img v-if="userStore.avatar" :src="userStore.avatar" alt="avatar" class="h-full w-full object-cover">
             <span v-else class="text-20">{{ (userStore.nickName ?? userStore.username)?.charAt(0) }}</span>
           </div>
           <div class="ml-20 flex-col">

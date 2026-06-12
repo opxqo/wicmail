@@ -1178,12 +1178,12 @@
           <div class="footer-brand">
             <div class="footer-brand-header">
               <router-link to="/" class="footer-logo-link">
-              <img src="/wicmail-icon.svg" alt="WicMail" class="footer-emblem">
-              <div class="footer-brand-text">
-                <span class="footer-brand-name">WicMail</span>
-                <span class="footer-brand-sub">校园邮箱服务</span>
-              </div>
-            </router-link>
+                <img src="/wicmail-icon.svg" alt="WicMail" class="footer-emblem">
+                <div class="footer-brand-text">
+                  <span class="footer-brand-name">WicMail</span>
+                  <span class="footer-brand-sub">校园邮箱服务</span>
+                </div>
+              </router-link>
               <div class="footer-logo-divider" />
               <div class="footer-school-brand">
                 <SchoolLogo class="footer-school-logo" />
@@ -1203,7 +1203,6 @@
                 <i class="i-fe:mail text-16" />
               </a>
             </div>
-            
           </div>
 
           <!-- 列2: 快捷入口 -->
@@ -1295,6 +1294,7 @@
 </template>
 
 <script setup>
+/* eslint-disable ts/no-use-before-define */
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from 'vue'
 import SchoolLogo from '@/components/SchoolLogo.vue'
 
@@ -1614,7 +1614,7 @@ function fallbackCopy(text) {
     document.body.removeChild(input)
     triggerToast('success', '已成功复制邮箱地址到剪切板！')
   }
-  catch (err) {
+  catch {
     triggerToast('error', '复制失败，请手动选择复制。')
   }
 }
@@ -4556,7 +4556,6 @@ onUnmounted(() => {
   margin-bottom: 0;
 }
 
-
 .footer-logo-link:hover .footer-emblem {
   transform: scale(1.06);
 }
@@ -4607,7 +4606,6 @@ onUnmounted(() => {
   align-items: center;
 }
 
-
 .footer-school-brand:hover {
   opacity: 1;
 }
@@ -4635,7 +4633,6 @@ onUnmounted(() => {
     display: none;
   }
 }
-
 
 .footer-school-logo :deep(text),
 .footer-school-logo :deep(tspan) {

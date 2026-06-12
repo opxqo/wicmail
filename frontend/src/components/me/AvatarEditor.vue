@@ -152,7 +152,7 @@
             <span class="size-label">40px</span>
           </div>
         </div>
-        
+
         <div class="editor-actions">
           <n-button secondary type="primary" class="flex-1" @click="randomize">
             <template #icon>
@@ -400,10 +400,10 @@ watch(() => props.username, (val) => {
 // 随机搭配
 async function randomize() {
   const randomStyle = styles[Math.floor(Math.random() * styles.length)].name
-  
+
   // 1. 先加载随机风格的选项定义
   await selectStyle(randomStyle)
-  
+
   // 2. 随机核心配置
   const randomSeed = Math.random().toString(36).substring(2, 10)
   const randomColors = ['b6e3f4', 'c0aede', 'd1d4f9', 'ffd5dc', 'ffdfbf', 'ffc3a0', 'bbf7d0', 'fecdd3', 'e2e8f0', 'cbd5e1']
@@ -411,9 +411,10 @@ async function randomize() {
   const bgColors = []
   while (bgColors.length < bgCount) {
     const c = randomColors[Math.floor(Math.random() * randomColors.length)]
-    if (!bgColors.includes(c)) bgColors.push(c)
+    if (!bgColors.includes(c))
+      bgColors.push(c)
   }
-  
+
   options.value = {
     seed: randomSeed,
     backgroundColors: bgColors,
@@ -421,17 +422,17 @@ async function randomize() {
     flip: flipOptions[Math.floor(Math.random() * flipOptions.length)].value,
     rotate: Math.random() > 0.5 ? 0 : Math.floor(Math.random() * 36) * 10,
   }
-  
+
   // 3. 随机选择该风格下的微调特色选项
   if (styleOptions.value.length) {
-    styleOptions.value.forEach(opt => {
+    styleOptions.value.forEach((opt) => {
       if (opt.choices.length > 1) {
         const idx = Math.floor(Math.random() * (opt.choices.length - 1)) + 1
         opt.value = opt.choices[idx].value
       }
     })
   }
-  
+
   emitUpdate()
 }
 
@@ -445,7 +446,7 @@ function resetOptions() {
     rotate: 0,
   }
   if (styleOptions.value.length) {
-    styleOptions.value.forEach(opt => {
+    styleOptions.value.forEach((opt) => {
       opt.value = '__random__'
     })
   }
@@ -732,28 +733,28 @@ function resetOptions() {
     grid-template-columns: 1fr;
     gap: 16px;
   }
-  
+
   .editor-left {
     max-height: none;
     overflow-y: visible;
     padding-right: 0;
   }
-  
+
   .style-grid {
     grid-template-columns: repeat(6, 1fr);
   }
-  
+
   .editor-right {
     order: -1; /* 移动端预览置顶 */
     position: static;
   }
-  
+
   .preview-container {
     padding: 16px;
     height: auto;
     max-height: 180px;
   }
-  
+
   .preview-image {
     width: 96px;
     height: 96px;

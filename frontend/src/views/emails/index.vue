@@ -8,7 +8,7 @@
       <!-- 现代化扁平单行搜索过滤工具栏 -->
       <div class="search-bar-wrapper mb-16">
         <div class="flex flex-wrap items-center justify-between gap-12">
-          <div class="flex flex-wrap items-center gap-12 flex-1 min-w-0">
+          <div class="min-w-0 flex flex-1 flex-wrap items-center gap-12">
             <n-input
               v-model:value="searchForm.q"
               placeholder="搜索主题、发件人、正文..."
@@ -17,10 +17,10 @@
               @keyup.enter="handleSearch"
             >
               <template #prefix>
-                <i class="i-fe:search text-slate-400 mr-4" />
+                <i class="i-fe:search mr-4 text-slate-400" />
               </template>
             </n-input>
-            
+
             <n-input
               v-model:value="searchForm.sender"
               placeholder="过滤发件人..."
@@ -29,7 +29,7 @@
               @keyup.enter="handleSearch"
             >
               <template #prefix>
-                <i class="i-fe:user text-slate-400 mr-4" />
+                <i class="i-fe:user mr-4 text-slate-400" />
               </template>
             </n-input>
 
@@ -42,14 +42,18 @@
               @update:value="handleSearch"
             />
           </div>
-          
+
           <div class="flex items-center gap-8">
             <n-button type="primary" @click="handleSearch">
-              <template #icon><i class="i-fe:search" /></template>
+              <template #icon>
+                <i class="i-fe:search" />
+              </template>
               查询
             </n-button>
             <n-button secondary @click="handleReset">
-              <template #icon><i class="i-fe:rotate-ccw" /></template>
+              <template #icon>
+                <i class="i-fe:rotate-ccw" />
+              </template>
               重置
             </n-button>
           </div>
@@ -158,6 +162,15 @@ const readStatusOptions = [
   { label: '未读', value: 'false' },
 ]
 
+const pagination = reactive({
+  page: 1,
+  pageSize: 20,
+  pageCount: 1,
+  itemCount: 0,
+  showSizePicker: false,
+  onUpdatePage: handlePageChange,
+})
+
 function handleSearch() {
   pagination.page = 1
   loadEmails()
@@ -170,15 +183,6 @@ function handleReset() {
   pagination.page = 1
   loadEmails()
 }
-
-const pagination = reactive({
-  page: 1,
-  pageSize: 20,
-  pageCount: 1,
-  itemCount: 0,
-  showSizePicker: false,
-  onUpdatePage: handlePageChange,
-})
 
 const columns = [
   {

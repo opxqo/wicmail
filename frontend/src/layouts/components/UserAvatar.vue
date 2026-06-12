@@ -9,8 +9,8 @@
 <template>
   <n-dropdown :options="options" @select="handleSelect">
     <div id="user-dropdown" class="flex cursor-pointer items-center">
-      <div class="rounded-full overflow-hidden bg-primary/10 text-primary flex items-center justify-center flex-shrink-0" style="width: 36px; height: 36px;">
-        <img v-if="userStore.avatar" :src="userStore.avatar" alt="avatar" class="w-full h-full object-cover" />
+      <div class="flex flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-primary" style="width: 36px; height: 36px;">
+        <img v-if="userStore.avatar" :src="userStore.avatar" alt="avatar" class="h-full w-full object-cover">
         <span v-else>{{ (userStore.nickName ?? userStore.username)?.charAt(0) }}</span>
       </div>
       <div v-if="userStore.userInfo" class="ml-12 flex-col flex-shrink-0 items-center">

@@ -125,5 +125,169 @@ export function toggleUserActive(userId) {
 }
 
 export function deleteUser(userId) {
+  if (isMock())
+    return mockApi.deleteUser(userId)
   return request.delete(`/api/admin/users/${userId}`)
+}
+
+// ---- 管理员 — 邮箱 ----
+
+export function getAdminMailboxes(params = {}) {
+  if (isMock())
+    return mockApi.getAdminMailboxes(params)
+  return request.get('/api/admin/mailboxes', { params })
+}
+
+export function getAdminMailboxDetail(id) {
+  if (isMock())
+    return mockApi.getAdminMailboxDetail(id)
+  return request.get(`/api/admin/mailboxes/${id}`)
+}
+
+export function createAdminMailbox(data) {
+  if (isMock())
+    return mockApi.createAdminMailbox(data)
+  return request.post('/api/admin/mailboxes', data)
+}
+
+export function toggleMailboxActive(id) {
+  if (isMock())
+    return mockApi.toggleMailboxActive(id)
+  return request.patch(`/api/admin/mailboxes/${id}/toggle-active`)
+}
+
+export function deleteMailbox(id) {
+  if (isMock())
+    return mockApi.deleteMailbox(id)
+  return request.delete(`/api/admin/mailboxes/${id}`)
+}
+
+// ---- 管理员 — 邮件 ----
+
+export function getAdminEmails(params = {}) {
+  if (isMock())
+    return mockApi.getAdminEmails(params)
+  return request.get('/api/admin/emails', { params })
+}
+
+export function searchAdminEmails(params = {}) {
+  if (isMock())
+    return mockApi.searchAdminEmails(params)
+  return request.get('/api/admin/emails/search', { params })
+}
+
+export function getAdminEmailDetail(id) {
+  if (isMock())
+    return mockApi.getAdminEmailDetail(id)
+  return request.get(`/api/admin/emails/${id}`)
+}
+
+export function deleteAdminEmail(id) {
+  if (isMock())
+    return mockApi.deleteAdminEmail(id)
+  return request.delete(`/api/admin/emails/${id}`)
+}
+
+export function batchDeleteAdminEmails(ids) {
+  if (isMock())
+    return mockApi.batchDeleteAdminEmails(ids)
+  return request.post('/api/admin/emails/batch-delete', { ids })
+}
+
+// ---- 管理员 — 统计 ----
+
+export function getAdminStatsOverview() {
+  if (isMock())
+    return mockApi.getAdminStatsOverview()
+  return request.get('/api/admin/stats/overview')
+}
+
+export function getAdminStatsUsers(days = 30) {
+  if (isMock())
+    return mockApi.getAdminStatsUsers(days)
+  return request.get('/api/admin/stats/users', { params: { days } })
+}
+
+export function getAdminStatsEmails(days = 30) {
+  if (isMock())
+    return mockApi.getAdminStatsEmails(days)
+  return request.get('/api/admin/stats/emails', { params: { days } })
+}
+
+export function getAdminStatsApplications() {
+  if (isMock())
+    return mockApi.getAdminStatsApplications()
+  return request.get('/api/admin/stats/applications')
+}
+
+export function getAdminStatsMailboxes(limit = 20) {
+  if (isMock())
+    return mockApi.getAdminStatsMailboxes(limit)
+  return request.get('/api/admin/stats/mailboxes', { params: { limit } })
+}
+
+export function getAdminStatsStorage() {
+  if (isMock())
+    return mockApi.getAdminStatsStorage()
+  return request.get('/api/admin/stats/storage')
+}
+
+// ---- 管理员 — 日志 ----
+
+export function getAdminLogs(params = {}) {
+  if (isMock())
+    return mockApi.getAdminLogs(params)
+  return request.get('/api/admin/logs', { params })
+}
+
+// ---- 管理员 — 配置 ----
+
+export function getAdminConfigs() {
+  if (isMock())
+    return mockApi.getAdminConfigs()
+  return request.get('/api/admin/config')
+}
+
+export function updateAdminConfigs(configs) {
+  if (isMock())
+    return mockApi.updateAdminConfigs(configs)
+  return request.patch('/api/admin/config', { configs })
+}
+
+export function testCloudflareConnection() {
+  if (isMock())
+    return mockApi.testCloudflareConnection()
+  return request.post('/api/admin/config/test-cloudflare')
+}
+
+export function checkDomainDns() {
+  if (isMock())
+    return mockApi.checkDomainDns()
+  return request.get('/api/admin/config/domain-check')
+}
+
+// ---- 管理员 — 管理员管理 ----
+
+export function getAdminList() {
+  if (isMock())
+    return mockApi.getAdminList()
+  return request.get('/api/admin/admins')
+}
+
+export function addAdmin(username) {
+  if (isMock())
+    return mockApi.addAdmin(username)
+  return request.post('/api/admin/admins', { username })
+}
+
+export function removeAdmin(id) {
+  if (isMock())
+    return mockApi.removeAdmin(id)
+  return request.delete(`/api/admin/admins/${id}`)
+}
+
+export function updateAdminRole(id, data) {
+  if (isMock())
+    return mockApi.updateAdminRole(id, data)
+  return request.patch(`/api/admin/admins/${id}/role`, data)
 }

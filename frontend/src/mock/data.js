@@ -286,6 +286,22 @@ const credentials = {
   lisi: { password: '123456', userId: 3 },
 }
 
+// ============ 日志数据 ============
+const logs = [
+  { id: 1, admin_id: 1, admin_username: 'admin', action: 'approve_application', target_type: 'application', target_id: 2, target_name: 'zhangsan@wic.edu.kg', detail: '批准邮箱申请: zhangsan@wic.edu.kg', ip_address: '192.168.1.1', created_at: '2024-09-10T14:00:00' },
+  { id: 2, admin_id: 1, admin_username: 'admin', action: 'toggle_user_active', target_type: 'user', target_id: 3, target_name: 'lisi', detail: '启用用户: lisi', ip_address: '192.168.1.1', created_at: '2024-09-20T09:00:00' },
+  { id: 3, admin_id: 1, admin_username: 'admin', action: 'update_config', target_type: 'config', target_id: 0, target_name: 'application_enabled', detail: '修改配置 application_enabled 为 true', ip_address: '192.168.1.1', created_at: '2024-09-21T10:30:00' },
+]
+
+// ============ 配置数据 ============
+const configs = [
+  { key: 'mailbox_domain', value: 'wic.edu.kg', description: '邮箱域名' },
+  { key: 'application_enabled', value: 'true', description: '是否开放申请' },
+  { key: 'max_mailboxes_per_user', value: '3', description: '每人最大邮箱数' },
+  { key: 'max_attachment_size_mb', value: '10', description: '单附件大小限制(MB)' },
+  { key: 'application_require_profile', value: 'true', description: '申请前是否需完善资料' },
+]
+
 // ============ Mock API 方法 ============
 const delay = (ms = 200) => new Promise(resolve => setTimeout(resolve, ms))
 
@@ -583,6 +599,394 @@ export const mockApi = {
     user.is_active = !user.is_active
     const action = user.is_active ? '启用' : '禁用'
     return { code: 0, data: { status: 'ok', message: `已${action}用户: ${user.username}`, is_active: user.is_active } }
+  },
+
+  async deleteUser(userId) {
+    await delay()
+    const idx = users.findIndex(u => u.id === userId)
+    if (idx === -1)
+      return Promise.reject({ code: 404, message: '用户不存在' })
+    const user = users[idx]
+    users.splice(idx, 1)
+    return { code: 0, data: { status: 'ok', message: `已删除用户: ${user.username}` } }
+  },
+
+  // ---- 管理员 — 邮箱 ----
+  async getAdminMailboxes({ q, is_active } = {}) {
+    await delay()
+    let result = [...mailboxes]
+    if (q) {
+      const kw = q.toLowerCase()
+      result = result.filter(m => m.address.toLowerCase().includes(kw) || (m.display_name && m.display_name.toLowerCase().includes(kw)))
+    }
+    if (is_active !== undefined && is_active !== null && is_active !== '') {
+      const activeVal = String(is_active) === 'true'
+      result = result.filter(m => m.is_active === activeVal)
+    }
+    return { code: 0, data: result }
+  },
+
+  async getAdminMailboxDetail(id) {
+    await delay()
+    const m = mailboxes.find(item => item.id === Number(id))
+    if (!m)
+      return Promise.reject({ code: 404, message: '邮箱不存在' })
+    const owner = users.find(u => u.email === m.address) || users[0]
+    const emailCount = emails.filter(e => e.mailbox_address === m.address).length
+    const unreadCount = emails.filter(e => e.mailbox_address === m.address && !e.is_read).length
+    return {
+      code: 0,
+      data: {
+        ...m,
+        email_count: emailCount,
+        unread_count: unreadCount,
+        owner_username: owner.username,
+        owner_user_id: owner.id,
+      },
+    }
+  },
+
+  async createAdminMailbox(data) {
+    await delay()
+    if (mailboxes.some(m => m.address === data.address)) {
+      return Promise.reject({ code: 400, message: '该邮箱地址已存在' })
+    }
+    const newMailbox = {
+      id: mailboxes.length + 1,
+      address: data.address,
+      display_name: data.display_name || '系统分配邮箱',
+      is_active: true,
+      created_at: new Date().toISOString(),
+    }
+    mailboxes.push(newMailbox)
+    return { code: 0, data: newMailbox }
+  },
+
+  async toggleMailboxActive(id) {
+    await delay()
+    const m = mailboxes.find(item => item.id === Number(id))
+    if (!m)
+      return Promise.reject({ code: 404, message: '邮箱不存在' })
+    m.is_active = !m.is_active
+    const state = m.is_active ? '启用' : '停用'
+    return { code: 0, data: { status: 'ok', message: `已${state}邮箱: ${m.address}`, is_active: m.is_active } }
+  },
+
+  async deleteMailbox(id) {
+    await delay()
+    const idx = mailboxes.findIndex(item => item.id === Number(id))
+    if (idx === -1)
+      return Promise.reject({ code: 404, message: '邮箱不存在' })
+    const m = mailboxes[idx]
+    mailboxes.splice(idx, 1)
+    return { code: 0, data: { status: 'ok', message: `已删除邮箱: ${m.address}` } }
+  },
+
+  // ---- 管理员 — 邮件 ----
+  async getAdminEmails({ page = 1, page_size = 20, q, sender, is_read } = {}) {
+    await delay()
+    let filtered = [...emails]
+    if (q) {
+      const kw = q.toLowerCase()
+      filtered = filtered.filter(e =>
+        (e.header_from && e.header_from.toLowerCase().includes(kw))
+        || (e.subject && e.subject.toLowerCase().includes(kw))
+        || (e.body_text && e.body_text.toLowerCase().includes(kw))
+        || (e.body_html && e.body_html.toLowerCase().includes(kw)),
+      )
+    }
+    if (sender) {
+      const s = sender.toLowerCase()
+      filtered = filtered.filter(e => e.header_from && e.header_from.toLowerCase().includes(s))
+    }
+    if (is_read !== undefined && is_read !== null && is_read !== '') {
+      const readVal = String(is_read) === 'true'
+      filtered = filtered.filter(e => e.is_read === readVal)
+    }
+    const start = (page - 1) * page_size
+    const paged = filtered.slice(start, start + page_size)
+    return {
+      code: 0,
+      data: {
+        total: filtered.length,
+        page,
+        page_size,
+        emails: paged.map(e => ({
+          id: e.id,
+          mailbox_address: e.mailbox_address,
+          subject: e.subject,
+          header_from: e.header_from,
+          header_to: e.header_to,
+          envelope_from: e.envelope_from,
+          envelope_to: e.envelope_to,
+          received_at: e.received_at,
+          is_read: e.is_read,
+          attachment_count: e.attachments?.length || 0,
+          raw_size: e.raw_size || 1024,
+        })),
+      },
+    }
+  },
+
+  async searchAdminEmails(params = {}) {
+    return this.getAdminEmails(params)
+  },
+
+  async getAdminEmailDetail(id) {
+    return this.getEmailDetail(id)
+  },
+
+  async deleteAdminEmail(id) {
+    await delay()
+    const idx = emails.findIndex(e => e.id === Number(id))
+    if (idx === -1)
+      return Promise.reject({ code: 404, message: '邮件不存在' })
+    emails.splice(idx, 1)
+    return { code: 0, data: { status: 'ok', message: `已删除邮件 #${id}` } }
+  },
+
+  async batchDeleteAdminEmails(ids) {
+    await delay()
+    let count = 0
+    const deletedIds = []
+    ids.forEach((id) => {
+      const idx = emails.findIndex(e => e.id === Number(id))
+      if (idx !== -1) {
+        emails.splice(idx, 1)
+        deletedIds.push(id)
+        count++
+      }
+    })
+    return { code: 0, data: { status: 'ok', deleted: deletedIds, count } }
+  },
+
+  // ---- 管理员 — 统计 ----
+  async getAdminStatsOverview() {
+    await delay()
+    const totalUsers = users.length
+    const activeUsers = users.filter(u => u.is_active).length
+    const totalMailboxes = mailboxes.length
+    const activeMailboxes = mailboxes.filter(m => m.is_active).length
+    const totalEmails = emails.length
+    const unreadEmails = emails.filter(e => !e.is_read).length
+    const totalApplications = applications.length
+    const pendingApplications = applications.filter(a => a.status === 'pending').length
+    const totalAttachments = emails.reduce((sum, e) => sum + (e.attachments?.length || 0), 0)
+    return {
+      code: 0,
+      data: {
+        total_users: totalUsers,
+        active_users: activeUsers,
+        total_mailboxes: totalMailboxes,
+        active_mailboxes: activeMailboxes,
+        total_emails: totalEmails,
+        unread_emails: unreadEmails,
+        total_applications: totalApplications,
+        pending_applications: pendingApplications,
+        total_attachments: totalAttachments,
+        today_new_users: 2,
+        today_new_emails: 8,
+      },
+    }
+  },
+
+  async getAdminStatsUsers(days = 30) {
+    await delay()
+    const result = []
+    for (let i = days - 1; i >= 0; i--) {
+      const date = new Date()
+      date.setDate(date.getDate() - i)
+      const dateStr = date.toISOString().slice(0, 10)
+      const count = Math.floor(Math.sin(i / 3) * 3 + 5) + (i % 5 === 0 ? 3 : 0)
+      result.push({ date: dateStr, count: Math.max(0, count) })
+    }
+    return { code: 0, data: result }
+  },
+
+  async getAdminStatsEmails(days = 30) {
+    await delay()
+    const result = []
+    for (let i = days - 1; i >= 0; i--) {
+      const date = new Date()
+      date.setDate(date.getDate() - i)
+      const dateStr = date.toISOString().slice(0, 10)
+      const count = Math.floor(Math.cos(i / 2) * 15 + 25) + (i % 7 === 0 ? 12 : 0)
+      result.push({ date: dateStr, count: Math.max(0, count) })
+    }
+    return { code: 0, data: result }
+  },
+
+  async getAdminStatsApplications() {
+    await delay()
+    const counts = { pending: 0, approved: 0, rejected: 0 }
+    applications.forEach((a) => {
+      if (counts[a.status] !== undefined)
+        counts[a.status]++
+    })
+    return {
+      code: 0,
+      data: [
+        { status: 'pending', count: counts.pending },
+        { status: 'approved', count: counts.approved },
+        { status: 'rejected', count: counts.rejected },
+      ],
+    }
+  },
+
+  async getAdminStatsMailboxes(limit = 20) {
+    await delay()
+    const result = mailboxes.map((m) => {
+      const count = emails.filter(e => e.mailbox_address === m.address).length
+      const unread = emails.filter(e => e.mailbox_address === m.address && !e.is_read).length
+      return {
+        id: m.id,
+        address: m.address,
+        email_count: count,
+        unread_count: unread,
+      }
+    })
+    result.sort((a, b) => b.email_count - a.email_count)
+    return { code: 0, data: result.slice(0, limit) }
+  },
+
+  async getAdminStatsStorage() {
+    await delay()
+    const totalSize = emails.reduce((sum, e) => sum + (e.raw_size || 1024), 0) + 12048576
+    return {
+      code: 0,
+      data: {
+        total_size_bytes: totalSize,
+        total_size_mb: Number((totalSize / (1024 * 1024)).toFixed(2)),
+        total_attachments: emails.reduce((sum, e) => sum + (e.attachments?.length || 0), 0) + 12,
+        avg_email_size_bytes: Math.floor(totalSize / (emails.length + 10)),
+      },
+    }
+  },
+
+  // ---- 管理员 — 日志 ----
+  async getAdminLogs({ page = 1, page_size = 20, action, target_type, admin_username, start_date, end_date } = {}) {
+    await delay()
+    let result = [...logs]
+    if (action)
+      result = result.filter(l => l.action === action)
+    if (target_type)
+      result = result.filter(l => l.target_type === target_type)
+    if (admin_username)
+      result = result.filter(l => l.admin_username.toLowerCase().includes(admin_username.toLowerCase()))
+    if (start_date)
+      result = result.filter(l => l.created_at >= start_date)
+    if (end_date)
+      result = result.filter(l => l.created_at <= `${end_date}T23:59:59`)
+
+    const start = (page - 1) * page_size
+    const paged = result.slice(start, start + page_size)
+    return {
+      code: 0,
+      data: {
+        total: result.length,
+        page,
+        page_size,
+        logs: paged,
+      },
+    }
+  },
+
+  // ---- 管理员 — 配置 ----
+  async getAdminConfigs() {
+    await delay()
+    return { code: 0, data: configs }
+  },
+
+  async updateAdminConfigs(configsInput) {
+    await delay()
+    const updatedKeys = []
+    Object.keys(configsInput).forEach((key) => {
+      const item = configs.find(c => c.key === key)
+      if (item) {
+        item.value = String(configsInput[key])
+        updatedKeys.push(key)
+
+        // 同时模拟生成一条操作日志
+        logs.unshift({
+          id: logs.length + 1,
+          admin_id: 1,
+          admin_username: 'admin',
+          action: 'update_config',
+          target_type: 'config',
+          target_id: 0,
+          target_name: key,
+          detail: `修改配置 ${key} 为 ${configsInput[key]}`,
+          ip_address: '127.0.0.1',
+          created_at: new Date().toISOString(),
+        })
+      }
+    })
+    return { code: 0, data: { status: 'ok', updated: updatedKeys } }
+  },
+
+  async testCloudflareConnection() {
+    await delay(600)
+    return {
+      code: 0,
+      data: {
+        status: 'ok',
+        message: 'Cloudflare Email Worker 服务可达',
+        data: { ping: 'pong', timestamp: Date.now(), worker_version: '1.2.0' },
+      },
+    }
+  },
+
+  async checkDomainDns() {
+    await delay(500)
+    return {
+      code: 0,
+      data: {
+        domain: 'wic.edu.kg',
+        checks: {
+          mx: ['10 mx1.cloudflare.net', '20 mx2.cloudflare.net'],
+          a: ['172.67.200.10', '104.21.75.80'],
+          resolved_ip: '104.21.75.80',
+        },
+      },
+    }
+  },
+
+  // ---- 管理员 — 管理员管理 ----
+  async getAdminList() {
+    await delay()
+    const adminUsers = users.filter(u => u.is_admin)
+    return { code: 0, data: adminUsers }
+  },
+
+  async addAdmin(usernameInput) {
+    await delay()
+    const user = users.find(u => u.username === usernameInput)
+    if (!user)
+      return Promise.reject({ code: 404, message: '找不到此用户，请先确保用户已注册' })
+    if (user.is_admin)
+      return Promise.reject({ code: 400, message: '该用户已经是管理员' })
+    user.is_admin = true
+    return { code: 0, data: user }
+  },
+
+  async removeAdmin(id) {
+    await delay()
+    const user = users.find(u => u.id === Number(id))
+    if (!user)
+      return Promise.reject({ code: 404, message: '管理员不存在' })
+    user.is_admin = false
+    return { code: 0, data: { status: 'ok', message: `已移除 ${user.username} 的管理员权限` } }
+  },
+
+  async updateAdminRole(id, data) {
+    await delay()
+    const user = users.find(u => u.id === Number(id))
+    if (!user)
+      return Promise.reject({ code: 404, message: '用户不存在' })
+    if (data.is_admin !== undefined) {
+      user.is_admin = data.is_admin
+    }
+    return { code: 0, data: { status: 'ok', message: `已更新用户 ${user.username} 角色属性` } }
   },
 }
 
