@@ -82,6 +82,8 @@ export function markEmailUnread(id) {
 }
 
 export function getUnreadCount() {
+  if (isMock())
+    return mockApi.getUnreadCount()
   return request.get('/api/emails/unread-count')
 }
 

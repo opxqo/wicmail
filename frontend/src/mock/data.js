@@ -448,14 +448,32 @@ export const mockApi = {
   },
 
   // ---- 邮件 ----
-  async getEmails({ page = 1, page_size = 20 } = {}) {
+  async getEmails({ page = 1, page_size = 20, q, sender, is_read } = {}) {
     await delay()
+    let filtered = [...emails]
+    if (q) {
+      const kw = q.toLowerCase()
+      filtered = filtered.filter(e =>
+        (e.header_from && e.header_from.toLowerCase().includes(kw))
+        || (e.subject && e.subject.toLowerCase().includes(kw))
+        || (e.body_text && e.body_text.toLowerCase().includes(kw))
+        || (e.body_html && e.body_html.toLowerCase().includes(kw)),
+      )
+    }
+    if (sender) {
+      const s = sender.toLowerCase()
+      filtered = filtered.filter(e => e.header_from && e.header_from.toLowerCase().includes(s))
+    }
+    if (is_read !== undefined && is_read !== null && is_read !== '') {
+      const readVal = String(is_read) === 'true'
+      filtered = filtered.filter(e => e.is_read === readVal)
+    }
     const start = (page - 1) * page_size
-    const paged = emails.slice(start, start + page_size)
+    const paged = filtered.slice(start, start + page_size)
     return {
       code: 0,
       data: {
-        total: emails.length,
+        total: filtered.length,
         page,
         page_size,
         emails: paged.map(e => ({
@@ -468,8 +486,19 @@ export const mockApi = {
           envelope_to: e.envelope_to,
           received_at: e.received_at,
           is_read: e.is_read,
-          attachment_count: e.attachments.length,
+          attachment_count: e.attachments?.length || 0,
         })),
+      },
+    }
+  },
+
+  async getUnreadCount() {
+    await delay()
+    const count = emails.filter(e => !e.is_read).length
+    return {
+      code: 0,
+      data: {
+        unread_count: count,
       },
     }
   },

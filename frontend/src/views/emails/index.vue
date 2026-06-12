@@ -4,6 +4,58 @@
       <template #header>
         <span class="flex items-center gap-8"><i class="i-fe:inbox text-18" /> 邮件中心</span>
       </template>
+
+      <!-- 现代化扁平单行搜索过滤工具栏 -->
+      <div class="search-bar-wrapper mb-16">
+        <div class="flex flex-wrap items-center justify-between gap-12">
+          <div class="flex flex-wrap items-center gap-12 flex-1 min-w-0">
+            <n-input
+              v-model:value="searchForm.q"
+              placeholder="搜索主题、发件人、正文..."
+              clearable
+              style="max-width: 320px; min-width: 220px;"
+              @keyup.enter="handleSearch"
+            >
+              <template #prefix>
+                <i class="i-fe:search text-slate-400 mr-4" />
+              </template>
+            </n-input>
+            
+            <n-input
+              v-model:value="searchForm.sender"
+              placeholder="过滤发件人..."
+              clearable
+              style="max-width: 200px; min-width: 150px;"
+              @keyup.enter="handleSearch"
+            >
+              <template #prefix>
+                <i class="i-fe:user text-slate-400 mr-4" />
+              </template>
+            </n-input>
+
+            <n-select
+              v-model:value="searchForm.is_read"
+              :options="readStatusOptions"
+              placeholder="阅读状态"
+              clearable
+              style="width: 120px;"
+              @update:value="handleSearch"
+            />
+          </div>
+          
+          <div class="flex items-center gap-8">
+            <n-button type="primary" @click="handleSearch">
+              <template #icon><i class="i-fe:search" /></template>
+              查询
+            </n-button>
+            <n-button secondary @click="handleReset">
+              <template #icon><i class="i-fe:rotate-ccw" /></template>
+              重置
+            </n-button>
+          </div>
+        </div>
+      </div>
+
       <n-data-table
         :columns="columns"
         :data="emails"
@@ -82,14 +134,42 @@
 
 <script setup>
 import { NTag } from 'naive-ui'
-import { h, onMounted, ref } from 'vue'
+import { h, onMounted, reactive, ref } from 'vue'
 import { getEmailDetail, getEmails, markEmailRead, markEmailUnread } from '@/api/wicmail'
 import { AppPage } from '@/components'
+import { useUserStore } from '@/store'
 
 const loading = ref(false)
 const emails = ref([])
 const drawerVisible = ref(false)
 const currentEmail = ref(null)
+
+const userStore = useUserStore()
+
+const searchForm = reactive({
+  q: '',
+  sender: '',
+  is_read: null,
+})
+
+const readStatusOptions = [
+  { label: '全部邮件', value: null },
+  { label: '已读', value: 'true' },
+  { label: '未读', value: 'false' },
+]
+
+function handleSearch() {
+  pagination.page = 1
+  loadEmails()
+}
+
+function handleReset() {
+  searchForm.q = ''
+  searchForm.sender = ''
+  searchForm.is_read = null
+  pagination.page = 1
+  loadEmails()
+}
 
 const pagination = reactive({
   page: 1,
@@ -157,6 +237,7 @@ async function openEmail(row) {
     if (!row.is_read) {
       await markEmailRead(row.id)
       row.is_read = true
+      userStore.updateUnreadCount()
     }
   }
   catch (err) {
@@ -181,6 +262,7 @@ async function toggleRead() {
     const item = emails.value.find(e => e.id === currentEmail.value.id)
     if (item)
       item.is_read = currentEmail.value.is_read
+    userStore.updateUnreadCount()
   }
   catch (err) {
     $message.error('操作失败')
@@ -204,7 +286,18 @@ function formatSize(bytes) {
 async function loadEmails() {
   loading.value = true
   try {
-    const res = await getEmails({ page: pagination.page, page_size: pagination.pageSize })
+    const params = {
+      page: pagination.page,
+      page_size: pagination.pageSize,
+    }
+    if (searchForm.q)
+      params.q = searchForm.q
+    if (searchForm.sender)
+      params.sender = searchForm.sender
+    if (searchForm.is_read !== null)
+      params.is_read = searchForm.is_read
+
+    const res = await getEmails(params)
     const data = res.data || res
     emails.value = data.emails || []
     pagination.itemCount = data.total || 0
@@ -218,10 +311,20 @@ async function loadEmails() {
   }
 }
 
-onMounted(() => loadEmails())
+onMounted(() => {
+  loadEmails()
+  userStore.updateUnreadCount()
+})
 </script>
 
 <style scoped>
+.search-bar-wrapper {
+  padding: 16px;
+  background: var(--n-card-color-modal, #fcfcfc);
+  border: 1px solid var(--n-border-color, #efeff5);
+  border-radius: 8px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+}
 .email-meta {
   display: flex;
   flex-direction: column;

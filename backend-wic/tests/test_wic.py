@@ -253,6 +253,115 @@ class TestEmails:
     def _auth(self, token):
         return {"Authorization": f"Bearer {token}"}
 
+    def _run_async(self, coro):
+        import asyncio
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+        return loop.run_until_complete(coro)
+
+    def _setup_test_emails(self, username, student_id):
+        # 1. 注册与登录
+        client.post("/api/auth/register", json={
+            "username": username, "student_id": student_id, "password": "password123",
+        })
+        login_resp = client.post("/api/auth/login", json={"username": username, "password": "password123"})
+        token = login_resp.json()["access_token"]
+        auth_headers = {"Authorization": f"Bearer {token}"}
+
+        # 2. 完善资料
+        client.patch("/api/auth/profile", json={
+            "email": f"{uid()}@test.com",
+            "real_name": "测试邮箱用户",
+            "department": "信息工程学部",
+            "major": "软件工程",
+            "class_name": "1",
+            "grade": "2023",
+        }, headers=auth_headers)
+
+        # 3. 申请邮箱
+        prefix = f"mail_{uid()}"
+        client.post("/api/mailbox/apply", json={"prefix": prefix}, headers=auth_headers)
+
+        # 4. 管理员登录并批准
+        admin_resp = client.post("/api/auth/login", json={"username": "admin", "password": "admin123456"})
+        admin_token = admin_resp.json()["access_token"]
+        admin_headers = {"Authorization": f"Bearer {admin_token}"}
+
+        apps_resp = client.get("/api/admin/applications?status=pending", headers=admin_headers)
+        app = next((a for a in apps_resp.json() if a["requested_address"] == f"{prefix}@wic.edu.kg"), None)
+        assert app is not None
+
+        client.patch(f"/api/admin/applications/{app['id']}/approve", json={"comment": "approved"}, headers=admin_headers)
+
+        # 5. 用数据库 Session 查出 mailbox_id，并写入测试邮件
+        from sqlalchemy import select
+        from app.models.mailbox import MailboxApplication
+        from app.models.email import EmailMessage
+        from tests.conftest import test_session_factory
+
+        async def _write_db():
+            async with test_session_factory() as db:
+                result = await db.execute(
+                    select(MailboxApplication.mailbox_id).where(MailboxApplication.id == app['id'])
+                )
+                mailbox_id = result.scalar()
+                assert mailbox_id is not None
+
+                email1 = EmailMessage(
+                    mailbox_id=mailbox_id,
+                    request_id=f"req_{uid()}",
+                    envelope_from="alice@test.com",
+                    envelope_to=f"{prefix}@wic.edu.kg",
+                    header_from="alice@test.com",
+                    header_to=f"{prefix}@wic.edu.kg",
+                    subject="Hello World",
+                    body_text="Welcome to wicmail",
+                    is_read=False
+                )
+                email2 = EmailMessage(
+                    mailbox_id=mailbox_id,
+                    request_id=f"req_{uid()}",
+                    envelope_from="bob@example.com",
+                    envelope_to=f"{prefix}@wic.edu.kg",
+                    header_from="bob@example.com",
+                    header_to=f"{prefix}@wic.edu.kg",
+                    subject="Important info",
+                    body_text="This is secret",
+                    is_read=False
+                )
+                email3 = EmailMessage(
+                    mailbox_id=mailbox_id,
+                    request_id=f"req_{uid()}",
+                    envelope_from="alice@test.com",
+                    envelope_to=f"{prefix}@wic.edu.kg",
+                    header_from="alice@test.com",
+                    header_to=f"{prefix}@wic.edu.kg",
+                    subject="Reply mail",
+                    body_text="No body",
+                    is_read=True
+                )
+                db.add_all([email1, email2, email3])
+                await db.commit()
+                return mailbox_id
+
+        mailbox_id = self._run_async(_write_db())
+        return token, mailbox_id
+
+    def _cleanup_test_emails(self, mailbox_id):
+        from sqlalchemy import delete
+        from app.models.email import EmailMessage
+        from tests.conftest import test_session_factory
+
+        async def _clean():
+            async with test_session_factory() as db:
+                await db.execute(delete(EmailMessage).where(EmailMessage.mailbox_id == mailbox_id))
+                await db.commit()
+
+        self._run_async(_clean())
+
     def test_email_list_no_mailbox(self):
         token = self._get_user_token()
         resp = client.get("/api/emails", headers=self._auth(token))
@@ -262,6 +371,96 @@ class TestEmails:
     def test_email_list_no_auth(self):
         resp = client.get("/api/emails")
         assert resp.status_code in (401, 403)
+
+    def test_email_search_q(self):
+        username = f"emq_{uid()}"
+        sid = f"EMQ{uid().upper()}"
+        token, mailbox_id = self._setup_test_emails(username, sid)
+        auth = self._auth(token)
+        try:
+            # 搜索 "World" (匹配邮件 1)
+            resp = client.get("/api/emails?q=World", headers=auth)
+            assert resp.status_code == 200
+            data = resp.json()
+            assert data["total"] == 1
+            assert data["emails"][0]["subject"] == "Hello World"
+
+            # 搜索 "secret" (匹配邮件 2)
+            resp = client.get("/api/emails?q=secret", headers=auth)
+            assert resp.status_code == 200
+            assert resp.json()["total"] == 1
+            assert resp.json()["emails"][0]["subject"] == "Important info"
+
+            # 搜索 "NoExist"
+            resp = client.get("/api/emails?q=NoExist", headers=auth)
+            assert resp.status_code == 200
+            assert resp.json()["total"] == 0
+        finally:
+            self._cleanup_test_emails(mailbox_id)
+
+    def test_email_search_sender(self):
+        username = f"ems_{uid()}"
+        sid = f"EMS{uid().upper()}"
+        token, mailbox_id = self._setup_test_emails(username, sid)
+        auth = self._auth(token)
+        try:
+            # 过滤发件人 "bob"
+            resp = client.get("/api/emails?sender=bob", headers=auth)
+            assert resp.status_code == 200
+            assert resp.json()["total"] == 1
+            assert resp.json()["emails"][0]["header_from"] == "bob@example.com"
+        finally:
+            self._cleanup_test_emails(mailbox_id)
+
+    def test_email_search_is_read(self):
+        username = f"emr_{uid()}"
+        sid = f"EMR{uid().upper()}"
+        token, mailbox_id = self._setup_test_emails(username, sid)
+        auth = self._auth(token)
+        try:
+            # 过滤未读
+            resp = client.get("/api/emails?is_read=false", headers=auth)
+            assert resp.status_code == 200
+            assert resp.json()["total"] == 2
+
+            # 过滤已读
+            resp = client.get("/api/emails?is_read=true", headers=auth)
+            assert resp.status_code == 200
+            assert resp.json()["total"] == 1
+        finally:
+            self._cleanup_test_emails(mailbox_id)
+
+    def test_unread_count_endpoint(self):
+        username = f"emu_{uid()}"
+        sid = f"EMU{uid().upper()}"
+        token, mailbox_id = self._setup_test_emails(username, sid)
+        auth = self._auth(token)
+        try:
+            # 初次获取未读数应该是 2
+            resp = client.get("/api/emails/unread-count", headers=auth)
+            assert resp.status_code == 200
+            assert resp.json()["unread_count"] == 2
+
+            # 获取邮件列表并标记已读
+            list_resp = client.get("/api/emails?is_read=false", headers=auth)
+            email_id = list_resp.json()["emails"][0]["id"]
+
+            read_resp = client.patch(f"/api/emails/{email_id}/read", headers=auth)
+            assert read_resp.status_code == 200
+
+            # 再次获取未读数应该为 1
+            resp2 = client.get("/api/emails/unread-count", headers=auth)
+            assert resp2.json()["unread_count"] == 1
+
+            # 标记未读
+            unread_resp = client.patch(f"/api/emails/{email_id}/unread", headers=auth)
+            assert unread_resp.status_code == 200
+
+            # 再次获取未读数重新变为 2
+            resp3 = client.get("/api/emails/unread-count", headers=auth)
+            assert resp3.json()["unread_count"] == 2
+        finally:
+            self._cleanup_test_emails(mailbox_id)
 
 
 # ============================================================

@@ -11,6 +11,7 @@ import { defineStore } from 'pinia'
 export const useUserStore = defineStore('user', {
   state: () => ({
     userInfo: null,
+    unreadCount: 0,
   }),
   getters: {
     userId() {
@@ -38,6 +39,17 @@ export const useUserStore = defineStore('user', {
     },
     resetUser() {
       this.$reset()
+    },
+    async updateUnreadCount() {
+      try {
+        const { getUnreadCount } = await import('@/api/wicmail')
+        const res = await getUnreadCount()
+        const data = res.data || res
+        this.unreadCount = data.unread_count ?? 0
+      }
+      catch (err) {
+        console.error('获取未读邮件数失败:', err)
+      }
     },
   },
 })
