@@ -4,8 +4,8 @@
     <n-card>
       <div class="flex items-center gap-24">
         <div class="relative flex-shrink-0">
-          <div class="rounded-full overflow-hidden bg-primary/10 text-28 text-primary flex items-center justify-center flex-shrink-0" style="width: 72px; height: 72px;">
-            <img v-if="profile?.avatar_url" :src="profile.avatar_url" alt="avatar" class="w-full h-full object-cover" />
+          <div class="flex flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-28 text-primary" style="width: 72px; height: 72px;">
+            <img v-if="profile?.avatar_url" :src="profile.avatar_url" alt="avatar" class="h-full w-full object-cover">
             <span v-else>{{ (userStore.nickName ?? userStore.username)?.charAt(0) }}</span>
           </div>
           <n-button
@@ -73,6 +73,9 @@
         <span class="flex items-center gap-8"><i class="i-fe:user text-18" /> 个人资料信息</span>
       </template>
       <template #header-extra>
+        <n-button type="primary" text class="mr-12" @click="openPasswordModal">
+          <i class="i-fe:lock mr-4" /> 修改密码
+        </n-button>
         <n-button type="primary" text @click="openEditModal">
           <i class="i-fe:edit mr-4" /> 修改资料
         </n-button>
@@ -150,12 +153,27 @@
         </div>
       </template>
     </n-modal>
+
+    <!-- 修改密码弹窗 -->
+    <MeModal ref="passwordModalRef" title="修改密码" width="420px" @ok="handleChangePassword">
+      <n-form ref="passwordFormRef" :model="passwordForm" label-placement="left" label-width="80">
+        <n-form-item label="旧密码" path="old_password">
+          <n-input v-model:value="passwordForm.old_password" type="password" show-password-on="mousedown" placeholder="请输入当前密码" />
+        </n-form-item>
+        <n-form-item label="新密码" path="new_password">
+          <n-input v-model:value="passwordForm.new_password" type="password" show-password-on="mousedown" placeholder="至少 6 位" />
+        </n-form-item>
+        <n-form-item label="确认密码" path="confirm_password">
+          <n-input v-model:value="passwordForm.confirm_password" type="password" show-password-on="mousedown" placeholder="再次输入新密码" />
+        </n-form-item>
+      </n-form>
+    </MeModal>
   </AppPage>
 </template>
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { getProfile, updateProfile } from '@/api/wicmail'
+import { changePassword, getProfile, updateProfile } from '@/api/wicmail'
 import { MeModal } from '@/components'
 import AvatarEditor from '@/components/me/AvatarEditor.vue'
 import { useModal } from '@/composables'
@@ -166,6 +184,8 @@ const userStore = useUserStore()
 const profile = ref(null)
 const [editModalRef] = useModal()
 const editFormRef = ref(null)
+const [passwordModalRef] = useModal()
+const passwordFormRef = ref(null)
 
 // 头像编辑器
 const avatarModalVisible = ref(false)
@@ -181,15 +201,21 @@ const editForm = ref({
   grade: '',
 })
 
+const passwordForm = ref({
+  old_password: '',
+  new_password: '',
+  confirm_password: '',
+})
+
 // 武汉城市学院 学部与专业标准字典
 const DEPARTMENT_MAJORS = {
-  '信息工程学部': ['计算机科学与技术', '软件工程', '数据科学与大数据技术', '电子信息工程', '物联网工程'],
-  '机电工程学部': ['机械设计制造及其自动化', '电气工程及其自动化', '自动化', '机器人工程'],
-  '城市建设学部': ['土木工程', '建筑学', '工程造价', '风景园林'],
-  '医学部': ['护理学', '康复治疗学', '药学'],
-  '经济与管理学部': ['会计学', '财务管理', '市场营销', '国际经济与贸易', '电子商务'],
-  '艺术设计学部': ['视觉传达设计', '环境设计', '产品设计'],
-  '外语学部': ['英语', '商务英语']
+  信息工程学部: ['计算机科学与技术', '软件工程', '数据科学与大数据技术', '电子信息工程', '物联网工程'],
+  机电工程学部: ['机械设计制造及其自动化', '电气工程及其自动化', '自动化', '机器人工程'],
+  城市建设学部: ['土木工程', '建筑学', '工程造价', '风景园林'],
+  医学部: ['护理学', '康复治疗学', '药学'],
+  经济与管理学部: ['会计学', '财务管理', '市场营销', '国际经济与贸易', '电子商务'],
+  艺术设计学部: ['视觉传达设计', '环境设计', '产品设计'],
+  外语学部: ['英语', '商务英语'],
 }
 
 // 动态学部下拉项，兼容历史非标准值
@@ -206,7 +232,8 @@ const departmentOptions = computed(() => {
 // 动态专业下拉项，根据学部联动，兼容历史非标准专业值
 const majorOptions = computed(() => {
   const dept = editForm.value.department
-  if (!dept) return []
+  if (!dept)
+    return []
   const standardMajors = DEPARTMENT_MAJORS[dept] || []
   const opts = standardMajors.map(m => ({ label: m, value: m }))
   const currentMajor = editForm.value.major
@@ -262,12 +289,18 @@ const completionPercent = computed(() => {
 function openEditModal() {
   let dept = profile.value?.department || ''
   // 智能修复旧版本数据库存储的无“学部”后缀的旧字段值
-  if (dept === '信息工程') dept = '信息工程学部'
-  else if (dept === '机电工程') dept = '机电工程学部'
-  else if (dept === '城市建设') dept = '城市建设学部'
-  else if (dept === '经济与管理') dept = '经济与管理学部'
-  else if (dept === '艺术设计') dept = '艺术设计学部'
-  else if (dept === '外语') dept = '外语学部'
+  if (dept === '信息工程')
+    dept = '信息工程学部'
+  else if (dept === '机电工程')
+    dept = '机电工程学部'
+  else if (dept === '城市建设')
+    dept = '城市建设学部'
+  else if (dept === '经济与管理')
+    dept = '经济与管理学部'
+  else if (dept === '艺术设计')
+    dept = '艺术设计学部'
+  else if (dept === '外语')
+    dept = '外语学部'
 
   // 纠错规范化年级和班级数据（剥离可能的中文后缀以符合纯数字标准）
   let grade = profile.value?.grade || ''
@@ -285,7 +318,7 @@ function openEditModal() {
     department: dept,
     major: profile.value?.major || '',
     class_name: className,
-    grade: grade,
+    grade,
   }
   editModalRef.value.open()
 }
@@ -337,6 +370,28 @@ async function saveAvatar() {
   }
   finally {
     savingAvatar.value = false
+  }
+}
+
+function openPasswordModal() {
+  passwordForm.value = { old_password: '', new_password: '', confirm_password: '' }
+  passwordModalRef.value.open()
+}
+
+async function handleChangePassword() {
+  const { old_password, new_password, confirm_password } = passwordForm.value
+  if (!old_password)
+    return $message.warning('请输入旧密码')
+  if (!new_password || new_password.length < 6)
+    return $message.warning('新密码至少 6 位')
+  if (new_password !== confirm_password)
+    return $message.warning('两次输入的密码不一致')
+  try {
+    await changePassword({ old_password, new_password })
+    $message.success('密码修改成功')
+  }
+  catch (err) {
+    $message.error(err.message || '修改失败')
   }
 }
 

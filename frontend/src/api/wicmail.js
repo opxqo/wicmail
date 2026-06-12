@@ -7,6 +7,10 @@ import { request } from '@/utils'
 
 // ---- 认证 ----
 
+export function changePassword(data) {
+  return request.post('/api/auth/change-password', data)
+}
+
 export function getProfile() {
   if (isMock()) {
     return import('@/store').then(({ useAuthStore }) => {

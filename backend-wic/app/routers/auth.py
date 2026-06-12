@@ -10,6 +10,7 @@ from app.models.user import User
 from app.schemas.auth import (
     RegisterRequest, LoginRequest, TokenResponse,
     UserResponse, ProfileResponse, ProfileUpdateRequest,
+    ChangePasswordRequest,
 )
 from app.services.jwt_utils import create_access_token
 from app.services.auth import get_current_user
@@ -134,3 +135,24 @@ async def update_profile(
         is_active=current_user.is_active,
         is_admin=current_user.is_admin,
     )
+
+
+# --- 修改密码 ---
+
+@router.post("/change-password")
+async def change_password(
+    req: ChangePasswordRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """修改密码（需验证旧密码）"""
+    if not current_user.verify_password(req.old_password):
+        raise HTTPException(status_code=400, detail="旧密码错误")
+
+    if req.old_password == req.new_password:
+        raise HTTPException(status_code=400, detail="新密码不能与旧密码相同")
+
+    current_user.set_password(req.new_password)
+    await db.flush()
+
+    return {"status": "ok", "message": "密码修改成功"}

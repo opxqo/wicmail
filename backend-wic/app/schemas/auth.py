@@ -89,3 +89,9 @@ class ProfileUpdateRequest(BaseModel):
         if v is not None and not re.match(r"^[^@]+@[^@]+\.[^@]+$", v):
             raise ValueError("邮箱格式不正确")
         return v
+
+
+# --- 修改密码 ---
+class ChangePasswordRequest(BaseModel):
+    old_password: str = Field(..., min_length=1)
+    new_password: str = Field(..., min_length=6, max_length=100)
