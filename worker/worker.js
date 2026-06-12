@@ -202,7 +202,14 @@ function getConfig(env) {
 
 /**
  * 解析 MIME 附件并上传到 R2
+ *
+ * 空间节约策略：
+ * 1. SHA256 去重：R2 Key 按内容哈希组织，相同文件只存一份
+ * 2. 跳过小型内联附件：签名图、tracking pixel 等小于 10KB 的内联附件不上传
+ * 3. 配合 R2 生命周期规则自动清理过期附件（在 Dashboard 中配置）
  */
+const MIN_INLINE_UPLOAD_SIZE = 10 * 1024; // 10KB，小于此值的内联附件不上传
+
 async function parseAndUploadAttachments(rawBuffer, requestId, env, logger) {
     if (!env.ATTACHMENTS) {
         logger.warn(`R2 绑定 ATTACHMENTS 未配置，跳过附件上传 request_id=${requestId}`);
@@ -232,24 +239,49 @@ async function parseAndUploadAttachments(rawBuffer, requestId, env, logger) {
             continue;
         }
 
-        const contentSha256 = await sha256Hex(content);
         const filename = att.filename || "unnamed";
-        const safeFilename = sanitizeFilename(filename);
-        const r2Key = `attachments/${requestId}/${contentSha256}_${safeFilename}`;
         const contentType = att.mimeType || "application/octet-stream";
         const size = getByteLength(content);
+        const isInline = Boolean(att.contentId);
+
+        // 策略 2：跳过小型内联附件（签名图、tracking pixel 等）
+        if (isInline && size < MIN_INLINE_UPLOAD_SIZE) {
+            logger.info(
+                `跳过小型内联附件 request_id=${requestId} file=${filename} size=${size}`
+            );
+            continue;
+        }
+
+        const contentSha256 = await sha256Hex(content);
+        const safeFilename = sanitizeFilename(filename);
+
+        // 策略 1：SHA256 去重，相同内容的文件共享同一个 R2 对象
+        const r2Key = `attachments/${contentSha256}/${safeFilename}`;
 
         try {
-            await env.ATTACHMENTS.put(r2Key, content, {
-                httpMetadata: {
-                    contentType,
-                },
-                customMetadata: {
-                    requestId,
-                    originalFilename: filename,
-                    contentSha256,
-                },
-            });
+            // 先检查 R2 中是否已存在相同文件，避免重复上传
+            const existing = await env.ATTACHMENTS.head(r2Key);
+
+            if (existing) {
+                logger.info(
+                    `附件已存在（去重），跳过上传 request_id=${requestId} file=${safeFilename} key=${r2Key}`
+                );
+            } else {
+                await env.ATTACHMENTS.put(r2Key, content, {
+                    httpMetadata: {
+                        contentType,
+                    },
+                    customMetadata: {
+                        originalFilename: filename,
+                        contentSha256,
+                        uploadedBy: requestId,
+                    },
+                });
+
+                logger.info(
+                    `附件上传成功 request_id=${requestId} file=${safeFilename} size=${size} key=${r2Key}`
+                );
+            }
 
             results.push({
                 filename,
@@ -257,13 +289,9 @@ async function parseAndUploadAttachments(rawBuffer, requestId, env, logger) {
                 size,
                 r2_key: r2Key,
                 content_sha256: contentSha256,
-                is_inline: Boolean(att.contentId),
+                is_inline: isInline,
                 content_id: att.contentId || null,
             });
-
-            logger.info(
-                `附件上传成功 request_id=${requestId} file=${safeFilename} size=${size} key=${r2Key}`
-            );
         } catch (error) {
             logger.error(
                 `附件上传失败 request_id=${requestId} file=${safeFilename} error=${formatError(error)}`
