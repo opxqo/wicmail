@@ -12,3 +12,4 @@ alembic
 cryptography
 bcrypt
 pyjwt
+dnspython

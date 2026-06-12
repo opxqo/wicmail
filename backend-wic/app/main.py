@@ -7,6 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.routers import auth, mailbox, emails, admin
+from app.routers import admin_mailboxes, admin_emails, admin_stats
+from app.routers import admin_logs, admin_config, admin_admins
 
 
 @asynccontextmanager
@@ -37,6 +39,12 @@ app.include_router(auth.router)
 app.include_router(mailbox.router)
 app.include_router(emails.router)
 app.include_router(admin.router)
+app.include_router(admin_mailboxes.router)
+app.include_router(admin_emails.router)
+app.include_router(admin_stats.router)
+app.include_router(admin_logs.router)
+app.include_router(admin_config.router)
+app.include_router(admin_admins.router)
 
 
 @app.get("/health")

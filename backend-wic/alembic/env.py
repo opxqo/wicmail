@@ -11,6 +11,8 @@ from app.database import Base
 from app.models.user import User  # noqa: F401
 from app.models.mailbox import Mailbox, MailboxApplication  # noqa: F401
 from app.models.email import EmailMessage, Attachment  # noqa: F401
+from app.models.admin_log import AdminLog  # noqa: F401
+from app.models.system_config import SystemConfig  # noqa: F401
 
 config = context.config
 
