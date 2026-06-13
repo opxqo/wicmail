@@ -74,7 +74,11 @@
             <div class="hero-text">
               <!-- 徽章 -->
               <div class="hero-badge">
-                <span>💡 学生自建公益非盈利平台</span>
+                <span class="hero-badge-icon" aria-hidden="true">
+                  <i class="i-fe:heart" />
+                </span>
+                <span class="hero-badge-text">学生自建公益非盈利平台</span>
+                <span class="hero-badge-status" aria-hidden="true" />
               </div>
 
               <!-- Logo + 标题 -->
@@ -2155,14 +2159,17 @@ onUnmounted(() => {
   font-weight: 600;
   text-decoration: none;
   color: #fff;
-  background: var(--wic-primary, #3f632f);
+  background: #0f9f76;
+  box-shadow: 0 10px 22px rgba(15, 159, 118, 0.20);
   transition:
     background-color 0.2s ease,
+    box-shadow 0.2s ease,
     transform 0.15s ease;
 }
 
 .nav-cta-btn:hover {
-  background: var(--wic-secondary, #5c8d44);
+  background: #0b8f6a;
+  box-shadow: 0 14px 28px rgba(15, 159, 118, 0.26);
   transform: translateY(-1px);
 }
 
@@ -2370,22 +2377,92 @@ onUnmounted(() => {
 .hero-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 16px;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
+  padding: 7px 12px 7px 8px;
   border-radius: 999px;
-  border: 1px solid rgba(63, 99, 47, 0.15);
-  background: rgba(63, 99, 47, 0.06);
-  font-size: 14px;
-  font-weight: 500;
-  color: #1e293b;
+  border: 1px solid rgba(16, 120, 86, 0.18);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(242, 248, 245, 0.76)),
+    rgba(255, 255, 255, 0.72);
+  box-shadow:
+    0 18px 44px rgba(21, 83, 60, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.86);
+  color: #183c2d;
   margin-bottom: 32px;
+  backdrop-filter: blur(18px) saturate(1.25);
+}
+
+.hero-badge::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.58), transparent);
+  transform: translateX(-110%);
+  animation: badge-sheen 5.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.hero-badge-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #0f9f76, #2f5f2b);
+  color: #ffffff;
+  font-size: 13px;
+  box-shadow: 0 8px 18px rgba(16, 120, 86, 0.22);
+  position: relative;
+  z-index: 1;
+}
+
+.hero-badge-text {
+  position: relative;
+  z-index: 1;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.hero-badge-status {
+  position: relative;
+  z-index: 1;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #19b77b;
+  box-shadow: 0 0 0 4px rgba(25, 183, 123, 0.13);
+}
+
+@keyframes badge-sheen {
+  0%,
+  48% {
+    transform: translateX(-110%);
+  }
+  72%,
+  100% {
+    transform: translateX(110%);
+  }
 }
 
 @media (min-width: 640px) {
   .hero-badge {
-    padding: 8px 20px;
-    font-size: 16px;
+    padding: 8px 14px 8px 9px;
     margin-bottom: 40px;
+  }
+
+  .hero-badge-icon {
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
+  }
+
+  .hero-badge-text {
+    font-size: 14px;
   }
 }
 
@@ -2577,16 +2654,16 @@ onUnmounted(() => {
   font-weight: 600;
   text-decoration: none;
   color: #fff;
-  background: var(--wic-primary, #3f632f);
-  box-shadow: 0 4px 12px rgba(63, 99, 47, 0.2);
+  background: #0f9f76;
+  box-shadow: 0 14px 30px rgba(15, 159, 118, 0.22);
   transition: all 0.2s ease;
   width: 100%;
 }
 
 .hero-btn-primary:hover {
-  background: var(--wic-secondary, #5c8d44);
+  background: #0b8f6a;
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(63, 99, 47, 0.3);
+  box-shadow: 0 18px 36px rgba(15, 159, 118, 0.30);
 }
 
 .hero-btn-secondary {

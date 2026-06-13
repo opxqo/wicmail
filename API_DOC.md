@@ -140,6 +140,7 @@
 | page_size | int | ❌ | 20 | 1-100 |
 | q | string | ❌ | - | 搜索关键词（发件人/主题/正文） |
 | sender | string | ❌ | - | 按发件人筛选 |
+| mailbox_id | int | ❌ | - | 按收件邮箱筛选 |
 | is_read | bool | ❌ | - | 按已读/未读筛选 |
 
 **Response `200`:**

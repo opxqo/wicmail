@@ -464,7 +464,7 @@ export const mockApi = {
   },
 
   // ---- 邮件 ----
-  async getEmails({ page = 1, page_size = 20, q, sender, is_read } = {}) {
+  async getEmails({ page = 1, page_size = 20, q, sender, mailbox_id, is_read } = {}) {
     await delay()
     let filtered = [...emails]
     if (q) {
@@ -479,6 +479,9 @@ export const mockApi = {
     if (sender) {
       const s = sender.toLowerCase()
       filtered = filtered.filter(e => e.header_from && e.header_from.toLowerCase().includes(s))
+    }
+    if (mailbox_id !== undefined && mailbox_id !== null && mailbox_id !== '') {
+      filtered = filtered.filter(e => e.mailbox_id === Number(mailbox_id))
     }
     if (is_read !== undefined && is_read !== null && is_read !== '') {
       const readVal = String(is_read) === 'true'

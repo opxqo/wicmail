@@ -38,6 +38,7 @@ async def list_emails(
     page_size: int = Query(20, ge=1, le=100),
     q: Optional[str] = Query(None, description="搜索关键词（匹配发件人、主题、正文）"),
     sender: Optional[str] = Query(None, description="按发件人筛选"),
+    mailbox_id: Optional[int] = Query(None, description="按收件邮箱筛选"),
     is_read: Optional[bool] = Query(None, description="按已读/未读筛选"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -63,6 +64,10 @@ async def list_emails(
     # 按发件人筛选
     if sender:
         conditions.append(EmailMessage.header_from.like(f"%{sender}%"))
+
+    # 按收件邮箱筛选，仍然受用户已审批邮箱范围约束
+    if mailbox_id is not None:
+        conditions.append(EmailMessage.mailbox_id == mailbox_id)
 
     # 按已读/未读筛选
     if is_read is not None:

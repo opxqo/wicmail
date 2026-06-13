@@ -41,6 +41,16 @@
               style="width: 120px;"
               @update:value="handleSearch"
             />
+
+            <n-select
+              v-model:value="searchForm.mailbox_id"
+              :options="mailboxOptions"
+              placeholder="收件邮箱"
+              clearable
+              filterable
+              style="width: 220px;"
+              @update:value="handleSearch"
+            />
           </div>
 
           <div class="flex items-center gap-8">
@@ -157,6 +167,7 @@ import {
   downloadAttachment as getAttachmentDownloadUrl,
   getEmailDetail,
   getEmails,
+  getMyMailboxes,
   markEmailRead,
   markEmailUnread,
 } from '@/api/wicmail'
@@ -165,6 +176,8 @@ import { useUserStore } from '@/store'
 
 const loading = ref(false)
 const emails = ref([])
+const mailboxes = ref([])
+const mailboxOptions = ref([])
 const drawerVisible = ref(false)
 const currentEmail = ref(null)
 
@@ -174,6 +187,7 @@ const searchForm = reactive({
   q: '',
   sender: '',
   is_read: null,
+  mailbox_id: null,
 })
 
 const readStatusOptions = [
@@ -200,6 +214,7 @@ function handleReset() {
   searchForm.q = ''
   searchForm.sender = ''
   searchForm.is_read = null
+  searchForm.mailbox_id = null
   pagination.page = 1
   loadEmails()
 }
@@ -326,6 +341,11 @@ function formatSize(bytes) {
 async function loadEmails() {
   loading.value = true
   try {
+    if (searchForm.mailbox_id !== null) {
+      await loadEmailsWithMailboxFilter()
+      return
+    }
+
     const params = {
       page: pagination.page,
       page_size: pagination.pageSize,
@@ -351,7 +371,65 @@ async function loadEmails() {
   }
 }
 
+async function loadEmailsWithMailboxFilter() {
+  const mailbox = mailboxes.value.find(item => item.id === searchForm.mailbox_id)
+  if (!mailbox) {
+    emails.value = []
+    pagination.itemCount = 0
+    pagination.pageCount = 1
+    return
+  }
+
+  const baseParams = {
+    page: 1,
+    page_size: 100,
+    mailbox_id: searchForm.mailbox_id,
+  }
+  if (searchForm.q)
+    baseParams.q = searchForm.q
+  if (searchForm.sender)
+    baseParams.sender = searchForm.sender
+  if (searchForm.is_read !== null)
+    baseParams.is_read = searchForm.is_read
+
+  const allEmails = []
+  let total = 0
+  let page = 1
+
+  do {
+    const res = await getEmails({ ...baseParams, page })
+    const data = res.data || res
+    const pageEmails = data.emails || []
+    allEmails.push(...pageEmails)
+    total = data.total || 0
+    page += 1
+  } while ((page - 1) * baseParams.page_size < total)
+
+  const filtered = allEmails.filter(item => item.mailbox_address === mailbox.address)
+  const offset = (pagination.page - 1) * pagination.pageSize
+
+  emails.value = filtered.slice(offset, offset + pagination.pageSize)
+  pagination.itemCount = filtered.length
+  pagination.pageCount = Math.max(1, Math.ceil(filtered.length / pagination.pageSize))
+}
+
+async function loadMailboxOptions() {
+  try {
+    const res = await getMyMailboxes()
+    const data = res.data || res
+    mailboxes.value = data || []
+    mailboxOptions.value = mailboxes.value.map(item => ({
+      label: item.display_name ? `${item.display_name}（${item.address}）` : item.address,
+      value: item.id,
+    }))
+  }
+  catch (err) {
+    console.error('加载邮箱筛选项失败:', err)
+  }
+}
+
 onMounted(() => {
+  loadMailboxOptions()
   loadEmails()
   userStore.updateUnreadCount()
 })

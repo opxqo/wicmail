@@ -412,6 +412,24 @@ class TestEmails:
         finally:
             self._cleanup_test_emails(mailbox_id)
 
+    def test_email_filter_mailbox(self):
+        username = f"emmb_{uid()}"
+        sid = f"EMMB{uid().upper()}"
+        token, mailbox_id = self._setup_test_emails(username, sid)
+        auth = self._auth(token)
+        try:
+            resp = client.get(f"/api/emails?mailbox_id={mailbox_id}", headers=auth)
+            assert resp.status_code == 200
+            data = resp.json()
+            assert data["total"] == 3
+            assert all(item["mailbox_address"] for item in data["emails"])
+
+            resp = client.get("/api/emails?mailbox_id=999999", headers=auth)
+            assert resp.status_code == 200
+            assert resp.json()["total"] == 0
+        finally:
+            self._cleanup_test_emails(mailbox_id)
+
     def test_email_search_is_read(self):
         username = f"emr_{uid()}"
         sid = f"EMR{uid().upper()}"
