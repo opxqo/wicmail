@@ -89,6 +89,7 @@ async def list_logs(
 async def export_logs(
     action: Optional[str] = Query(None),
     target_type: Optional[str] = Query(None),
+    admin_username: Optional[str] = Query(None),
     start_date: Optional[str] = Query(None),
     end_date: Optional[str] = Query(None),
     db: AsyncSession = Depends(get_db),
@@ -100,6 +101,8 @@ async def export_logs(
         conditions.append(AdminLog.action == action)
     if target_type:
         conditions.append(AdminLog.target_type == target_type)
+    if admin_username:
+        conditions.append(AdminLog.admin_username.like(f"%{admin_username}%"))
     if start_date:
         conditions.append(AdminLog.created_at >= datetime.strptime(start_date, "%Y-%m-%d"))
     if end_date:

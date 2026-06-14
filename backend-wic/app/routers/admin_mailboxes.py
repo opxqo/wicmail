@@ -2,7 +2,7 @@
 from datetime import datetime
 from typing import Optional, List
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 from sqlalchemy import select, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,6 +11,7 @@ from sqlalchemy.orm import selectinload
 from app.database import get_db
 from app.models.user import User
 from app.models.mailbox import Mailbox, MailboxApplication
+from app.services.admin_audit import add_admin_log
 from app.services.auth import get_admin_user
 
 router = APIRouter(prefix="/api/admin/mailboxes", tags=["管理员-邮箱"])
@@ -106,8 +107,9 @@ async def get_mailbox_detail(
 @router.post("", response_model=MailboxResponse, status_code=201)
 async def create_mailbox(
     req: CreateMailboxRequest,
+    request: Request,
     db: AsyncSession = Depends(get_db),
-    _admin: User = Depends(get_admin_user),
+    admin: User = Depends(get_admin_user),
 ):
     """手动创建邮箱"""
     existing = await db.execute(
@@ -119,6 +121,13 @@ async def create_mailbox(
     mailbox = Mailbox(address=req.address, display_name=req.display_name, is_active=True)
     db.add(mailbox)
     await db.flush()
+    add_admin_log(
+        db, admin, "创建邮箱", "mailbox",
+        target_id=mailbox.id,
+        target_name=mailbox.address,
+        detail=f"手动创建邮箱: {mailbox.address}",
+        request=request,
+    )
 
     return MailboxResponse.model_validate(mailbox)
 
@@ -126,8 +135,9 @@ async def create_mailbox(
 @router.patch("/{mailbox_id}/toggle-active")
 async def toggle_mailbox_active(
     mailbox_id: int,
+    request: Request,
     db: AsyncSession = Depends(get_db),
-    _admin: User = Depends(get_admin_user),
+    admin: User = Depends(get_admin_user),
 ):
     """启停邮箱"""
     result = await db.execute(select(Mailbox).where(Mailbox.id == mailbox_id))
@@ -136,23 +146,32 @@ async def toggle_mailbox_active(
         raise HTTPException(status_code=404, detail="邮箱不存在")
 
     mailbox.is_active = not mailbox.is_active
+    action = "启用" if mailbox.is_active else "停用"
+    add_admin_log(
+        db, admin, action, "mailbox",
+        target_id=mailbox.id,
+        target_name=mailbox.address,
+        detail=f"{action}邮箱: {mailbox.address}",
+        request=request,
+    )
     await db.flush()
 
-    action = "启用" if mailbox.is_active else "停用"
     return {"status": "ok", "message": f"已{action}邮箱: {mailbox.address}", "is_active": mailbox.is_active}
 
 
 @router.delete("/{mailbox_id}")
 async def delete_mailbox(
     mailbox_id: int,
+    request: Request,
     db: AsyncSession = Depends(get_db),
-    _admin: User = Depends(get_admin_user),
+    admin: User = Depends(get_admin_user),
 ):
     """删除邮箱"""
     result = await db.execute(select(Mailbox).where(Mailbox.id == mailbox_id))
     mailbox = result.scalar_one_or_none()
     if mailbox is None:
         raise HTTPException(status_code=404, detail="邮箱不存在")
+    deleted_address = mailbox.address
 
     # 解除申请关联
     apps_result = await db.execute(
@@ -162,6 +181,13 @@ async def delete_mailbox(
         app.mailbox_id = None
 
     await db.delete(mailbox)
+    add_admin_log(
+        db, admin, "删除邮箱", "mailbox",
+        target_id=mailbox_id,
+        target_name=deleted_address,
+        detail=f"删除邮箱: {deleted_address}",
+        request=request,
+    )
     await db.flush()
 
-    return {"status": "ok", "message": f"已删除邮箱: {mailbox.address}"}
+    return {"status": "ok", "message": f"已删除邮箱: {deleted_address}"}

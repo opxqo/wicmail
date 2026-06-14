@@ -118,10 +118,10 @@ export function rejectApplication(id, comment) {
   })
 }
 
-export function getAdminUsers() {
+export function getAdminUsers(params = {}) {
   if (isMock())
-    return mockApi.getAdminUsers()
-  return request.get('/api/admin/users')
+    return mockApi.getAdminUsers(params)
+  return request.get('/api/admin/users', { params })
 }
 
 export function toggleUserActive(userId) {
@@ -244,6 +244,13 @@ export function getAdminLogs(params = {}) {
   if (isMock())
     return mockApi.getAdminLogs(params)
   return request.get('/api/admin/logs', { params })
+}
+
+export function exportAdminLogs(params = {}) {
+  return request.get('/api/admin/logs/export', {
+    params,
+    responseType: 'blob',
+  })
 }
 
 // ---- 管理员 — 配置 ----

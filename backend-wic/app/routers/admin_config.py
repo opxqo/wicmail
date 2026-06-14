@@ -4,7 +4,7 @@ import socket
 import uuid
 from typing import Optional, List, Dict
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.models.user import User
 from app.models.system_config import SystemConfig
+from app.services.admin_audit import add_admin_log
 from app.services.auth import get_admin_user
 
 router = APIRouter(prefix="/api/admin/config", tags=["管理员-配置"])
@@ -61,8 +62,9 @@ async def get_config(
 @router.patch("")
 async def update_config(
     req: ConfigUpdateRequest,
+    request: Request,
     db: AsyncSession = Depends(get_db),
-    _admin: User = Depends(get_admin_user),
+    admin: User = Depends(get_admin_user),
 ):
     """更新配置"""
     await _ensure_defaults(db)
@@ -74,6 +76,12 @@ async def update_config(
             raise HTTPException(status_code=400, detail=f"未知配置项: {key}")
         config.value = value
         updated.append(key)
+    if updated:
+        add_admin_log(
+            db, admin, "更新配置", "config",
+            detail=f"更新配置项: {', '.join(updated)}",
+            request=request,
+        )
     await db.flush()
     return {"status": "ok", "updated": updated}
 

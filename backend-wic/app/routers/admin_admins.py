@@ -2,13 +2,14 @@
 from datetime import datetime
 from typing import Optional, List
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.models.user import User
+from app.services.admin_audit import add_admin_log
 from app.services.auth import get_admin_user
 
 router = APIRouter(prefix="/api/admin/admins", tags=["管理员-账号"])
@@ -56,8 +57,9 @@ async def list_admins(
 @router.post("", response_model=AdminInfo, status_code=201)
 async def add_admin(
     req: AddAdminRequest,
+    request: Request,
     db: AsyncSession = Depends(get_db),
-    _admin: User = Depends(get_admin_user),
+    admin: User = Depends(get_admin_user),
 ):
     """添加管理员"""
     result = await db.execute(select(User).where(User.username == req.username))
@@ -68,6 +70,13 @@ async def add_admin(
         raise HTTPException(status_code=400, detail="该用户已经是管理员")
 
     user.is_admin = True
+    add_admin_log(
+        db, admin, "添加管理员", "admin",
+        target_id=user.id,
+        target_name=user.username,
+        detail=f"添加管理员: {user.username}",
+        request=request,
+    )
     await db.flush()
 
     return AdminInfo(
@@ -80,6 +89,7 @@ async def add_admin(
 @router.delete("/{admin_id}")
 async def remove_admin(
     admin_id: int,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     admin: User = Depends(get_admin_user),
 ):
@@ -102,6 +112,13 @@ async def remove_admin(
         raise HTTPException(status_code=400, detail="至少需要保留一个管理员")
 
     user.is_admin = False
+    add_admin_log(
+        db, admin, "移除管理员", "admin",
+        target_id=user.id,
+        target_name=user.username,
+        detail=f"移除管理员权限: {user.username}",
+        request=request,
+    )
     await db.flush()
 
     return {"status": "ok", "message": f"已移除 {user.username} 的管理员权限"}
@@ -111,6 +128,7 @@ async def remove_admin(
 async def update_admin_role(
     admin_id: int,
     req: RoleUpdateRequest,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     admin: User = Depends(get_admin_user),
 ):
@@ -131,7 +149,14 @@ async def update_admin_role(
             raise HTTPException(status_code=400, detail="至少需要保留一个管理员")
 
     user.is_admin = req.is_admin
+    role = "管理员" if user.is_admin else "普通用户"
+    add_admin_log(
+        db, admin, "更新角色", "admin",
+        target_id=user.id,
+        target_name=user.username,
+        detail=f"将 {user.username} 设为{role}",
+        request=request,
+    )
     await db.flush()
 
-    role = "管理员" if user.is_admin else "普通用户"
     return {"status": "ok", "message": f"已将 {user.username} 设为{role}"}

@@ -69,7 +69,7 @@
       />
 
       <!-- 分页组件 -->
-      <div class="mt-16 flex justify-end">
+      <div class="mt-16 flex justify-center">
         <n-pagination
           v-model:page="pagination.page"
           v-model:page-size="pagination.pageSize"

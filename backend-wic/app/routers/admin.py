@@ -2,7 +2,7 @@
 from datetime import datetime
 from typing import Optional, List
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 from sqlalchemy import select, func, and_, or_
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,6 +12,7 @@ from app.database import get_db
 from app.models.user import User
 from app.models.mailbox import Mailbox, MailboxApplication
 from app.models.admin_log import AdminLog
+from app.services.admin_audit import add_admin_log
 from app.services.auth import get_admin_user
 
 router = APIRouter(prefix="/api/admin", tags=["管理员"])
@@ -202,8 +203,9 @@ async def get_user_detail(
 async def update_user(
     user_id: int,
     req: UserUpdateRequest,
+    request: Request,
     db: AsyncSession = Depends(get_db),
-    _admin: User = Depends(get_admin_user),
+    admin: User = Depends(get_admin_user),
 ):
     """修改用户信息"""
     result = await db.execute(select(User).where(User.id == user_id))
@@ -217,6 +219,13 @@ async def update_user(
 
     for field, value in update_data.items():
         setattr(user, field, value)
+    add_admin_log(
+        db, admin, "更新用户", "user",
+        target_id=user.id,
+        target_name=user.username,
+        detail=f"更新字段: {', '.join(update_data.keys())}",
+        request=request,
+    )
     await db.flush()
 
     return AdminUserResponse.model_validate(user)
@@ -225,6 +234,7 @@ async def update_user(
 @router.patch("/users/{user_id}/toggle-active")
 async def toggle_user_active(
     user_id: int,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     admin: User = Depends(get_admin_user),
 ):
@@ -237,15 +247,23 @@ async def toggle_user_active(
         raise HTTPException(status_code=400, detail="不能禁用自己")
 
     user.is_active = not user.is_active
+    action = "启用" if user.is_active else "禁用"
+    add_admin_log(
+        db, admin, action, "user",
+        target_id=user.id,
+        target_name=user.username,
+        detail=f"{action}用户: {user.username}",
+        request=request,
+    )
     await db.flush()
 
-    action = "启用" if user.is_active else "禁用"
     return {"status": "ok", "message": f"已{action}用户: {user.username}", "is_active": user.is_active}
 
 
 @router.delete("/users/{user_id}")
 async def delete_user(
     user_id: int,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     admin: User = Depends(get_admin_user),
 ):
@@ -258,6 +276,7 @@ async def delete_user(
         raise HTTPException(status_code=400, detail="不能删除自己")
     if user.is_admin:
         raise HTTPException(status_code=400, detail="不能删除管理员账户")
+    deleted_username = user.username
 
     # 审核过的申请 reviewed_by 置空
     reviewed_result = await db.execute(
@@ -287,17 +306,25 @@ async def delete_user(
         await db.delete(app)
 
     await db.delete(user)
+    add_admin_log(
+        db, admin, "删除用户", "user",
+        target_id=user_id,
+        target_name=deleted_username,
+        detail=f"删除用户: {deleted_username}",
+        request=request,
+    )
     await db.flush()
 
-    return {"status": "ok", "message": f"已删除用户: {user.username}"}
+    return {"status": "ok", "message": f"已删除用户: {deleted_username}"}
 
 
 @router.post("/users/{user_id}/reset-password")
 async def reset_user_password(
     user_id: int,
     req: ResetPasswordRequest,
+    request: Request,
     db: AsyncSession = Depends(get_db),
-    _admin: User = Depends(get_admin_user),
+    admin: User = Depends(get_admin_user),
 ):
     """重置用户密码"""
     result = await db.execute(select(User).where(User.id == user_id))
@@ -306,6 +333,13 @@ async def reset_user_password(
         raise HTTPException(status_code=404, detail="用户不存在")
 
     user.set_password(req.new_password)
+    add_admin_log(
+        db, admin, "重置密码", "user",
+        target_id=user.id,
+        target_name=user.username,
+        detail=f"重置用户 {user.username} 的密码",
+        request=request,
+    )
     await db.flush()
 
     return {"status": "ok", "message": f"已重置用户 {user.username} 的密码"}
@@ -410,6 +444,7 @@ async def _reject_one(db: AsyncSession, admin: User, app_id: int, comment: Optio
 @router.patch("/applications/{app_id}/approve")
 async def approve_application(
     app_id: int,
+    request: Request,
     req: Optional[ReviewRequest] = None,
     db: AsyncSession = Depends(get_db),
     admin: User = Depends(get_admin_user),
@@ -418,6 +453,13 @@ async def approve_application(
     address = await _approve_one(db, admin, app_id)
     if address is None:
         raise HTTPException(status_code=400, detail="申请不存在或已处理")
+    add_admin_log(
+        db, admin, "批准申请", "application",
+        target_id=app_id,
+        target_name=address,
+        detail=f"批准邮箱申请: {address}",
+        request=request,
+    )
     await db.flush()
     return {"status": "ok", "message": f"已批准: {address}"}
 
@@ -425,6 +467,7 @@ async def approve_application(
 @router.patch("/applications/{app_id}/reject")
 async def reject_application(
     app_id: int,
+    request: Request,
     req: Optional[ReviewRequest] = None,
     db: AsyncSession = Depends(get_db),
     admin: User = Depends(get_admin_user),
@@ -434,6 +477,13 @@ async def reject_application(
     address = await _reject_one(db, admin, app_id, comment)
     if address is None:
         raise HTTPException(status_code=400, detail="申请不存在或已处理")
+    add_admin_log(
+        db, admin, "拒绝申请", "application",
+        target_id=app_id,
+        target_name=address,
+        detail=f"拒绝邮箱申请: {address}" + (f"，原因: {comment}" if comment else ""),
+        request=request,
+    )
     await db.flush()
     return {"status": "ok", "message": f"已拒绝: {address}"}
 
@@ -441,6 +491,7 @@ async def reject_application(
 @router.post("/applications/batch-approve")
 async def batch_approve(
     req: BatchIdsRequest,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     admin: User = Depends(get_admin_user),
 ):
@@ -450,6 +501,12 @@ async def batch_approve(
         address = await _approve_one(db, admin, app_id)
         if address:
             approved.append(address)
+    if approved:
+        add_admin_log(
+            db, admin, "批量批准申请", "application",
+            detail=f"批量批准 {len(approved)} 个邮箱申请: {', '.join(approved)}",
+            request=request,
+        )
     await db.flush()
     return {"status": "ok", "approved": approved, "count": len(approved)}
 
@@ -457,6 +514,7 @@ async def batch_approve(
 @router.post("/applications/batch-reject")
 async def batch_reject(
     req: BatchIdsRequest,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     admin: User = Depends(get_admin_user),
 ):
@@ -466,5 +524,11 @@ async def batch_reject(
         address = await _reject_one(db, admin, app_id, req.comment)
         if address:
             rejected.append(address)
+    if rejected:
+        add_admin_log(
+            db, admin, "批量拒绝申请", "application",
+            detail=f"批量拒绝 {len(rejected)} 个邮箱申请: {', '.join(rejected)}",
+            request=request,
+        )
     await db.flush()
     return {"status": "ok", "rejected": rejected, "count": len(rejected)}

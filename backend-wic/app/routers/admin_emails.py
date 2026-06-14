@@ -2,7 +2,7 @@
 from datetime import datetime
 from typing import Optional, List
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 from sqlalchemy import select, func, and_, or_
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,6 +13,7 @@ from app.models.user import User
 from app.models.mailbox import Mailbox
 from app.models.email import EmailMessage
 from app.schemas.email import AttachmentOut
+from app.services.admin_audit import add_admin_log
 from app.services.auth import get_admin_user
 
 router = APIRouter(prefix="/api/admin/emails", tags=["管理员-邮件"])
@@ -203,19 +204,28 @@ async def get_email_detail(
 @router.delete("/{email_id}")
 async def delete_email(
     email_id: int,
+    request: Request,
     db: AsyncSession = Depends(get_db),
-    _admin: User = Depends(get_admin_user),
+    admin: User = Depends(get_admin_user),
 ):
     """删除邮件"""
     result = await db.execute(select(EmailMessage).where(EmailMessage.id == email_id))
     msg = result.scalar_one_or_none()
     if msg is None:
         raise HTTPException(status_code=404, detail="邮件不存在")
+    subject = msg.subject or f"邮件 #{email_id}"
 
     # 删除附件
     for att in msg.attachments:
         await db.delete(att)
     await db.delete(msg)
+    add_admin_log(
+        db, admin, "删除邮件", "email",
+        target_id=email_id,
+        target_name=subject,
+        detail=f"删除邮件: {subject}",
+        request=request,
+    )
     await db.flush()
 
     return {"status": "ok", "message": f"已删除邮件 #{email_id}"}
@@ -224,8 +234,9 @@ async def delete_email(
 @router.post("/batch-delete")
 async def batch_delete_emails(
     req: BatchDeleteRequest,
+    request: Request,
     db: AsyncSession = Depends(get_db),
-    _admin: User = Depends(get_admin_user),
+    admin: User = Depends(get_admin_user),
 ):
     """批量删除邮件"""
     deleted = []
@@ -237,6 +248,12 @@ async def batch_delete_emails(
                 await db.delete(att)
             await db.delete(msg)
             deleted.append(email_id)
+    if deleted:
+        add_admin_log(
+            db, admin, "批量删除邮件", "email",
+            detail=f"批量删除 {len(deleted)} 封邮件: {', '.join(map(str, deleted))}",
+            request=request,
+        )
     await db.flush()
 
     return {"status": "ok", "deleted": deleted, "count": len(deleted)}

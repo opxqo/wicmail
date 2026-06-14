@@ -15,26 +15,31 @@
 
       <!-- 搜索筛选区 -->
       <div class="mb-16 flex flex-wrap items-center gap-16">
-        <n-input
+        <n-select
           v-model:value="searchParams.admin_username"
           placeholder="操作人用户名"
           clearable
+          filterable
+          :options="adminOptions"
           style="width: 180px"
-          @keyup.enter="handleSearch"
+          @update:value="handleSearch"
         />
-        <n-input
+        <n-select
           v-model:value="searchParams.action"
           placeholder="操作类型"
           clearable
+          filterable
+          :options="actionOptions"
           style="width: 180px"
-          @keyup.enter="handleSearch"
+          @update:value="handleSearch"
         />
-        <n-input
+        <n-select
           v-model:value="searchParams.target_type"
           placeholder="目标类型"
           clearable
+          :options="targetTypeOptions"
           style="width: 150px"
-          @keyup.enter="handleSearch"
+          @update:value="handleSearch"
         />
         <n-date-picker
           v-model:value="dateRange"
@@ -56,7 +61,7 @@
       <n-data-table :columns="columns" :data="logs" :loading="loading" />
 
       <!-- 分页组件 -->
-      <div class="mt-16 flex justify-end">
+      <div class="mt-16 flex justify-center">
         <n-pagination
           v-model:page="pagination.page"
           v-model:page-size="pagination.pageSize"
@@ -113,14 +118,15 @@
 
 <script setup>
 import { NButton, NSpace, NTag } from 'naive-ui'
-import { h, onMounted, ref } from 'vue'
-import { getAdminLogs } from '@/api/wicmail'
+import { computed, h, onMounted, ref } from 'vue'
+import { exportAdminLogs, getAdminLogs } from '@/api/wicmail'
 import { AppPage } from '@/components'
 import { isMock } from '@/mock/data'
 
 const loading = ref(false)
 const exportLoading = ref(false)
 const logs = ref([])
+const optionLogs = ref([])
 const dateRange = ref(null)
 
 const searchParams = ref({
@@ -139,6 +145,48 @@ const pagination = ref({
 
 const showDetailModal = ref(false)
 const currentDetail = ref({})
+
+const targetTypeOptions = [
+  { label: '用户', value: 'user' },
+  { label: '邮箱申请', value: 'application' },
+  { label: '邮箱', value: 'mailbox' },
+  { label: '邮件', value: 'email' },
+  { label: '系统配置', value: 'config' },
+  { label: '管理员', value: 'admin' },
+]
+
+const actionLabelMap = {
+  update_user: '更新用户',
+  toggle_user_active: '启停用户',
+  delete_user: '删除用户',
+  reset_password: '重置密码',
+  approve_application: '批准申请',
+  reject_application: '拒绝申请',
+  batch_approve_application: '批量批准申请',
+  batch_reject_application: '批量拒绝申请',
+  create_mailbox: '创建邮箱',
+  toggle_mailbox_active: '启停邮箱',
+  delete_mailbox: '删除邮箱',
+  delete_email: '删除邮件',
+  batch_delete_email: '批量删除邮件',
+  update_config: '更新配置',
+  add_admin: '添加管理员',
+  remove_admin: '移除管理员',
+  update_role: '更新角色',
+}
+
+const adminOptions = computed(() => {
+  const usernames = new Set(optionLogs.value.map(log => log.admin_username).filter(Boolean))
+  return Array.from(usernames).map(username => ({ label: username, value: username }))
+})
+
+const actionOptions = computed(() => {
+  const actions = new Set(optionLogs.value.map(log => log.action).filter(Boolean))
+  return Array.from(actions).map(action => ({
+    label: actionLabelMap[action] || action,
+    value: action,
+  }))
+})
 
 const columns = [
   { title: 'ID', key: 'id', width: 60 },
@@ -212,6 +260,7 @@ async function loadData() {
     const res = await getAdminLogs(params)
     const data = res.data || res
     logs.value = data.logs || []
+    mergeOptionLogs(logs.value)
     pagination.value.total = data.total || 0
   }
   catch (err) {
@@ -220,6 +269,23 @@ async function loadData() {
   finally {
     loading.value = false
   }
+}
+
+async function loadFilterOptions() {
+  try {
+    const res = await getAdminLogs({ page: 1, page_size: 100 })
+    const data = res.data || res
+    optionLogs.value = data.logs || []
+  }
+  catch (err) {
+    console.error('加载日志筛选选项失败:', err)
+  }
+}
+
+function mergeOptionLogs(items) {
+  const byId = new Map(optionLogs.value.map(log => [log.id, log]))
+  items.forEach(log => byId.set(log.id, log))
+  optionLogs.value = Array.from(byId.values())
 }
 
 function handleSearch() {
@@ -292,11 +358,10 @@ async function handleExport() {
       $message.success('已导出 Mock 数据操作日志')
     }
     else {
-      // 真实接口下载
-      const baseUrl = import.meta.env.VITE_PROXY_TARGET || ''
-      const queryStr = new URLSearchParams(params).toString()
-      window.open(`${baseUrl}/api/admin/logs/export?${queryStr}`, '_blank')
-      $message.success('已发送日志导出请求')
+      const res = await exportAdminLogs(params)
+      const blob = res instanceof Blob ? res : res.data
+      triggerBlobDownload(blob, `admin_logs_${new Date().toISOString().slice(0, 10)}.csv`)
+      $message.success('操作日志已导出')
     }
   }
   catch (err) {
@@ -305,6 +370,18 @@ async function handleExport() {
   finally {
     exportLoading.value = false
   }
+}
+
+function triggerBlobDownload(blob, filename) {
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.setAttribute('href', url)
+  link.setAttribute('download', filename)
+  link.style.visibility = 'hidden'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
 }
 
 function triggerCsvDownload(data, filename = 'logs.csv') {
@@ -331,5 +408,8 @@ function triggerCsvDownload(data, filename = 'logs.csv') {
   document.body.removeChild(link)
 }
 
-onMounted(() => loadData())
+onMounted(() => {
+  loadFilterOptions()
+  loadData()
+})
 </script>

@@ -5,6 +5,17 @@
         <span class="flex items-center gap-8"><i class="i-fe:users text-18" /> 用户管理</span>
       </template>
       <n-data-table :columns="columns" :data="users" :loading="loading" />
+      <div class="mt-16 flex justify-center">
+        <n-pagination
+          v-model:page="pagination.page"
+          v-model:page-size="pagination.pageSize"
+          :item-count="pagination.total"
+          :page-sizes="[10, 20, 50, 100]"
+          show-size-picker
+          @update:page="handlePageChange"
+          @update:page-size="handlePageSizeChange"
+        />
+      </div>
     </n-card>
   </AppPage>
 </template>
@@ -17,6 +28,12 @@ import { AppPage } from '@/components'
 
 const loading = ref(false)
 const users = ref([])
+
+const pagination = ref({
+  page: 1,
+  pageSize: 20,
+  total: 0,
+})
 
 const columns = [
   { title: 'ID', key: 'id', width: 60 },
@@ -93,9 +110,13 @@ async function removeUser(row) {
 async function loadUsers() {
   loading.value = true
   try {
-    const res = await getAdminUsers()
+    const res = await getAdminUsers({
+      page: pagination.value.page,
+      page_size: pagination.value.pageSize,
+    })
     const data = res.data || res
-    users.value = Array.isArray(data) ? data : []
+    users.value = Array.isArray(data) ? data : (data.users || [])
+    pagination.value.total = Array.isArray(data) ? data.length : (data.total || 0)
   }
   catch (err) {
     console.error('加载用户列表失败:', err)
@@ -103,6 +124,17 @@ async function loadUsers() {
   finally {
     loading.value = false
   }
+}
+
+function handlePageChange(page) {
+  pagination.value.page = page
+  loadUsers()
+}
+
+function handlePageSizeChange(pageSize) {
+  pagination.value.pageSize = pageSize
+  pagination.value.page = 1
+  loadUsers()
 }
 
 onMounted(() => loadUsers())
