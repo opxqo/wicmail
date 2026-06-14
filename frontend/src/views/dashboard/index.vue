@@ -64,18 +64,20 @@
         <template #header>
           <span class="flex items-center gap-8"><i class="i-fe:mail text-18" /> 我的邮箱</span>
         </template>
-        <div v-for="mb in myMailboxes" :key="mb.id" class="mb-8 flex items-center justify-between rounded-8 bg-gray-100 p-12">
-          <div>
-            <div class="text-14 font-bold">
-              {{ mb.address }}
+        <div v-if="myMailboxes.length" class="mailbox-scroll-list max-h-360 overflow-y-auto pr-4">
+          <div v-for="mb in myMailboxes" :key="mb.id" class="mb-8 flex min-w-0 items-center justify-between gap-12 rounded-8 bg-gray-100 p-12">
+            <div class="min-w-0 flex-1">
+              <div class="truncate text-14 font-bold" :title="mb.address">
+                {{ mb.address }}
+              </div>
+              <div class="mt-2 truncate text-12 opacity-50" :title="mb.display_name">
+                {{ mb.display_name }}
+              </div>
             </div>
-            <div class="mt-2 text-12 opacity-50">
-              {{ mb.display_name }}
-            </div>
+            <NTag type="success" size="small" round>
+              活跃
+            </NTag>
           </div>
-          <NTag type="success" size="small" round>
-            活跃
-          </NTag>
         </div>
         <n-empty v-if="!myMailboxes.length" description="暂无邮箱" />
       </n-card>
@@ -145,3 +147,13 @@ onMounted(async () => {
   }
 })
 </script>
+
+<style scoped>
+.mailbox-scroll-list {
+  scrollbar-width: none;
+}
+
+.mailbox-scroll-list::-webkit-scrollbar {
+  display: none;
+}
+</style>
