@@ -1018,7 +1018,7 @@
 
                 <!-- Bottom step progress indicator -->
                 <div v-if="tourActive && !demoIsClosed" class="demo-tour-progress-bar">
-                  <div class="demo-tour-progress-fill" :style="{ width: `${(tourStep + 1) / 11 * 100}%` }" />
+                  <div class="demo-tour-progress-fill" :style="{ width: `${(tourStep + 1) / tourStepTotal * 100}%` }" />
                 </div>
               </div>
 
@@ -1410,10 +1410,19 @@ const tourStepDescriptions = [
   '正在访问邮件中心',
   '正在阅读系统欢迎邮件',
 ]
+const tourStepTotal = tourStepDescriptions.length
 const cursorX = ref(50)
 const cursorY = ref(50)
 const cursorClicked = ref(false)
 let tourTimer = null
+
+function stopTourSilently() {
+  if (tourTimer) {
+    clearTimeout(tourTimer)
+    tourTimer = null
+  }
+  tourActive.value = false
+}
 
 function stopAutoplay() {
   if (tourActive.value) {
@@ -1474,7 +1483,12 @@ function runTourStep() {
   if (!tourActive.value || demoIsClosed.value)
     return
 
-  tourStep.value = (tourStep.value + 1) % 11
+  if (tourStep.value >= tourStepTotal - 1) {
+    stopTourSilently()
+    return
+  }
+
+  tourStep.value += 1
 
   switch (tourStep.value) {
     case 0: // Reset: Move to Dashboard menu tab
@@ -1604,6 +1618,11 @@ function runTourNextStep() {
   if (!tourActive.value || demoIsClosed.value)
     return
   runTourStep()
+
+  if (tourStep.value >= tourStepTotal - 1) {
+    tourTimer = setTimeout(stopTourSilently, 2400)
+    return
+  }
 
   // Determine delay based on current step
   let delay = 3800
