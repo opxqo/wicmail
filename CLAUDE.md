@@ -102,7 +102,7 @@ The frontend is based on the [vue-naive-admin](https://github.com/zclzone/vue-na
 Copy `.env.example` to `.env` in each module:
 
 - **backend-mail**: DATABASE_URL, JWT_SECRET_KEY, CLOUDFLARE_EMAIL_SECRET_KEY, SMTP settings
-- **backend-wic**: DATABASE_URL, JWT_SECRET_KEY, MAILBOX_DOMAIN (wic.edu.kg)
+- **backend-wic**: DATABASE_URL, JWT_SECRET_KEY, MAILBOX_DOMAIN (wic.edu.kg), MAIL_SERVICE_BASE_URL, CLOUDFLARE_EMAIL_SECRET_KEY
 - **frontend**: VITE_PROXY_TARGET (backend-wic URL), VITE_USE_MOCK, VITE_USE_HASH
 
 ## Deployment

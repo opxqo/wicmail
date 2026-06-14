@@ -1,6 +1,7 @@
 """管理员路由 - 系统配置"""
 import asyncio
 import socket
+import uuid
 from typing import Optional, List, Dict
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -86,22 +87,28 @@ async def test_cloudflare(
     import httpx
     from app.config import settings
 
-    # 通过 Cloudflare Email Routing 发一封测试邮件到 backend-mail
+    # 模拟 Cloudflare Worker 转发请求到 backend-mail
     test_email = f"healthcheck@{settings.mailbox_domain}"
+    mail_service_base_url = settings.mail_service_base_url.rstrip("/")
     try:
         async with httpx.AsyncClient(timeout=10) as client:
-            # 模拟 Cloudflare Worker 转发请求到 backend-mail
             resp = await client.post(
-                "http://localhost:8000/api/inbound/cloudflare",
+                f"{mail_service_base_url}/api/inbound/cloudflare",
                 headers={
-                    "X-Secret-Key": settings.cloudflare_email_secret_key if hasattr(settings, "cloudflare_email_secret_key") else "test",
+                    "X-Secret-Key": settings.cloudflare_email_secret_key,
                     "Content-Type": "application/json",
                 },
                 json={
-                    "from": f"test@{settings.mailbox_domain}",
-                    "to": test_email,
+                    "source": "wicmail-admin-diagnostic",
+                    "worker_version": "healthcheck",
+                    "request_id": f"healthcheck-{uuid.uuid4()}",
+                    "envelope_from": f"test@{settings.mailbox_domain}",
+                    "envelope_to": test_email,
+                    "header_from": f"test@{settings.mailbox_domain}",
+                    "header_to": test_email,
                     "subject": "Health Check",
-                    "text": "This is a health check email.",
+                    "headers": {},
+                    "raw_too_large": True,
                 },
             )
             if resp.status_code in (200, 201):

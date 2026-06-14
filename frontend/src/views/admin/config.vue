@@ -106,20 +106,20 @@
                     <span class="font-bold">{{ dnsResult.domain }}</span>
                   </n-descriptions-item>
                   <n-descriptions-item label="MX 邮件路由记录">
-                    <div v-if="dnsResult.checks?.mx?.length">
+                    <div v-if="Array.isArray(dnsResult.checks?.mx) && dnsResult.checks.mx.length">
                       <div v-for="mx in dnsResult.checks.mx" :key="mx" class="flex items-center gap-8 py-2">
                         <i class="text-success i-fe:check-circle" /> {{ mx }}
                       </div>
                     </div>
-                    <span v-else class="text-error">未检测到有效 MX 解析</span>
+                    <span v-else class="text-error">{{ dnsResult.checks?.mx || '未检测到有效 MX 解析' }}</span>
                   </n-descriptions-item>
                   <n-descriptions-item label="A 地址解析记录">
-                    <div v-if="dnsResult.checks?.a?.length">
+                    <div v-if="Array.isArray(dnsResult.checks?.a) && dnsResult.checks.a.length">
                       <div v-for="a in dnsResult.checks.a" :key="a" class="flex items-center gap-8 py-2">
                         <i class="text-success i-fe:check-circle" /> {{ a }}
                       </div>
                     </div>
-                    <span v-else class="text-error">未检测到 A 记录</span>
+                    <span v-else class="text-error">{{ dnsResult.checks?.a || '未检测到 A 记录' }}</span>
                   </n-descriptions-item>
                   <n-descriptions-item label="最新公网解析 IP">
                     <n-tag type="success" size="small">

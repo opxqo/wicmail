@@ -293,6 +293,12 @@ JWT_SECRET_KEY=your-secret-key-here
 
 # 邮箱域名
 MAILBOX_DOMAIN=wic.edu.kg
+
+# backend-mail 服务地址（线上填 backend-mail 的内网或公网地址）
+MAIL_SERVICE_BASE_URL=http://localhost:8000
+
+# Cloudflare Email Worker 与 backend-mail 共享密钥（需与 backend-mail 保持一致）
+CLOUDFLARE_EMAIL_SECRET_KEY=your-cloudflare-secret
 ```
 
 ### frontend/.env

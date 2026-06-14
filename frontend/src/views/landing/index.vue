@@ -32,7 +32,7 @@
           </a>
           <router-link class="nav-cta-btn" to="/login">
             <i class="i-fe:user text-14" />
-            登录工作台
+            进入工作台
           </router-link>
         </div>
 
@@ -55,7 +55,7 @@
         </a>
         <router-link class="mobile-cta" to="/login" @click="mobileOpen = false">
           <i class="i-fe:user text-16" />
-          登录工作台
+          进入工作台
         </router-link>
       </div>
     </header>
@@ -75,9 +75,9 @@
               <!-- 徽章 -->
               <div class="hero-badge">
                 <span class="hero-badge-icon" aria-hidden="true">
-                  <i class="i-fe:heart" />
+                  <i class="i-fe:user-check" />
                 </span>
-                <span class="hero-badge-text">学生自建公益非盈利平台</span>
+                <span class="hero-badge-text">学生自建 · 公益运营 · 完全免费</span>
                 <span class="hero-badge-status" aria-hidden="true" />
               </div>
 
@@ -90,26 +90,26 @@
               </div>
 
               <h2 class="hero-tagline">
-                搭建起校园学术与沟通的免费桥梁
+                你的校园邮箱，从申请到用上只需几分钟
               </h2>
 
               <p class="hero-description">
-                本平台为学生自建的公益非盈利项目，非学校官方建设。由于武汉城市学院已不再为学生分配校园个人教育邮箱，我们自发搭建了 WicMail。基于 Cloudflare 邮件代理解析与高效流转架构，为您提供免费的专属学术邮箱后缀申请与安全的收发信管理。
+                武汉城市学院已停止为学生发放官方校园邮箱。WicMail 由在校学生自发搭建，依托 Cloudflare 基础设施，为你提供真实可用的 @wic.edu.kg 邮箱——用于学术投稿、期刊注册、校园交流，申请全程在线，审核通过即可使用。
               </p>
 
               <!-- 核心优势特色列表 -->
               <ul class="hero-features">
                 <li>
                   <i class="i-fe:check-circle" />
-                  <span><strong>专属学术邮箱</strong>：公益免费提供 @wic.edu.kg 后缀邮箱申请</span>
+                  <span><strong>真实 edu 后缀</strong>：@wic.edu.kg 邮箱，可直接用于学术平台认证与投稿</span>
                 </li>
                 <li>
                   <i class="i-fe:shield" />
-                  <span><strong>自治材料审核</strong>：学生志愿者在线审核，全流程安全防滥用审计</span>
+                  <span><strong>全程在线审核</strong>：提交材料后，志愿者团队 24 小时内完成审核并通知结果</span>
                 </li>
                 <li>
                   <i class="i-fe:zap" />
-                  <span><strong>高效稳定流转</strong>：依托 Cloudflare 与阿里云解析，保障信件稳定接收转发</span>
+                  <span><strong>稳定可靠转发</strong>：基于 Cloudflare 全球节点，邮件收发延迟低、丢件率极低</span>
                 </li>
               </ul>
 
@@ -117,15 +117,15 @@
               <div class="hero-cta">
                 <router-link to="/login" class="hero-btn-primary">
                   <i class="i-fe:mail text-16" />
-                  申请校园邮箱
+                  立即申请邮箱
                 </router-link>
                 <router-link to="/login" class="hero-btn-secondary">
-                  进入工作台
+                  已有账号？进入工作台
                   <i class="i-fe:arrow-right text-14" />
                 </router-link>
               </div>
               <p class="hero-platform">
-                学生自发维护 · 纯属公益非盈利 · 供学术交流与求职认证使用
+                仅限在校学生申请 · 公益免费 · 不收取任何费用
               </p>
             </div>
 
@@ -1042,12 +1042,18 @@
         <div class="section-container intro-grid">
           <div class="intro-copy">
             <p class="section-kicker">
-              PROJECT ORIGIN
+              WHY WICMAIL
             </p>
-            <h2>解决校园邮箱停发之痛，做纯粹的公益服务</h2>
+            <h2>一个邮箱，解决你在校园里所有需要“教育认证”的场合</h2>
             <p>
-              WicMail 诞生于校内学生的自发努力。由于学校不再主动为同学们分配教育邮箱，我们在学术研究、折扣认证以及与校外导师沟通时面临诸多不便。为此，我们搭建了这套免费系统，围绕身份材料、模拟申请与管理收发组织功能，首页提供规则说明，所有管理均在用户工作台自治完成。
+              WicMail 不是通用邮箱，是专门为武汉城市学院同学搭建的校园邮箱申请与管理平台。从注册、提交材料到审核通过，所有步骤都在工作台完成——不需要联系任何老师，不需要跑任何部门。
             </p>
+            <div class="intro-proof-strip" aria-label="平台原则">
+              <span v-for="item in introProofs" :key="item">
+                <i class="i-fe:check text-13" />
+                {{ item }}
+              </span>
+            </div>
             <div class="intro-actions">
               <router-link to="/login" class="text-link">
                 开始申请 <i class="i-fe:chevron-right text-15" />
@@ -1058,7 +1064,17 @@
             </div>
           </div>
 
-          <div class="promise-panel">
+          <div class="trust-panel">
+            <div class="trust-panel-header">
+              <span>平台承诺</span>
+              <strong>Public Benefit</strong>
+            </div>
+            <div class="trust-meter">
+              <div v-for="item in trustSignals" :key="item.label" class="trust-meter-item">
+                <strong>{{ item.value }}</strong>
+                <span>{{ item.label }}</span>
+              </div>
+            </div>
             <div v-for="item in promises" :key="item.title" class="promise-item">
               <div class="promise-icon">
                 <i :class="item.icon" class="text-22" />
@@ -1078,18 +1094,20 @@
             <p class="section-kicker">
               APPLICATION FLOW
             </p>
-            <h2>四步完成邮箱申请</h2>
-            <p>流程保持轻量，但每一步都围绕真实身份与可审核材料设计。</p>
+            <h2>四步拿到邮箱，每一步都知道自己在哪里</h2>
+            <p>从注册到邮箱开通，无需联系任何人。审核进度实时同步，通过后直接在工作台收发邮件。</p>
           </div>
 
-          <div class="process-grid">
+          <div class="process-timeline">
             <article v-for="(item, index) in processSteps" :key="item.title" class="process-card">
-              <div class="step-index">
-                {{ String(index + 1).padStart(2, '0') }}
+              <div class="process-node">
+                <span>{{ String(index + 1).padStart(2, '0') }}</span>
               </div>
-              <i :class="item.icon" class="process-icon text-28" />
-              <h3>{{ item.title }}</h3>
-              <p>{{ item.desc }}</p>
+              <div class="process-card-body">
+                <i :class="item.icon" class="process-icon text-24" />
+                <h3>{{ item.title }}</h3>
+                <p>{{ item.desc }}</p>
+              </div>
             </article>
           </div>
         </div>
@@ -1099,17 +1117,24 @@
         <div class="section-container feature-layout">
           <div class="feature-lead">
             <p class="section-kicker">
-              CAPABILITIES
+              PLATFORM FEATURES
             </p>
-            <h2>为校园邮箱而不是泛用邮箱系统设计</h2>
+            <h2>平台功能围绕“申请、审核、使用”展开</h2>
             <p>
-              WicMail 的首页只展示确定能力：申请入口、审核链路、邮件中心、权限区分和移动端适配。后续真实数据与公告可以接入接口后再展示。
+              你不需要理解底层架构，只需要知道：邮箱怎么申请、材料谁来审核、通过后在哪里使用，WicMail 都放在同一个工作台里。
             </p>
+            <router-link to="/login" class="feature-lead-link">
+              进入工作台
+              <i class="i-fe:arrow-up-right text-14" />
+            </router-link>
           </div>
 
           <div class="feature-grid">
             <article v-for="item in capabilityCards" :key="item.title" class="feature-card">
-              <i :class="item.icon" class="text-26" />
+              <div class="feature-card-top">
+                <i :class="item.icon" class="text-24" />
+                <span>{{ item.tag }}</span>
+              </div>
               <h3>{{ item.title }}</h3>
               <p>{{ item.desc }}</p>
             </article>
@@ -1123,12 +1148,16 @@
             <p class="section-kicker">
               USE CASES
             </p>
-            <h2>适合这些校园沟通场景</h2>
+            <h2>更像校园身份的基础设施，而不是又一个收件箱</h2>
+            <p>我们把场景分成学术、认证和留存三类，让新用户快速判断自己是否真的需要申请。</p>
           </div>
 
           <div class="scenario-grid">
             <article v-for="item in scenarios" :key="item.title" class="scenario-card">
-              <span>{{ item.tag }}</span>
+              <div class="scenario-card-head">
+                <i :class="item.icon" class="text-22" />
+                <span>{{ item.tag }}</span>
+              </div>
               <h3>{{ item.title }}</h3>
               <p>{{ item.desc }}</p>
             </article>
@@ -1161,13 +1190,13 @@
         <div class="section-container cta-panel">
           <div>
             <p class="section-kicker light">
-              READY
+              GET STARTED
             </p>
-            <h2>准备好开通你的校园邮箱了吗？</h2>
-            <p>登录工作台后提交资料与邮箱申请，审核通过后即可使用校园邮箱相关服务。</p>
+            <h2>申请只需几分钟，邮箱用一整个大学</h2>
+            <p>注册后提交在校证明，24 小时内审核完毕，通过即开通——不需要等人回复，不需要发邮件催。</p>
           </div>
           <router-link to="/login" class="btn btn-primary cta-btn">
-            前往工作台
+            开始申请
             <i class="i-fe:arrow-right text-16" />
           </router-link>
         </div>
@@ -1194,7 +1223,7 @@
               </div>
             </div>
             <p class="footer-desc">
-              本站是由武汉城市学院学生自建、运行的完全公益非盈利服务（非官方建设）。旨在为校内师生有学术交流、求职及认证需求时提供免费的专属教育邮箱申请与管理通道。
+              WicMail 由武汉城市学院在校学生自主搭建，公益运营，不收取任何费用，亦非学校官方服务。我们的目标只有一个：让每位同学都能用上属于自己的校园邮箱。
             </p>
             <div class="footer-socials">
               <a href="https://github.com/opxqo" target="_blank" rel="noopener noreferrer" class="footer-social-btn" aria-label="GitHub">
@@ -1217,7 +1246,7 @@
             </button>
             <div class="footer-col-body" :class="{ 'footer-col-open': footerOpen[0] }">
               <router-link to="/login" class="footer-link">
-                <i class="footer-link-icon i-fe:log-in text-14" /> 登录工作台
+                <i class="footer-link-icon i-fe:log-in text-14" /> 进入工作台
               </router-link>
               <router-link to="/login" class="footer-link">
                 <i class="footer-link-icon i-fe:plus-circle text-14" /> 申请邮箱
@@ -1240,13 +1269,13 @@
             </button>
             <div class="footer-col-body" :class="{ 'footer-col-open': footerOpen[1] }">
               <a href="#intro" class="footer-link" @click.prevent="scrollToSection('intro')">
-                <i class="footer-link-icon i-fe:info text-14" /> 服务介绍
+                <i class="footer-link-icon i-fe:info text-14" /> 服务说明
               </a>
               <a href="#process" class="footer-link" @click.prevent="scrollToSection('process')">
                 <i class="footer-link-icon i-fe:list text-14" /> 申请流程
               </a>
               <a href="#features" class="footer-link" @click.prevent="scrollToSection('features')">
-                <i class="footer-link-icon i-fe:shield text-14" /> 核心能力
+                <i class="footer-link-icon i-fe:shield text-14" /> 平台功能
               </a>
               <a href="#faq" class="footer-link" @click.prevent="scrollToSection('faq')">
                 <i class="footer-link-icon i-fe:help-circle text-14" /> 常见问题
@@ -1279,7 +1308,7 @@
         <div class="footer-bottom">
           <div class="footer-bottom-inner">
             <p class="footer-copy">
-              © {{ currentYear }} WicMail · Wuhan City University. All rights reserved.
+              © {{ currentYear }} WicMail · 武汉城市学院学生自治项目 · 非学校官方
             </p>
             <img src="/校训.svg" alt="励志修德 勤学创新" class="footer-motto">
             <div class="footer-credit">
@@ -1310,42 +1339,50 @@ const footerOpen = reactive([false, false, false])
 const currentYear = new Date().getFullYear()
 
 const navItems = [
-  { label: '服务介绍', target: 'intro' },
+  { label: '服务说明', target: 'intro' },
   { label: '申请流程', target: 'process' },
-  { label: '核心能力', target: 'features' },
+  { label: '平台功能', target: 'features' },
   { label: '常见问题', target: 'faq' },
 ]
 
+const introProofs = ['学生自建', '完全免费', '志愿者审核', '非官方平台']
+
+const trustSignals = [
+  { value: '@wic.edu.kg', label: '校园邮箱后缀' },
+  { value: '0 元', label: '申请与使用费用' },
+  { value: '24h', label: '常规审核反馈' },
+]
+
 const promises = [
-  { title: '校园身份专属', desc: '围绕 @wic.edu.kg 邮箱申请和身份资料建立入口。', icon: 'i-fe:home' },
-  { title: '流程清晰', desc: '注册、资料、申请、审核状态集中在工作台处理。', icon: 'i-fe:list' },
-  { title: '审核可控', desc: '管理员审核申请材料，降低邮箱滥用和误开通风险。', icon: 'i-fe:shield' },
+  { title: '真实 edu 邮箱', desc: '@wic.edu.kg 后缀可在大多数学术平台、期刊投稿系统中通过教育认证，和真实高校邮箱效果相同。', icon: 'i-fe:home' },
+  { title: '申请进度透明', desc: '注册、上传材料、等待审核、邮箱开通，每一步都有状态提示，不用催、不用猜。', icon: 'i-fe:list' },
+  { title: '审核有人把关', desc: '所有申请由志愿者团队人工审核，防止滥用，保障平台对全体同学持续可用。', icon: 'i-fe:shield' },
 ]
 
 const processSteps = [
-  { title: '登录或注册账号', desc: '进入工作台，使用平台账号开始邮箱申请流程。', icon: 'i-fe:user-plus' },
-  { title: '完善身份资料', desc: '补充姓名、院系、专业等用于审核的基础信息。', icon: 'i-fe:edit-3' },
-  { title: '提交邮箱申请', desc: '填写期望邮箱前缀，并根据要求提交辅助材料。', icon: 'i-fe:send' },
-  { title: '审核通过后使用', desc: '通过后可在工作台查看邮箱信息和邮件内容。', icon: 'i-fe:check-circle' },
+  { title: '注册账号', desc: '进入工作台，创建账号并开始邮箱申请流程。', icon: 'i-fe:user-plus' },
+  { title: '上传学籍材料', desc: '提交在校证明和基础资料，用于志愿者团队核验身份。', icon: 'i-fe:edit-3' },
+  { title: '志愿者审核', desc: '志愿者团队一般在 24 小时内完成审核并同步结果。', icon: 'i-fe:send' },
+  { title: '邮箱开通', desc: '审核通过后立即可用，可在工作台查看邮箱信息并收发邮件。', icon: 'i-fe:check-circle' },
 ]
 
 const capabilityCards = [
-  { title: '邮箱申请', desc: '把邮箱前缀申请、资料补充和审核状态放到同一个入口。', icon: 'i-fe:plus-circle' },
-  { title: '邮件中心', desc: '为后续邮件查看、收件记录和消息管理预留清晰的信息层级。', icon: 'i-fe:inbox' },
-  { title: '权限分区', desc: '普通用户和管理员功能分开，保留审核、用户管理等后台入口。', icon: 'i-fe:lock' },
-  { title: '多端适配', desc: '首页和工作台入口在手机、平板、桌面端都保持可读可点击。', icon: 'i-fe:smartphone' },
+  { tag: 'Apply', title: '邮箱申请', desc: '前缀填写、资料补充、证明材料和审核状态在同一条链路里完成。', icon: 'i-fe:plus-circle' },
+  { tag: 'Inbox', title: '邮件中心', desc: '接收 Cloudflare 转发后的邮件内容，为系统通知和重要信件建立统一入口。', icon: 'i-fe:inbox' },
+  { tag: 'Admin', title: '权限分区', desc: '普通用户和管理员入口分层，审核、用户管理、系统配置都保留清楚边界。', icon: 'i-fe:lock' },
+  { tag: 'Responsive', title: '多端适配', desc: '首页与工作台演示在手机、平板和桌面端保持可读、可点击、可理解。', icon: 'i-fe:smartphone' },
 ]
 
 const scenarios = [
-  { tag: '学术交流', title: '课程与项目沟通', desc: '使用校园邮箱作为课程通知、项目协作和校内沟通的稳定身份标识。' },
-  { tag: '身份认证', title: '校园服务注册', desc: '在需要校园邮箱的服务中使用统一邮箱地址，减少个人邮箱混用。' },
-  { tag: '通知归档', title: '重要邮件留存', desc: '把学校相关邮件集中到校园邮箱，便于后续查询和管理。' },
+  { tag: '学术交流', title: '课程与项目沟通', desc: '使用校园邮箱作为课程通知、项目协作和校外导师沟通的稳定身份标识。', icon: 'i-fe:book-open' },
+  { tag: '身份认证', title: '校园服务注册', desc: '在需要校园邮箱的服务中使用统一地址，减少个人邮箱在认证场景里的混用。', icon: 'i-fe:key' },
+  { tag: '通知归档', title: '重要邮件留存', desc: '把学校相关邮件集中到校园邮箱，便于后续查询、管理和长期留存。', icon: 'i-fe:archive' },
 ]
 
 const faqs = [
-  { question: '本站是武汉城市学院官方网站吗？', answer: '不是。本站是因学校停发学生个人教育邮箱，由学生志愿者自发搭建、维护的完全公益、非盈利性服务平台。所申请的邮箱后缀仅用于学术研究与沟通使用。' },
+  { question: '本站是武汉城市学院官方网站吗？', answer: '不是。WicMail 由武汉城市学院在校学生自主搭建，公益运营，不收取任何费用，亦非学校官方服务。' },
   { question: '首页可以直接收发邮件吗？', answer: '首页只提供介绍和入口。邮箱申请、邮件查看和管理功能需要进入登录后的工作台。' },
-  { question: '申请需要付费吗？审核时间多久？', answer: '完全免费。平台不收取任何费用，由学生管理员利用课余时间在线审批，一般在提交申请后的 24 小时内完成审核。' },
+  { question: '申请需要付费吗？审核时间多久？', answer: '完全免费。提交材料后，志愿者团队一般会在 24 小时内完成审核并通知结果。' },
   { question: '忘记账号或遇到使用问题怎么办？', answer: '可以通过页脚中公布的管理员邮箱联系，或在工作台的帮助反馈中心提交工单。' },
 ]
 
@@ -2380,27 +2417,54 @@ onUnmounted(() => {
   gap: 10px;
   position: relative;
   overflow: hidden;
-  padding: 7px 12px 7px 8px;
+  isolation: isolate;
+  padding: 7px 14px 7px 8px;
   border-radius: 999px;
-  border: 1px solid rgba(16, 120, 86, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.52);
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(242, 248, 245, 0.76)),
-    rgba(255, 255, 255, 0.72);
+    linear-gradient(135deg, rgba(255, 255, 255, 0.54), rgba(255, 255, 255, 0.18) 42%, rgba(199, 232, 215, 0.32)),
+    radial-gradient(circle at 18% 20%, rgba(255, 255, 255, 0.92), transparent 34%),
+    radial-gradient(circle at 86% 78%, rgba(30, 171, 125, 0.22), transparent 38%),
+    rgba(242, 250, 246, 0.42);
+  background-size: 100% 100%, 130% 130%, 145% 145%, 100% 100%;
   box-shadow:
-    0 18px 44px rgba(21, 83, 60, 0.10),
-    inset 0 1px 0 rgba(255, 255, 255, 0.86);
-  color: #183c2d;
+    0 24px 52px rgba(19, 71, 55, 0.14),
+    0 6px 18px rgba(255, 255, 255, 0.58),
+    inset 0 1px 1px rgba(255, 255, 255, 0.92),
+    inset 0 -1px 1px rgba(24, 101, 76, 0.12),
+    inset 0 0 18px rgba(255, 255, 255, 0.42);
+  color: rgba(18, 53, 43, 0.92);
   margin-bottom: 32px;
-  backdrop-filter: blur(18px) saturate(1.25);
+  backdrop-filter: blur(24px) saturate(1.65) contrast(1.05);
+  -webkit-backdrop-filter: blur(24px) saturate(1.65) contrast(1.05);
+  transform: translateZ(0);
+  animation: badge-glass-breathe 8s ease-in-out infinite;
 }
 
 .hero-badge::before {
   content: "";
   position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.58), transparent);
-  transform: translateX(-110%);
-  animation: badge-sheen 5.6s ease-in-out infinite;
+  inset: 1px;
+  z-index: -1;
+  border-radius: inherit;
+  background:
+    linear-gradient(115deg, rgba(255, 255, 255, 0.86), transparent 23%, transparent 68%, rgba(255, 255, 255, 0.52)),
+    linear-gradient(290deg, rgba(255, 255, 255, 0.24), rgba(34, 153, 112, 0.10));
+  mix-blend-mode: screen;
+  opacity: 0.86;
+  pointer-events: none;
+}
+
+.hero-badge::after {
+  content: "";
+  position: absolute;
+  inset: -42% -24%;
+  z-index: -1;
+  background:
+    linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.72) 44%, rgba(255, 255, 255, 0.20) 52%, transparent 66%);
+  filter: blur(2px);
+  transform: translateX(-54%) rotate(2deg);
+  animation: badge-sheen 6.8s cubic-bezier(0.45, 0, 0.2, 1) infinite;
   pointer-events: none;
 }
 
@@ -2411,10 +2475,15 @@ onUnmounted(() => {
   width: 28px;
   height: 28px;
   border-radius: 999px;
-  background: linear-gradient(135deg, #0f9f76, #2f5f2b);
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.46), transparent 32%),
+    linear-gradient(145deg, rgba(17, 159, 118, 0.96), rgba(47, 95, 43, 0.92));
   color: #ffffff;
   font-size: 13px;
-  box-shadow: 0 8px 18px rgba(16, 120, 86, 0.22);
+  box-shadow:
+    0 10px 22px rgba(16, 120, 86, 0.22),
+    inset 0 1px 1px rgba(255, 255, 255, 0.32);
   position: relative;
   z-index: 1;
 }
@@ -2434,18 +2503,44 @@ onUnmounted(() => {
   width: 7px;
   height: 7px;
   border-radius: 999px;
-  background: #19b77b;
-  box-shadow: 0 0 0 4px rgba(25, 183, 123, 0.13);
+  background: rgba(25, 183, 123, 0.82);
+  box-shadow:
+    0 0 0 4px rgba(25, 183, 123, 0.12),
+    0 0 18px rgba(25, 183, 123, 0.42),
+    inset 0 1px 1px rgba(255, 255, 255, 0.52);
 }
 
 @keyframes badge-sheen {
   0%,
-  48% {
-    transform: translateX(-110%);
+  52% {
+    transform: translateX(-54%) rotate(2deg);
   }
-  72%,
+  78%,
   100% {
-    transform: translateX(110%);
+    transform: translateX(54%) rotate(2deg);
+  }
+}
+
+@keyframes badge-glass-breathe {
+  0%,
+  100% {
+    background-position: 0 0, 0 0, 100% 100%, 0 0;
+    box-shadow:
+      0 24px 52px rgba(19, 71, 55, 0.14),
+      0 6px 18px rgba(255, 255, 255, 0.58),
+      inset 0 1px 1px rgba(255, 255, 255, 0.92),
+      inset 0 -1px 1px rgba(24, 101, 76, 0.12),
+      inset 0 0 18px rgba(255, 255, 255, 0.42);
+  }
+
+  50% {
+    background-position: 0 0, 18% 8%, 84% 68%, 0 0;
+    box-shadow:
+      0 28px 58px rgba(19, 71, 55, 0.17),
+      0 8px 22px rgba(255, 255, 255, 0.62),
+      inset 0 1px 1px rgba(255, 255, 255, 0.98),
+      inset 0 -1px 1px rgba(24, 101, 76, 0.16),
+      inset 0 0 22px rgba(255, 255, 255, 0.48);
   }
 }
 
@@ -4311,17 +4406,27 @@ onUnmounted(() => {
 .feature-section,
 .scenario-section,
 .faq-section {
-  padding: 96px 0;
+  position: relative;
+  padding: 104px 0;
 }
 
 .intro-section,
 .feature-section {
-  background: #fff;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(250, 253, 249, 0.98)),
+    radial-gradient(circle at 14% 18%, rgba(93, 139, 74, 0.09), transparent 34%);
 }
 
 .process-section,
 .faq-section {
-  background: var(--surface);
+  background:
+    linear-gradient(180deg, rgba(247, 251, 245, 0.96), rgba(255, 255, 255, 0.98)),
+    var(--surface);
+}
+
+.scenario-section {
+  background:
+    linear-gradient(180deg, #fff 0%, rgba(246, 250, 244, 0.86) 100%);
 }
 
 .intro-grid,
@@ -4338,7 +4443,35 @@ onUnmounted(() => {
   margin: 18px 0 0;
 }
 
+.intro-proof-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.intro-proof-strip span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid rgba(49, 85, 43, 0.14);
+  border-radius: 999px;
+  color: var(--wic-ink);
+  background: rgba(255, 255, 255, 0.76);
+  font-size: 13px;
+  font-weight: 800;
+  box-shadow: 0 10px 30px rgba(49, 85, 43, 0.05);
+}
+
+.intro-proof-strip i {
+  color: var(--wic-primary);
+}
+
 .intro-actions {
+  display: flex;
+  flex-wrap: wrap;
   gap: 18px;
   margin-top: 26px;
 }
@@ -4356,9 +4489,63 @@ onUnmounted(() => {
   color: var(--wic-muted);
 }
 
-.promise-panel {
+.trust-panel {
   display: grid;
   gap: 14px;
+  padding: 18px;
+  border: 1px solid rgba(49, 85, 43, 0.12);
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(249, 252, 247, 0.88));
+  box-shadow: 0 26px 70px rgba(38, 63, 34, 0.08);
+}
+
+.trust-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 4px 4px 10px;
+  color: var(--wic-muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.trust-panel-header strong {
+  color: var(--wic-primary);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.trust-meter {
+  display: grid;
+  grid-template-columns: 1.3fr 0.8fr 0.8fr;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.trust-meter-item {
+  min-height: 86px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 7px;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(49, 85, 43, 0.08);
+}
+
+.trust-meter-item strong {
+  color: var(--wic-ink);
+  font-size: 24px;
+  line-height: 1;
+}
+
+.trust-meter-item span {
+  color: var(--wic-muted);
+  font-size: 12px;
+  font-weight: 800;
 }
 
 .promise-item,
@@ -4374,8 +4561,9 @@ onUnmounted(() => {
 .promise-item {
   display: flex;
   gap: 16px;
-  padding: 20px;
-  border-radius: 14px;
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.86);
 }
 
 .promise-icon {
@@ -4406,28 +4594,64 @@ onUnmounted(() => {
   margin: 0;
 }
 
-.process-grid {
+.process-timeline {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 18px;
+  gap: 16px;
+}
+
+.process-timeline::before {
+  content: '';
+  position: absolute;
+  top: 34px;
+  right: 10%;
+  left: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(49, 85, 43, 0.24), transparent);
 }
 
 .process-card {
   position: relative;
-  min-height: 252px;
-  padding: 26px;
-  border-radius: 16px;
+  min-height: 278px;
+  padding: 0;
+  border: 0;
+  border-radius: 20px;
+  background: transparent;
+  box-shadow: none;
   overflow: hidden;
 }
 
-.step-index {
-  position: absolute;
-  top: 18px;
-  right: 20px;
-  color: rgba(49, 85, 43, 0.12);
-  font-size: 46px;
+.process-node {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.process-node span {
+  width: 68px;
+  height: 68px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(49, 85, 43, 0.18);
+  border-radius: 999px;
+  color: var(--wic-primary);
+  background: #fff;
+  font-size: 19px;
   font-weight: 900;
-  line-height: 1;
+  box-shadow: 0 18px 42px rgba(49, 85, 43, 0.1);
+}
+
+.process-card-body {
+  min-height: 192px;
+  padding: 24px;
+  border: 1px solid var(--wic-line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 18px 44px rgba(38, 63, 34, 0.06);
 }
 
 .process-icon,
@@ -4436,7 +4660,7 @@ onUnmounted(() => {
 }
 
 .process-icon {
-  margin-bottom: 42px;
+  margin-bottom: 24px;
 }
 
 .feature-layout {
@@ -4452,6 +4676,16 @@ onUnmounted(() => {
   margin-top: 18px;
 }
 
+.feature-lead-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 28px;
+  color: var(--wic-primary);
+  font-weight: 900;
+  text-decoration: none;
+}
+
 .feature-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -4459,13 +4693,39 @@ onUnmounted(() => {
 }
 
 .feature-card {
-  min-height: 210px;
+  min-height: 230px;
   padding: 24px;
-  border-radius: 16px;
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(247, 251, 245, 0.88));
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.feature-card i {
-  margin-bottom: 24px;
+.feature-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(49, 85, 43, 0.22);
+  box-shadow: 0 24px 60px rgba(38, 63, 34, 0.1);
+}
+
+.feature-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 42px;
+}
+
+.feature-card-top span {
+  padding: 5px 9px;
+  border-radius: 999px;
+  color: var(--wic-primary);
+  background: rgba(49, 85, 43, 0.08);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
 }
 
 .scenario-grid {
@@ -4475,15 +4735,28 @@ onUnmounted(() => {
 }
 
 .scenario-card {
-  min-height: 220px;
+  min-height: 236px;
   padding: 26px;
-  border-radius: 16px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.78)), var(--surface);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.82)),
+    var(--surface);
 }
 
-.scenario-card span {
+.scenario-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 42px;
+}
+
+.scenario-card-head i {
+  color: var(--wic-primary);
+}
+
+.scenario-card-head span {
   display: inline-flex;
-  margin-bottom: 34px;
   padding: 6px 10px;
   border-radius: 999px;
   color: var(--wic-primary);
@@ -4502,7 +4775,7 @@ onUnmounted(() => {
 }
 
 .faq-item {
-  border-radius: 14px;
+  border-radius: 16px;
   overflow: hidden;
 }
 
@@ -4539,8 +4812,8 @@ onUnmounted(() => {
 }
 
 .cta-section {
-  padding: 64px 0 90px;
-  background: #fff;
+  padding: 70px 0 96px;
+  background: linear-gradient(180deg, rgba(246, 250, 244, 0.86), #fff);
 }
 
 .cta-panel {
@@ -4548,11 +4821,11 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   gap: 28px;
-  padding: 42px;
-  border-radius: 22px;
+  padding: 44px;
+  border-radius: 24px;
   color: #fff;
   background:
-    linear-gradient(135deg, rgba(49, 85, 43, 0.96), rgba(25, 53, 24, 0.96)),
+    linear-gradient(135deg, rgba(49, 85, 43, 0.94), rgba(22, 54, 30, 0.92)),
     url('/cover.avif') center / cover;
   box-shadow: 0 28px 70px rgba(49, 85, 43, 0.24);
 }
@@ -4977,9 +5250,13 @@ onUnmounted(() => {
     position: static;
   }
 
-  .process-grid,
+  .process-timeline,
   .footer-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .process-timeline::before {
+    display: none;
   }
 }
 
@@ -5021,7 +5298,7 @@ onUnmounted(() => {
     padding: 0 18px;
   }
 
-  .process-grid,
+  .process-timeline,
   .feature-grid,
   .scenario-grid,
   .footer-grid {
@@ -5031,6 +5308,18 @@ onUnmounted(() => {
   .process-card,
   .feature-card,
   .scenario-card {
+    min-height: auto;
+  }
+
+  .trust-meter {
+    grid-template-columns: 1fr;
+  }
+
+  .process-node {
+    justify-content: flex-start;
+  }
+
+  .process-card-body {
     min-height: auto;
   }
 

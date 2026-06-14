@@ -15,6 +15,12 @@ class Settings(BaseSettings):
     # 邮箱域名
     mailbox_domain: str = "wic.edu.kg"
 
+    # backend-mail 服务地址，用于系统诊断和跨服务调用
+    mail_service_base_url: str = "http://localhost:8000"
+
+    # Cloudflare Email Worker 与 backend-mail 共享密钥
+    cloudflare_email_secret_key: str = "change-me"
+
     # CORS 允许的源（逗号分隔）
     cors_origins: str = "*"
 
