@@ -77,7 +77,7 @@
                 <span class="hero-badge-icon" aria-hidden="true">
                   <i class="i-fe:user-check" />
                 </span>
-                <span class="hero-badge-text">学生自建 · 公益运营 · 完全免费</span>
+                <span class="hero-badge-text">学生自建 · 免费申请</span>
                 <span class="hero-badge-status" aria-hidden="true" />
               </div>
 
@@ -90,26 +90,26 @@
               </div>
 
               <h2 class="hero-tagline">
-                你的校园邮箱，从申请到用上只需几分钟
+                免费申请你的校园邮箱
               </h2>
 
               <p class="hero-description">
-                武汉城市学院已停止为学生发放官方校园邮箱。WicMail 由在校学生自发搭建，依托 Cloudflare 基础设施，为你提供真实可用的 @wic.edu.kg 邮箱——用于学术投稿、期刊注册、校园交流，申请全程在线，审核通过即可使用。
+                WicMail 为武汉城市学院同学提供 @wic.edu.kg 邮箱申请与管理。全程在线提交材料，审核通过即可使用。
               </p>
 
               <!-- 核心优势特色列表 -->
               <ul class="hero-features">
                 <li>
                   <i class="i-fe:check-circle" />
-                  <span><strong>真实 edu 后缀</strong>：@wic.edu.kg 邮箱，可直接用于学术平台认证与投稿</span>
+                  <span><strong>@wic.edu.kg 后缀</strong>：适合学术认证与投稿</span>
                 </li>
                 <li>
                   <i class="i-fe:shield" />
-                  <span><strong>全程在线审核</strong>：提交材料后，志愿者团队 24 小时内完成审核并通知结果</span>
+                  <span><strong>在线审核</strong>：提交材料后 24 小时内反馈</span>
                 </li>
                 <li>
                   <i class="i-fe:zap" />
-                  <span><strong>稳定可靠转发</strong>：基于 Cloudflare 全球节点，邮件收发延迟低、丢件率极低</span>
+                  <span><strong>稳定收信</strong>：基于 Cloudflare 邮件路由</span>
                 </li>
               </ul>
 
@@ -117,15 +117,15 @@
               <div class="hero-cta">
                 <router-link to="/login" class="hero-btn-primary">
                   <i class="i-fe:mail text-16" />
-                  立即申请邮箱
+                  立即申请
                 </router-link>
                 <router-link to="/login" class="hero-btn-secondary">
-                  已有账号？进入工作台
+                  进入工作台
                   <i class="i-fe:arrow-right text-14" />
                 </router-link>
               </div>
               <p class="hero-platform">
-                仅限在校学生申请 · 公益免费 · 不收取任何费用
+                仅限在校学生 · 公益免费
               </p>
             </div>
 
@@ -2720,7 +2720,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  max-width: 768px;
+  max-width: 440px;
   margin: 0 auto;
 }
 
@@ -2743,7 +2743,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 12px 28px;
+  padding: 12px 22px;
   border-radius: 8px;
   font-size: 15px;
   font-weight: 600;
@@ -2766,7 +2766,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 12px 28px;
+  padding: 12px 22px;
   border-radius: 8px;
   font-size: 15px;
   font-weight: 600;
@@ -2789,7 +2789,7 @@ onUnmounted(() => {
   .hero-btn-primary,
   .hero-btn-secondary {
     width: auto;
-    padding: 14px 32px;
+    padding: 14px 28px;
     font-size: 16px;
   }
 }
