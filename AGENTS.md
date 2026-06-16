@@ -13,6 +13,7 @@ WicMail 校园邮箱平台 — 三模块独立项目，无 monorepo 工具。
 | `backend-mail/` | FastAPI + SQLAlchemy (asyncmy) | 8000 | 接收 Cloudflare 转发的邮件 |
 | `backend-wic/` | FastAPI + SQLAlchemy (asyncmy) | 8001 | 用户注册/邮箱申请/管理审核 |
 | `frontend/` | Vue 3 + Vite + Naive UI + UnoCSS | 3200 | Web 前端 |
+| `worker/` | Cloudflare Email Worker (JS) | - | 邮件接收中间层 |
 
 两个后端**共享同一个 MySQL 数据库** (`wicmail`)，表结构相同。
 
@@ -39,6 +40,14 @@ npm run build
 npm run lint:fix
 ```
 
+### Worker (Cloudflare Email Worker)
+
+```bash
+cd worker
+npm install
+npx wrangler deploy  # 部署到 Cloudflare
+```
+
 ## 关键注意事项
 
 - **测试需要真实 MySQL**：conftest.py 直连数据库，无 SQLite 回退
@@ -46,9 +55,11 @@ npm run lint:fix
 - **backend-mail 启动自动建表+创建 admin**：`admin/admin123456`，生产需改
 - **JWT Secret 需一致**：两个后端的 `.env` 中 `JWT_SECRET_KEY` 必须相同
 - **前端 Mock 模式**：`VITE_USE_MOCK=true` 可脱离后端开发
-- **前端代理**：vite.config.js 将 `/api` 代理到 `VITE_PROXY_TARGET`
+- **前端代理**：vite.config.js 将 `/api` 代理到 `VITE_PROXY_TARGET`（需在 `.env` 配置）
 - **Pre-commit**：前端通过 simple-git-hooks + lint-staged 自动 eslint --fix
 - **邮箱域名**：`wic.edu.kg`，格式 `{prefix}@wic.edu.kg`
+- **Cloudflare Email Worker**：接收邮件后推送到 backend-mail，需配置 `SECRET_KEY` 与后端一致
+- **R2 附件存储**：worker 使用 Cloudflare R2 存储附件，需在 Dashboard 配置
 
 ## 数据库表 (5 张)
 
@@ -62,6 +73,7 @@ npm run lint:fix
 
 - backend-mail 的 `get_or_create_mailbox` 可能与 backend-wic 的审批流程产生竞态
 - 两个后端 JWT Secret 默认不同，需手动统一
+- worker 的 `SECRET_KEY` 必须与 backend-mail 的 `CLOUDFLARE_EMAIL_SECRET_KEY` 一致
 
 ## 详细参考
 
