@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620" role="img" aria-labelledby="title desc">
+  <title id="title">WicMail 产品能力概览</title>
+  <desc id="desc">学生可以申请校园邮箱和查看收件箱，管理员可以审核申请并管理邮箱，平台展示邮件接收状态。</desc>
+
+  <rect width="1200" height="620" rx="30" fill="#F5F2EA"/>
+  <g transform="translate(64 60)">
+    <text fill="#0B1511" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="46" font-weight="760" letter-spacing="-1.5">一个工作台，连接每个关键角色</text>
+    <text y="38" fill="#65746D" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="18" font-weight="700" letter-spacing="1.4">STUDENT · ADMIN · MAIL DELIVERY</text>
+  </g>
+
+  <g id="student-panel" transform="translate(64 148)">
+    <rect width="336" height="410" rx="24" fill="#0B1511"/>
+    <text x="28" y="42" fill="#8FA399" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="17" font-weight="700">01 / STUDENT</text>
+    <text x="28" y="92" fill="#F5F2EA" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="34" font-weight="740">申请校园邮箱</text>
+    <text x="28" y="124" fill="#8FA399" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="19">资料、前缀与申请状态集中管理</text>
+
+    <rect x="28" y="158" width="280" height="92" rx="18" fill="#17261F" stroke="#365044"/>
+    <text x="48" y="188" fill="#8FA399" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">REQUESTED ADDRESS</text>
+    <text x="48" y="222" fill="#F5F2EA" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="21" font-weight="700">student@wic.edu.kg</text>
+    <circle cx="286" cy="205" r="7" fill="#C9A96E"/>
+
+    <g transform="translate(28 278)">
+      <text fill="#8FA399" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">APPLICATION STATUS</text>
+      <path d="M0 42H280" stroke="#2D4238" stroke-width="2"/>
+      <circle cx="10" cy="42" r="9" fill="#5EE2A0"/>
+      <circle cx="140" cy="42" r="9" fill="#C9A96E"/>
+      <circle cx="270" cy="42" r="9" fill="#2D4238" stroke="#60786B" stroke-width="2"/>
+      <text y="82" fill="#DCE5E0" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="18">提交</text>
+      <text x="119" y="82" fill="#DCE5E0" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="18">审核</text>
+      <text x="246" y="82" fill="#8FA399" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="18">开通</text>
+    </g>
+  </g>
+
+  <g id="admin-panel" transform="translate(432 148)">
+    <rect width="336" height="410" rx="24" fill="#E8E5DC" stroke="#D2CEC3"/>
+    <text x="28" y="42" fill="#65746D" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="17" font-weight="700">02 / ADMIN</text>
+    <text x="28" y="92" fill="#0B1511" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="34" font-weight="740">审核与管理</text>
+    <text x="28" y="124" fill="#65746D" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="19">申请、账号、邮箱与日志一处完成</text>
+
+    <g transform="translate(28 158)">
+      <rect width="280" height="66" rx="15" fill="#FFFFFF"/>
+      <circle cx="28" cy="33" r="12" fill="#E4EFE8"/>
+      <text x="52" y="28" fill="#0B1511" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="18" font-weight="700">student01</text>
+      <text x="52" y="49" fill="#65746D" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15">PENDING</text>
+      <rect x="210" y="18" width="50" height="30" rx="9" fill="#0B1511"/>
+      <path d="M226 33L232 39L244 26" fill="none" stroke="#5EE2A0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+      <rect y="80" width="280" height="66" rx="15" fill="#FFFFFF"/>
+      <circle cx="28" cy="113" r="12" fill="#E4EFE8"/>
+      <text x="52" y="108" fill="#0B1511" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="18" font-weight="700">student02</text>
+      <text x="52" y="129" fill="#65746D" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15">APPROVED</text>
+      <circle cx="235" cy="113" r="7" fill="#5EE2A0"/>
+
+      <rect y="174" width="280" height="74" rx="15" fill="#DCD8CD"/>
+      <text x="20" y="204" fill="#65746D" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15">QUEUE</text>
+      <text x="20" y="232" fill="#0B1511" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="21" font-weight="700">待审核  ·  批量处理</text>
+    </g>
+  </g>
+
+  <g id="inbox-panel" transform="translate(800 148)">
+    <rect width="336" height="410" rx="24" fill="#173126"/>
+    <text x="28" y="42" fill="#9EB1A7" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="17" font-weight="700">03 / INBOX</text>
+    <text x="28" y="92" fill="#F5F2EA" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="34" font-weight="740">稳定接收邮件</text>
+    <text x="28" y="124" fill="#9EB1A7" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="19">路由、解析、存储与附件下载</text>
+
+    <g transform="translate(28 158)">
+      <rect width="280" height="70" rx="16" fill="#F5F2EA"/>
+      <path d="M20 22H52V47H20ZM21 23L36 35L51 23" fill="none" stroke="#0B1511" stroke-width="2.5" stroke-linejoin="round"/>
+      <text x="68" y="31" fill="#0B1511" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="19" font-weight="700">新邮件</text>
+      <text x="68" y="52" fill="#65746D" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="16">刚刚到达</text>
+      <circle cx="256" cy="35" r="6" fill="#5EE2A0"/>
+
+      <rect y="84" width="280" height="70" rx="16" fill="#213E31" stroke="#3B5C4D"/>
+      <path d="M20 106H52V131H20ZM21 107L36 119L51 107" fill="none" stroke="#9EB1A7" stroke-width="2.5" stroke-linejoin="round"/>
+      <text x="68" y="115" fill="#E5ECE8" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="19" font-weight="700">邮件详情</text>
+      <text x="68" y="136" fill="#9EB1A7" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="16">正文与附件</text>
+
+      <rect y="180" width="280" height="68" rx="16" fill="#10251C"/>
+      <circle cx="23" cy="214" r="6" fill="#5EE2A0"/>
+      <text x="42" y="210" fill="#F5F2EA" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16" font-weight="700">DELIVERY HEALTHY</text>
+      <text x="42" y="231" fill="#9EB1A7" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="16">Cloudflare → FastAPI</text>
+    </g>
+  </g>
+</svg>
