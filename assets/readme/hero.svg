@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-labelledby="title desc">
+  <title id="title">WicMail 校园邮箱平台</title>
+  <desc id="desc">WicMail 将校园邮箱申请、管理员审核和邮件接收整合为一条清晰的服务路径。</desc>
+
+  <rect width="1200" height="420" rx="30" fill="#0B1511"/>
+  <path d="M64 44V376" stroke="#24352E"/>
+  <path d="M1136 44V376" stroke="#24352E"/>
+
+  <g id="identity" transform="translate(96 66)">
+    <g>
+      <rect width="38" height="38" rx="10" fill="#5EE2A0"/>
+      <path d="M10 11V28H15L19 19L23 28H28V11H24V22L20 14L16 22V11Z" fill="#0B1511"/>
+    </g>
+    <text x="54" y="27" fill="#C8D3CD" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="18" font-weight="700" letter-spacing="2">CAMPUS MAIL SERVICE</text>
+
+    <text x="0" y="124" fill="#F5F2EA" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="86" font-weight="760" letter-spacing="-4">WicMail</text>
+    <text x="0" y="174" fill="#F5F2EA" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="32" font-weight="620">校园邮箱，从申请到收信。</text>
+    <text x="0" y="214" fill="#8FA399" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="22">为 <tspan fill="#5EE2A0" font-weight="700">@wic.edu.kg</tspan> 建立清晰、可信、可追踪的服务路径</text>
+
+    <g transform="translate(0 260)">
+      <circle cx="7" cy="7" r="7" fill="#5EE2A0"/>
+      <text x="24" y="14" fill="#F5F2EA" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="18" font-weight="700">APPLY</text>
+      <path d="M104 7H148" stroke="#385044" stroke-width="2"/>
+      <circle cx="164" cy="7" r="7" fill="#C9A96E"/>
+      <text x="181" y="14" fill="#F5F2EA" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="18" font-weight="700">REVIEW</text>
+      <path d="M278 7H322" stroke="#385044" stroke-width="2"/>
+      <circle cx="338" cy="7" r="7" fill="#5EE2A0"/>
+      <text x="355" y="14" fill="#F5F2EA" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="18" font-weight="700">INBOX</text>
+    </g>
+  </g>
+
+  <g id="mailbox-proof" transform="translate(704 48)">
+    <rect width="432" height="324" rx="26" fill="#121F1A" stroke="#385044" stroke-width="2"/>
+    <g transform="translate(28 26)">
+      <circle cx="10" cy="10" r="5" fill="#5EE2A0"/>
+      <text x="28" y="16" fill="#8FA399" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="17" font-weight="700" letter-spacing="1.2">MAILBOX / ACTIVE</text>
+      <text x="0" y="67" fill="#F5F2EA" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="25" font-weight="700">student@wic.edu.kg</text>
+      <path d="M0 88H376" stroke="#2B4036"/>
+
+      <g transform="translate(0 112)">
+        <rect width="376" height="56" rx="13" fill="#F5F2EA"/>
+        <rect x="16" y="14" width="28" height="28" rx="8" fill="#DDE9E2"/>
+        <path d="M23 21L30 27L37 21M23 21V34H37V21" fill="none" stroke="#0B1511" stroke-width="2" stroke-linejoin="round"/>
+        <text x="60" y="25" fill="#0B1511" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="19" font-weight="700">校园邮箱已开通</text>
+        <text x="60" y="45" fill="#60746A" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="16">申请状态已更新</text>
+        <circle cx="350" cy="28" r="5" fill="#5EE2A0"/>
+      </g>
+
+      <g transform="translate(0 180)">
+        <rect width="376" height="56" rx="13" fill="#192A23" stroke="#30483D"/>
+        <rect x="16" y="14" width="28" height="28" rx="8" fill="#263C32"/>
+        <path d="M23 21L30 27L37 21M23 21V34H37V21" fill="none" stroke="#8FA399" stroke-width="2" stroke-linejoin="round"/>
+        <text x="60" y="25" fill="#E5ECE8" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="19" font-weight="650">新邮件已进入收件箱</text>
+        <text x="60" y="45" fill="#8FA399" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="16">Cloudflare Email Routing</text>
+      </g>
+
+      <g transform="translate(0 258)">
+        <text fill="#8FA399" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">VUE 3</text>
+        <circle cx="76" cy="-5" r="2.5" fill="#496257"/>
+        <text x="91" fill="#8FA399" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">FASTAPI</text>
+        <circle cx="183" cy="-5" r="2.5" fill="#496257"/>
+        <text x="198" fill="#8FA399" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">CLOUDFLARE</text>
+      </g>
+    </g>
+  </g>
+</svg>
